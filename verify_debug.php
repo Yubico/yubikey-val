@@ -1,4 +1,4 @@
-<?php $trace = false;
+<?php $trace = true;
 
 require 'verifyOTP.php';
 
