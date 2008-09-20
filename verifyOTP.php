@@ -1,6 +1,8 @@
 <?php require_once '../yms/appinclude.php';
 	  require_once '../yms/yubi_lib.php';
 
+if (!isset($trace)) { $trace = 0; }
+
 $id = getHttpVal('id', 0);
 if ($id <= 0) {
 	echo 'Client ID is missing';
@@ -27,14 +29,13 @@ if ($ad == null) {
 }
 
 $k = b64ToModhex($ad['secret']);
-debug('aes key in modhex = '.$k);
+//debug('aes key in modhex = '.$k);
 $key16 = ModHex::Decode($k);
-debug('aes key in hex = ['.$key16.'], length = '.strlen($key16));
+//debug('aes key in hex = ['.$key16.'], length = '.strlen($key16));
 
 //// Decode OTP from input
 //
 debug('<h3>From OTP decoded</h3>');
-//$key= pack('H*', $key16);
 $decoded_token = Yubikey::Decode($otp, $key16);
 debug($decoded_token);
 if ( ! is_array($decoded_token) ) {
@@ -67,7 +68,7 @@ if ( strlen($decoded_token["token"]) == 32) {
 
 // Check the session counter
 //
-$sessionCounter = $decoded_token["counter"]; // From the req
+$sessionCounter = $decoded_token["session_counter"]; // From the req
 $seenSessionCounter = $ad['counter']; // From DB
 $scDiff = $seenSessionCounter - $sessionCounter;
 if ($scDiff > 0) {
@@ -76,7 +77,7 @@ if ($scDiff > 0) {
 	debug("Counter OK (".$sessionCounter.")");
 }
 
-$hi = $decoded_token["high"] & 0xff; // From the req
+$hi = $decoded_token["high"]; // From the req
 $seenHi = $ad['high']; // From DB
 $hiDiff = $seenHi - $hi;
 if ($scDiff == 0 && $hiDiff > 0) {
@@ -85,10 +86,10 @@ if ($scDiff == 0 && $hiDiff > 0) {
 	debug("High counter OK (".$hi.")");
 }
 
-$lo = $decoded_token["low"] & 0xff; // From the req
+$lo = $decoded_token["low"]; // From the req
 $seenLo = $ad['low']; // From DB
 $loDiff = $seenLo - $lo;
-if ($scDiff == 0 && $loDiff > 0) {
+if ($scDiff == 0 && $loDiff >= 0) {
 	die("Replayed low counter=".$lo.', seen='.$seenLo);
 } else {
 	debug("Low counter OK (".$lo.")");
@@ -117,12 +118,12 @@ function debug($msg, $exit=false) {
 	}
 }
 
-function updDB($id, $a) {
+function updDB($id, $new) {
 	$stmt = 'UPDATE yubikeys SET '.
 		'accessed=NOW(),'.
-		'counter='.$a['counter'].','.
-		'low='.$a['low'].','.
-		'high='.$a['high'].
+		'counter='.$new['session_counter'].','.
+		'low='.$new['low'].','.
+		'high='.$new['high'].
 		' WHERE id='.$id;
 	if (!query($stmt)) {
 		$err = 'Failed to update validation data of key: '.$id.' by '.$stmt;
