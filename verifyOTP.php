@@ -62,9 +62,9 @@ if (strlen($decoded_token["public_id"]) == 12 ) {
 
 // Sanity check the OTP
 //
-if ( strlen($decoded_token["token"]) == 32) {
-	debug("OTP len OK (".$decoded_token["token"].")");
-} else { die(" OTP len FAILED,".strlen($decoded_token["token"])); }
+if ( strlen($decoded_token["token"]) != 32) {
+	die("Wrong OTP length,".strlen($decoded_token["token"])); 
+}
 
 // Check the session counter
 //
@@ -74,7 +74,7 @@ $scDiff = $seenSessionCounter - $sessionCounter;
 if ($scDiff > 0) {
 	die("Replayed session counter=".$sessionCounter.', seen='.$seenSessionCounter);
 } else {
-	debug("Counter OK (".$sessionCounter.")");
+	debug("Session counter OK (".$sessionCounter.")");
 }
 
 $hi = $decoded_token["high"]; // From the req
@@ -89,7 +89,7 @@ if ($scDiff == 0 && $hiDiff > 0) {
 $lo = $decoded_token["low"]; // From the req
 $seenLo = $ad['low']; // From DB
 $loDiff = $seenLo - $lo;
-if ($scDiff == 0 && $loDiff >= 0) {
+if ($scDiff == 0 && $hiDiff == 0 && $loDiff >= 0) {
 	die("Replayed low counter=".$lo.', seen='.$seenLo);
 } else {
 	debug("Low counter OK (".$lo.")");
