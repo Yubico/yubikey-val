@@ -55,6 +55,27 @@ $k = b64ToModhex($ad['secret']);
 //debug('aes key in modhex = '.$k);
 $key16 = ModHex::Decode($k);
 //debug('aes key in hex = ['.$key16.'], length = '.strlen($key16));
+$apiKey = base64_decode($ad['c_secret']);
+	
+//// Check signature
+//
+if ($ad['chk_sig']) {
+	// Create the signature using the API key
+	$reqParams = 'id='.$client.'&otp='.$otp;
+	$hmac = hash_hmac('sha1', utf8_encode($reqParams), $apiKey, true);
+	$hmac = base64_encode($hmac);
+	
+	if (($h = getHttpVal('h', '')) == '') {
+		sendResp(S_MISSING_PARAMETER, 'h');
+		debug('signature missing, hmac='.$hmac);
+		exit;
+	} else if ($hmac != $h) {
+		sendResp(S_BAD_SIGNATURE);
+		debug('h='.$h.', hmac='.$hmac);
+		exit;
+	}
+}
+
 
 //// Decode OTP from input
 //
@@ -152,7 +173,7 @@ if (updDB($ad['id'], $decoded_token)) {
 //////////////////////////
 
 function sendResp($status, $info=null) {
-	global $ad;
+	global $ad, $apiKey;
 
 	if ($status == null) {
 		$status = S_BACKEND_ERROR;
@@ -167,14 +188,12 @@ function sendResp($status, $info=null) {
 
 	// Generate the signature
 	debug('API key: '.$ad['c_secret']); // API key of the client
-	$apiKey = base64_decode($ad['c_secret']);
 	debug('Signing: '.$respParams);
 	// the TRUE at the end states we want the raw value, not hexadecimal form
 	$hmac = hash_hmac('sha1', utf8_encode($respParams), $apiKey, true);
 	//outputToFile('hmac', $hmac, "b");
 	// now take that byte value and base64 encode it
 	$hmac = base64_encode($hmac);
-	debug('h: '.$hmac);
 
 	echo 'h='.$hmac.PHP_EOL;
 	echo 't='.$timestamp.PHP_EOL;
