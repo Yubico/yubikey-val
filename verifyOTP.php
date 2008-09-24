@@ -45,11 +45,13 @@ if ($ad == null) {
 
 //// Check the client ID
 //
-if ($ad['client_id'] != $client) {
-	debug('Client-'.$client.' is not the owner of the Yubikey! The key will be suspended with excessive failed attempts.');
-	sendResp(S_BAD_CLIENT, 'Not owner of the Yubikey');
-	exit;
-}
+// TODO - This may be too strict. Since our database doesn't keep track of that
+
+//if ($ad['client_id'] != $client) {
+//	debug('Client-'.$client.' is not the owner of the Yubikey! The key will be suspended with excessive failed attempts.');
+//	sendResp(S_BAD_CLIENT, 'Not owner of the Yubikey');
+//	exit;
+//}
 
 $k = b64ToModhex($ad['secret']);
 //debug('aes key in modhex = '.$k);
