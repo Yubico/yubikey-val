@@ -52,8 +52,8 @@ if ($ci['perm_id'] != 1 && $ci['perm_id'] != 2) {
 	exit;
 }
 
-$tokenId = genRandB64(6);
-$secret = genRandB64(16);
+$tokenId = base64_encode(genRandRaw(6));
+$secret = base64_encode(genRandRaw(16));
 $keyid = addNewKey($tokenId, 1, $secret, '', $client);
 
 if ($keyid > 0) {
@@ -80,7 +80,7 @@ function reply($status, $apiKey, $client_id, $nonce, $info=null) {
 
 	// Generate the signature
 	debug('API key: '.$apiKey); // API key of the client
-	debug('Signing: '.$respParams);
+	debug('Signing response: '.$respParams);
 	// the TRUE at the end states we want the raw value, not hexadecimal form
 	$hmac = hash_hmac('sha1', utf8_encode($respParams), $apiKey, true);
 	//outputToFile('hmac', $hmac, "b");
