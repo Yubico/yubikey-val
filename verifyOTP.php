@@ -1,5 +1,5 @@
-<?php require_once '../yms/appinclude.php';
-	  require_once '../yms/yubi_lib.php';
+<?php require_once '../yubiphpbase/appinclude.php';
+	  require_once '../yubiphpbase/yubi_lib.php';
 
 define('S_OK', 'OK');
 define('S_BAD_OTP', 'BAD_OTP');
