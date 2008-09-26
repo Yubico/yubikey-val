@@ -1,16 +1,7 @@
 <?php require_once '../yubiphpbase/appinclude.php';
 	  require_once '../yubiphpbase/yubi_lib.php';
-
-define('S_OK', 'OK');
-define('S_BAD_OTP', 'BAD_OTP');
-define('S_BAD_CLIENT', 'BAD_CLIENT'); // New, added by paul 20080920
-define('S_REPLAYED_OTP', 'REPLAYED_OTP');
-define('S_BAD_SIGNATURE', 'BAD_SIGNATURE');
-define('S_MISSING_PARAMETER', 'MISSING_PARAMETER');
-//define('S_NO_SUCH_CLIENT', 'NO_SUCH_CLIENT'); // Deprecated by paul 20080920
-define('S_OPERATION_NOT_ALLOWED', 'OPERATION_NOT_ALLOWED');
-define('S_BACKEND_ERROR', 'BACKEND_ERROR');
-
+	  require_once 'common.php';
+	  
 header("content-type: text/plain");
 
 if (!isset($trace)) { $trace = 0; }
@@ -206,21 +197,6 @@ function sendResp($status, $info=null) {
 
 } // End sendResp
 
-function debug($msg, $exit=false) {
-	global $trace;
-	if ($trace) {
-		if (is_array($msg)) {
-			print_r($msg);
-		} else {
-			echo 'debug> '.$msg;
-		}
-		echo "\n";
-	}
-	if ($exit) {
-		die ('<font color=red><h4>Exit</h4></font>');
-	}
-}
-
 function updDB($keyid, $new) {
 	$stmt = 'UPDATE yubikeys SET '.
 		'accessed=NOW(),'.
@@ -237,9 +213,4 @@ function updDB($keyid, $new) {
 	return true;
 }
 
-function outputToFile($outFname, $content, $mode, $append=false) {
-    $out = fopen($outFname, ($append ? "a" : "w"));
-    fwrite($out, $content);
-    fclose($out);
-}
 ?>
