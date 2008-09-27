@@ -35,6 +35,37 @@ function genRandRaw($len) {
 	return $s;
 }
 
+function getUTCTimeStamp() {
+	date_default_timezone_set('UTC');
+	return date('Y-m-d\TH:i:s\ZZ', time());
+}
+
+// Sign a http query string in the array of key-value pairs
+// return b64 encoded hmac hash
+function sign($a, $apiKey) {
+	ksort($a);
+	$qs = '';
+	$n = count($a);
+	$i = 0;
+	foreach (array_keys($a) as $key) {
+		$qs .= $key.'='.$a[$key];
+		if (++$i < $n) {
+			$qs .= '&';
+		}
+	}
+	
+	// Generate the signature
+	//debug('API key: '.$apiKey); // API key of the client
+	debug('Signing: '.$qs);
+	
+	// the TRUE at the end states we want the raw value, not hexadecimal form
+	$hmac = hash_hmac('sha1', utf8_encode($qs), $apiKey, true);
+	$hmac = base64_encode($hmac);
+	
+	return $hmac;
+		
+} // SignWithTime
+
 function outputToFile($outFname, $content, $mode, $append = false) {
 	$out = fopen($outFname, ($append ? "a" : "w"));
 	fwrite($out, $content);

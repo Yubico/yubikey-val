@@ -54,10 +54,11 @@ $apiKey = base64_decode($ad['c_secret']);
 //
 if ($ad['chk_sig']) {
 	// Create the signature using the API key
-	$reqParams = 'id='.$client.'&otp='.$otp;
-	$hmac = hash_hmac('sha1', utf8_encode($reqParams), $apiKey, true);
-	$hmac = base64_encode($hmac);
-	
+	$a = array();
+	$a['id']=$client;
+	$a['otp']=$otp;
+	$hmac = sign($a, $apiKey);
+
 	if (($h = getHttpVal('h', '')) == '') {
 		sendResp(S_MISSING_PARAMETER, 'h');
 		debug('signature missing, hmac='.$hmac);
@@ -83,14 +84,14 @@ if ( ! is_array($decoded_token) ) {
 //// Sanity check key status
 //
 if ($ad['active'] < 1) {
-	sendResp(S_BAD_OTP, 'Suspended Yubikey');
+	sendResp(S_BAD_OTP, 'Suspended');
 	exit;
 }
 
 //// Sanity check client status
 //
 if ($ad['c_active'] < 1) {
-	sendResp(S_BAD_CLIENT, 'Suspended client');
+	sendResp(S_BAD_CLIENT);
 	exit;
 }
 
@@ -119,7 +120,7 @@ $seenSessionCounter = $ad['counter']; // From DB
 $scDiff = $seenSessionCounter - $sessionCounter;
 if ($scDiff > 0) {
 	debug("Replayed session counter=".$sessionCounter.', seen='.$seenSessionCounter);
-	sendResp(S_REPLAYED_OTP, 'session counter');
+	sendResp(S_REPLAYED_OTP);
 	exit;
 } else {
 	debug("Session counter OK (".$sessionCounter.")");
@@ -132,7 +133,7 @@ $seenHi = $ad['high']; // From DB
 $hiDiff = $seenHi - $hi;
 if ($scDiff == 0 && $hiDiff > 0) {
 	debug("Replayed hi counter=".$hi.', seen='.$seenHi);
-	sendResp(S_REPLAYED_OTP, 'hi counter');
+	sendResp(S_REPLAYED_OTP);
 	exit;
 } else {
 	debug("Hi counter OK (".$hi.")");
@@ -145,7 +146,7 @@ $seenLo = $ad['low']; // From DB
 $loDiff = $seenLo - $lo;
 if ($scDiff == 0 && $hiDiff == 0 && $loDiff >= 0) {
 	debug("Replayed low counter=".$lo.', seen='.$seenLo);
-	sendResp(S_REPLAYED_OTP, 'lo counter');
+	sendResp(S_REPLAYED_OTP);
 	exit;
 } else {
 	debug("Lo counter OK (".$lo.")");
@@ -172,28 +173,14 @@ function sendResp($status, $info=null) {
 		$status = S_BACKEND_ERROR;
 	}
 
-	date_default_timezone_set('UTC');
-	$timestamp = date('Y-m-d\TH:i:s\ZZ', time());
-
-	//// Prepare the response to the user
-	//
-	$respParams = 'status='.$status.'&t='.$timestamp;
-
-	// Generate the signature
-	debug('API key: '.$ad['c_secret']); // API key of the client
-	debug('Signing: '.$respParams);
-	// the TRUE at the end states we want the raw value, not hexadecimal form
-	$hmac = hash_hmac('sha1', utf8_encode($respParams), $apiKey, true);
-	//outputToFile('hmac', $hmac, "b");
-	// now take that byte value and base64 encode it
-	$hmac = base64_encode($hmac);
-
-	echo 'h='.$hmac.PHP_EOL;
-	echo 't='.$timestamp.PHP_EOL;
+	echo 'status='.($a['status'] = $status).PHP_EOL;
 	if ($info != null) {
-		echo 'info='.$info.PHP_EOL;
+		echo 'info='.($a['info'] = $info).PHP_EOL;
 	}
-	echo 'status='.$status.PHP_EOL.PHP_EOL;
+	echo 't='.($a['t']=getUTCTimeStamp()).PHP_EOL;
+	$h = sign($a, $apiKey);
+	echo 'h='.$h.PHP_EOL;
+	echo PHP_EOL;
 
 } // End sendResp
 
