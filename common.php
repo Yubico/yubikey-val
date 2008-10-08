@@ -13,9 +13,9 @@ function debug($msg, $exit = false) {
 	global $trace;
 	if ($trace) {
 		if (is_array($msg)) {
-			print_r($msg);
+			//print_r($msg);
 		} else {
-			echo 'debug> ' . $msg;
+			echo '<p>Debug> ' . $msg;
 		}
 		echo "\n";
 	}
@@ -42,7 +42,7 @@ function getUTCTimeStamp() {
 
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
-function sign($a, $apiKey) {
+function sign($a, $apiKey, $debug=false) {
 	ksort($a);
 	$qs = '';
 	$n = count($a);
@@ -56,15 +56,18 @@ function sign($a, $apiKey) {
 	
 	// Generate the signature
 	//debug('API key: '.$apiKey); // API key of the client
-	debug('Signing: '.$qs);
+	debug('SIGN: '.$qs);
 	
 	// the TRUE at the end states we want the raw value, not hexadecimal form
 	$hmac = hash_hmac('sha1', utf8_encode($qs), $apiKey, true);
 	$hmac = base64_encode($hmac);
-	
+	if ($debug) {
+		debug('h='.$hmac);
+		debug('<a href=verify_debug.php?'.$qs.'&h='.urlencode($hmac).'>Submit the request >> </a>');
+	}
 	return $hmac;
 		
-} // SignWithTime
+} // sign an array of query string
 
 function outputToFile($outFname, $content, $mode, $append = false) {
 	$out = fopen($outFname, ($append ? "a" : "w"));

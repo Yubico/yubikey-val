@@ -24,7 +24,6 @@ if ($otp == '') {
 //
 $devId = substr($otp, 0, 12);
 $ad = getAuthData($devId);
-debug('Auth Data from DB:');
 
 if ($ad == null) {
 	debug('Invalid Yubikey '.$devId);
