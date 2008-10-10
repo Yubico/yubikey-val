@@ -152,7 +152,7 @@ if ($scDiff == 0 && $hiDiff == 0 && $loDiff >= 0) {
 
 //// Update the DB only upon validation success
 //
-if (updDB($ad['id'], $decoded_token)) {
+if (updDB($ad['id'], $decoded_token, $client)) {
 	debug('Validation database updated');	
 	sendResp(S_OK);
 } else {
@@ -182,7 +182,7 @@ function sendResp($status, $info=null) {
 
 } // End sendResp
 
-function updDB($keyid, $new) {
+function updDB($keyid, $new, $client) {
 	$stmt = 'UPDATE yubikeys SET '.
 		'accessed=NOW(),'.
 		'counter='.$new['session_counter'].','.
@@ -195,6 +195,9 @@ function updDB($keyid, $new) {
 		writeLog($err);
 		return false;
 	}
+
+	addHist(0, $_SERVER['REMOTE_ADDR'] , $keyid, $client);
+
 	return true;
 }
 
