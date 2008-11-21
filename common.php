@@ -50,7 +50,7 @@ function sign($a, $apiKey, $debug=false) {
 	$n = count($a);
 	$i = 0;
 	foreach (array_keys($a) as $key) {
-		$qs .= $key.'='.$a[$key];
+		$qs .= trim($key).'='.trim($a[$key]);
 		if (++$i < $n) {
 			$qs .= '&';
 		}
@@ -65,7 +65,6 @@ function sign($a, $apiKey, $debug=false) {
 	$hmac = base64_encode($hmac);
 	if ($debug) {
 		debug('h='.$hmac);
-		debug('<a href=verify_debug.php?'.$qs.'&h='.urlencode($hmac).'>Submit the request >> </a>');
 	}
 	return $hmac;
 		
