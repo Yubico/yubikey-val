@@ -18,6 +18,8 @@ if ($otp == '') {
 	debug('OTP is missing');
 	sendResp(S_MISSING_PARAMETER, 'otp');
 	exit;
+} else {
+	$otp = strtolower($otp);
 }
 
 //// Get Yubikey from DB
