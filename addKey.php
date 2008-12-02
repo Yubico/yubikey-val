@@ -14,24 +14,24 @@ if ($nonce == '') {
 
 $client = getHttpVal('id', 0);
 if ($client <= 0) {
-	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'id');
+	reply(S_MISSING_PARAMETER, '', $client, $nonce, '', 'id');
 	exit;
 }
 $ci = getClientInfo($client);
 
 $h = getHttpVal('h', '');
 if ($h == '') {
-	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'h');
+	reply(S_MISSING_PARAMETER, '', $client, $nonce, '', 'h');
 	exit;
 }
 
 $op = getHttpVal('operation', '');
 
 if ($op == '') {
-	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'operation');
+	reply(S_MISSING_PARAMETER, '', $client, $nonce, '', 'operation');
 	exit;
 } else if ($op != 'add_key') {
-	reply(S_OPERATION_NOT_ALLOWED, $ci['secret'], $client, $nonce, $op);
+	reply(S_OPERATION_NOT_ALLOWED, $ci['secret'], $client, $nonce, '', $op);
 	exit;
 }
 
@@ -40,7 +40,7 @@ if (! isset($ci['id'])) {
 	$client = 1;
 	if (($ci = getClientInfo($client)) == null)  {
 		debug('Root client not found, service not installed properly!');
-		reply(S_BACKEND_ERROR, '', $client, $nonce, 'root client');
+		reply(S_BACKEND_ERROR, '', $client, $nonce, '', 'root client missing');
 		exit;
 	}	
 	reply(S_BAD_CLIENT, $ci['secret'], $client, $nonce);
@@ -48,7 +48,7 @@ if (! isset($ci['id'])) {
 }
 
 if ($ci['perm_id'] != 1 && $ci['perm_id'] != 2) {
-  	reply(S_OPERATION_NOT_ALLOWED, $ci['secret'], $client, $nonce, $ci['perm_id']);
+  	reply(S_OPERATION_NOT_ALLOWED, $ci['secret'], $client, $nonce, '', $ci['perm_id']);
 	exit;
 }
 
@@ -72,17 +72,19 @@ if ($reqHash != $h) {
 $tokenId = base64_encode(genRandRaw(6));
 $secret = base64_encode(genRandRaw(16));
 
-$keyid = addNewKey($tokenId, 1, $secret, '', $client);
+$a = addNewKey($tokenId, 1, $secret, '', $client);
+$keyid = $a['keyid'];
+$sn = $a['sn'];
 
 if ($keyid > 0) {
 	debug('Key '.$keyid.' added');
-	reply(S_OK, $ci['secret'], $client, $nonce);
+	reply(S_OK, $ci['secret'], $client, $nonce, $sn);
 } else {
 	reply(S_BACKEND_ERROR, $ci['secret'], $client, $nonce);
 	exit;
 }
 
-function reply($status, $apiKey, $client_id, $nonce, $info='') {
+function reply($status, $apiKey, $client_id, $nonce, $sn='', $info='') {
 	global $tokenId, $secret;
 	
 	if ($status == null) {
@@ -93,16 +95,20 @@ function reply($status, $apiKey, $client_id, $nonce, $info='') {
 
 	echo 'nonce='.($a['nonce'] = $nonce).PHP_EOL;
 	echo 'status='.($a['status'] = $status).PHP_EOL;
+	
 	if ($info != '') {
 		echo 'info='.($a['info'] = $info).PHP_EOL;
 	}
+	
+	if ($sn != '') {
+		echo 'sn='.$sn.PHP_EOL;
+	}
+	
 	if ($tokenId != '') {
 		echo 'token_id='.($a['token_id'] = $tokenId).PHP_EOL;
 		echo 'user_id='.($a['user_id'] = $tokenId).PHP_EOL;//TODO
 	}
-	if ($secret != '') {
-		echo 'shared_secret='.($a['shared_secret'] = $secret).PHP_EOL;
-	}
+	
 	echo 't='.($a['t']=getUTCTimeStamp()).PHP_EOL;
 	$h = sign($a, $apiKey);
 	echo 'h='.$h.PHP_EOL;
