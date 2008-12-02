@@ -17,6 +17,7 @@ if ($client <= 0) {
 	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'client');
 	exit;
 }
+$ci = getClientInfo($client);
 
 $h = getHttpVal('h', '');
 if ($h == '') {
@@ -25,6 +26,7 @@ if ($h == '') {
 }
 
 $op = getHttpVal('operation', '');
+
 if ($op == '') {
 	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'operation');
 	exit;
@@ -32,8 +34,6 @@ if ($op == '') {
 	reply(S_OPERATION_NOT_ALLOWED, $ci['secret'], $client, $nonce, $op);
 	exit;
 }
-
-$ci = getClientInfo($client);
 
 if (! isset($ci['id'])) {
 	debug('Client '.$client.' not found!');
