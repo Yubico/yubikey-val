@@ -14,7 +14,7 @@ if ($nonce == '') {
 
 $client = getHttpVal('id', 0);
 if ($client <= 0) {
-	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'client');
+	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'id');
 	exit;
 }
 $ci = getClientInfo($client);
@@ -22,12 +22,6 @@ $ci = getClientInfo($client);
 $h = getHttpVal('h', '');
 if ($h == '') {
 	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'h');
-	exit;
-}
-
-$sn = getHttpVal('sn', '');
-if ($sn == '') {
-	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'sn');
 	exit;
 }
 
@@ -66,13 +60,19 @@ $reqArr['nonce'] = $nonce;
 $reqArr['operation'] = 'add_key';
 $reqHash = sign($reqArr, $ci['secret']);
 if ($reqHash != $h) {
-  	reply(S_BAD_SIGNATURE, $ci['secret'], $client, $nonce, $h);
+  	reply(S_BAD_SIGNATURE, $ci['secret'], $client, $nonce);
+	if ($trace) { 
+		echo 'Secret: '.$ci['secret']."\n";
+		echo 'Sign: '; print_r($reqArr);
+		echo 'Correct h: '.$reqHash;
+	}
 	exit;
 }
 
 $tokenId = base64_encode(genRandRaw(6));
 $secret = base64_encode(genRandRaw(16));
-$keyid = addNewKey($tokenId, 1, $secret, '', $client, $sn);
+
+$keyid = addNewKey($tokenId, 1, $secret, '', $client);
 
 if ($keyid > 0) {
 	debug('Key '.$keyid.' added');
