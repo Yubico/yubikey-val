@@ -25,6 +25,12 @@ if ($h == '') {
 	exit;
 }
 
+$sn = getHttpVal('sn', '');
+if ($sn == '') {
+	reply(S_MISSING_PARAMETER, '', $client, $nonce, 'sn');
+	exit;
+}
+
 $op = getHttpVal('operation', '');
 
 if ($op == '') {
@@ -66,7 +72,7 @@ if ($reqHash != $h) {
 
 $tokenId = base64_encode(genRandRaw(6));
 $secret = base64_encode(genRandRaw(16));
-$keyid = addNewKey($tokenId, 1, $secret, '', $client);
+$keyid = addNewKey($tokenId, 1, $secret, '', $client, $sn);
 
 if ($keyid > 0) {
 	debug('Key '.$keyid.' added');
