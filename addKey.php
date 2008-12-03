@@ -73,8 +73,7 @@ $tokenId = base64_encode(genRandRaw(6));
 $secret = base64_encode(genRandRaw(16));
 
 $a = addNewKey($tokenId, 1, $secret, '', $client);
-$keyid = $a['keyid'];
-$sn = $a['sn'];
+$keyid = $sn = $a['keyid'];
 
 if ($keyid > 0) {
 	debug('Key '.$keyid.' added');
