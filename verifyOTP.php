@@ -156,7 +156,7 @@ if ($scDiff == 0) { // Same use session, check time stamp diff
 		$elapsed = time() - $lastTime;
 		debug('Elapsed time from last validation: ' . $elapsed . ' secs');
 		$deviation = abs($elapsed - $tsDelta);
-		$percent = truncate($deviation/$elapsed, 8) . '%';
+		$percent = truncate(100*$deviation/$elapsed, 8) . '%';
 		debug("Key time deviation vs. elapsed time=".$deviation.' secs ('.
 			$percent.')');
 		if ($deviation > TS_TOLERANCE * $elapsed) {
