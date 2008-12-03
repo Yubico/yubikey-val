@@ -8,6 +8,9 @@ define('S_MISSING_PARAMETER', 'MISSING_PARAMETER');
 //define('S_NO_SUCH_CLIENT', 'NO_SUCH_CLIENT'); // Deprecated by paul 20080920
 define('S_OPERATION_NOT_ALLOWED', 'OPERATION_NOT_ALLOWED');
 define('S_BACKEND_ERROR', 'BACKEND_ERROR');
+define('S_SECURITY_ERROR', 'SECURITY_ERROR');
+define('TS_SEC', 0.1118);
+define('TS_TOLERANCE', 0.3);
 
 function debug($msg, $exit = false) {
 	global $trace;
