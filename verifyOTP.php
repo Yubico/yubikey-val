@@ -140,24 +140,31 @@ if ($scDiff == 0) { // Same use session, check time stamp diff
 		sendResp(S_REPLAYED_OTP);
 		exit;
 	} else {
+		updDB($ad['id'], $decoded_token, $client);
 		$tsDelta = $tsDiff * TS_SEC;
-		debug("Timestamp OK (" . $ts . ") delta count=".$tsDiff.
-			'-> delta secs='.$tsDelta);
+		debug("Timestamp OK (" . $ts . ") delta count=" . $tsDiff .
+		'-> delta secs=' . $tsDelta);
 	}
 
-	$lastTime = strtotime($ad['accessed']);
-	//$lastAccess = $ad['accessed'];
-	//echo 'Last accessed: '.$lastAccess.' '.date("F j, Y, g:i a", $lastTime)."\n";
-	$elapsed = time() - $lastTime;
-	debug('Elapsed time from last validation: '.$elapsed.' secs');
-	$deviation = abs($elapsed - $tsDelta);
-	debug("Key time deviation vs. real elapsed time=".$deviation.' secs');
-	if ($deviation > TS_TOLERANCE * $elapsed) {
-		debug("Is the OTP generated from a real crypto key?");
-		sendResp(S_SECURITY_ERROR);
-		exit;
+	//// Check the real time
+	//
+	
+	if ($ad['chk_time']) {
+		$lastTime = strtotime($ad['accessed']);
+		//$lastAccess = $ad['accessed'];
+		//echo 'Last accessed: '.$lastAccess.' '.date("F j, Y, g:i a", $lastTime)."\n";
+		$elapsed = time() - $lastTime;
+		debug('Elapsed time from last validation: ' . $elapsed . ' secs');
+		$deviation = abs($elapsed - $tsDelta);
+		debug("Key time deviation vs. elapsed time=".$deviation.' secs ('.
+			($deviation/$elapsed).'%)');
+		if ($deviation > TS_TOLERANCE * $elapsed) {
+			debug("Is the OTP generated from a real crypto key?");
+			sendResp(S_SECURITY_ERROR);
+			exit;
+		}
 	}
-}
+} // End check time stamp
 
 //// Check the high counter
 //
