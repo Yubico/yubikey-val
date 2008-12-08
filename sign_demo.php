@@ -6,12 +6,25 @@ require_once 'common.php';
 $trace = true;
 
 $act = getHttpVal('act', '');
+$apiKey64 = getHttpVal('apikey', 'kNapft02c1a81N4MEMDcC/mgcGc=');
 
 if ($act == 'sign_req') {
-	$id = getHttpVal('id', '');
+	if ($apiKey64 == '') {
+		echo 'API key cannot be empty!';
+		exit;
+	} else {
+		echo '<h2>Sign the request</h2>';
+	}
+
+	$id = getHttpVal('id', 0);
+	if ($id < 1) {
+		echo 'Client id is missing!';
+		exit;
+	}
+	
 	$otp = getHttpVal('otp', '');
 	$t = getHttpVal('t', '');
-	$apiKey = base64_decode(getHttpVal('apikey', ''));
+	$apiKey = base64_decode($apiKey64);
 
 	$a['id'] = $id;
 	$a['otp'] = $otp;
@@ -26,10 +39,16 @@ if ($act == 'sign_req') {
 //		'>Test submit the request >> </a>';
 
 } else if ($act == 'sign_resp') {
+	if ($apiKey64 == '') {
+		echo 'API key cannot be empty!';
+		exit;
+	} else {
+		echo '<h2>Sign the response</h2>';
+	}
 	$status = getHttpVal('status', '');
 	$t = getHttpVal('t', '');
 	$info = getHttpVal('info', '');
-	$apiKey = base64_decode(getHttpVal('apikey', ''));
+	$apiKey = base64_decode($apiKey64);
 
 	$a['status'] = $status;
 	$a['t'] = $t;
@@ -45,7 +64,7 @@ echo '<hr><table><tr><td valign=top><h3>Generate a request signature</h3>'.
 	'<form action=sign_demo.php method=post>' .
 	'<input name=act value=sign_req type=hidden>' .
 	'api key: (use your api key issued to you by Yubico in b64 format): ' .
-	'<input name=apikey size=45 maxlength=100 value="kNapft02c1a81N4MEMDcC/mgcGc="><p>' .
+	'<input name=apikey size=45 maxlength=100 value="'.$apiKey64.'"><p>' .
 	'id (your client id): <input name=id size=5 maxlength=10><p>' .
 	'otp: <input name=otp size=45 maxlength=100><p>' .
 	'<input type=submit value="Test sign the request">' .
@@ -56,7 +75,7 @@ echo '<td valign=top><h3>Generate a response signature</h3>'.
 	'<form action=sign_demo.php method=post>' .
 	'<input name=act value=sign_resp type=hidden>' .
 	'api key: (put your api key here in b64 format): ' .
-	'<input name=apikey size=45 maxlength=100 value="kNapft02c1a81N4MEMDcC/mgcGc="><p>' .
+	'<input name=apikey size=45 maxlength=100 value="'.$apiKey64.'"><p>' .
 	'Status: <select name=status>
 <option value=S_OK>OK
 <option value=S_BAD_OTP>BAD_OTP

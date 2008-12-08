@@ -55,28 +55,30 @@ $apiKey = base64_decode($ad['c_secret']);
 
 //// Check signature
 //
-if ($ad['chk_sig']) {
+$h = getHttpVal('h', '');
+
+if ($ad['chk_sig'] && $h == '') {
+	sendResp(S_MISSING_PARAMETER, 'h');
+	debug('Signature missing');
+	exit;
+} else if ($ad['chk_sig'] || $h != '') {
 	// Create the signature using the API key
 	$a = array ();
 	$a['id'] = $client;
 	$a['otp'] = $otp;
 	$hmac = sign($a, $apiKey);
 
-	if (($h = getHttpVal('h', '')) == '') {
-		sendResp(S_MISSING_PARAMETER, 'h');
-		debug('signature missing, hmac=' . $hmac);
+	// Compare it
+	if ($hmac != $h) {
+		sendResp(S_BAD_SIGNATURE);
+		debug('h=' . $h . ', hmac=' . $hmac);
 		exit;
-	} else
-		if ($hmac != $h) {
-			sendResp(S_BAD_SIGNATURE);
-			debug('h=' . $h . ', hmac=' . $hmac);
-			exit;
-		}
+	}
 }
 
 //// Decode OTP from input
 //
-debug('From the OTP validation request:');
+debug('OTP validation req:');
 $decoded_token = Yubikey :: Decode($otp, $key16);
 debug($decoded_token);
 if (!is_array($decoded_token)) {
