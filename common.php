@@ -60,14 +60,14 @@ function sign($a, $apiKey, $debug=false) {
 	}
 	
 	// Generate the signature
-	//debug('API key: '.$apiKey); // API key of the client
+//	debug('API key: '.base64_encode($apiKey)); // API key of the client
 	debug('SIGN: '.$qs);
 	
 	// the TRUE at the end states we want the raw value, not hexadecimal form
 	$hmac = hash_hmac('sha1', utf8_encode($qs), $apiKey, true);
 	$hmac = base64_encode($hmac);
 	if ($debug) {
-		debug('h='.$hmac);
+		debug('h='.$hmac);		
 	}
 	return $hmac;
 		
