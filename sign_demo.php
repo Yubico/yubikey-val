@@ -6,7 +6,7 @@ require_once 'common.php';
 $trace = true;
 
 $act = getHttpVal('act', '');
-$apiKey64 = getHttpVal('apikey', 'kNapft02c1a81N4MEMDcC/mgcGc=');
+$apiKey64 = getHttpVal('apikey', 'R4LjRyWItBFmmEHOaA+hFn1/AJ4=');
 
 if ($act == 'sign_req') {
 	if ($apiKey64 == '') {
@@ -35,8 +35,8 @@ if ($act == 'sign_req') {
 
 	$hmac = sign($a, $apiKey, true);
 
-//	echo '<a href=verify_debug.php?'.$qs.'&h='.urlencode($hmac).
-//		'>Test submit the request >> </a>';
+	echo '<ul><li><a target=_new href=verify_debug.php?id='.$id.'&h='.urlencode($hmac).
+		'&otp='.$otp.'>Test submit the request >> </a></ul>';
 
 } else if ($act == 'sign_resp') {
 	if ($apiKey64 == '') {
@@ -63,7 +63,7 @@ if ($act == 'sign_req') {
 echo '<hr><table><tr><td valign=top><h3>Generate a request signature</h3>'.
 	'<form action=sign_demo.php method=post>' .
 	'<input name=act value=sign_req type=hidden>' .
-	'api key: (use your api key issued to you by Yubico in b64 format): ' .
+	'api key: (use your api key issued to you in b64 format): ' .
 	'<input name=apikey size=45 maxlength=100 value="'.$apiKey64.'"><p>' .
 	'id (your client id): <input name=id size=5 maxlength=10><p>' .
 	'otp: <input name=otp size=45 maxlength=100><p>' .
