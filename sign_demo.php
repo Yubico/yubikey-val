@@ -76,16 +76,16 @@ echo '<td valign=top><h3>Generate a response signature</h3>'.
 	'<input name=act value=sign_resp type=hidden>' .
 	'api key: (put your api key here in b64 format): ' .
 	'<input name=apikey size=45 maxlength=100 value="'.$apiKey64.'"><p>' .
-	'Status: <select name=status>
-<option value=S_OK>OK
-<option value=S_BAD_OTP>BAD_OTP
-<option value=S_BAD_CLIENT>BAD_CLIENT
-<option value=S_REPLAYED_OTP>REPLAYED_OTP
-<option value=S_BAD_SIGNATURE>BAD_SIGNATURE
-<option value=S_MISSING_PARAMETER>MISSING_PARAMETER
-<option value=S_OPERATION_NOT_ALLOWED>OPERATION_NOT_ALLOWED
-<option value=S_BACKEND_ERROR>BACKEND_ERROR
-</select><p>'.
+	'Status: <select name=status>'.
+	'<option value='.S_OK.'>OK'.
+	'<option value='.S_BAD_OTP.'>BAD_OTP'.
+	'<option value='.S_BAD_CLIENT.'>BAD_CLIENT'.
+	'<option value='.S_REPLAYED_OTP.'>REPLAYED_OTP'.
+	'<option value='.S_BAD_SIGNATURE.'>BAD_SIGNATURE'.
+	'<option value='.S_MISSING_PARAMETER.'>MISSING_PARAMETER'.
+	'<option value='.S_OPERATION_NOT_ALLOWED.'>OPERATION_NOT_ALLOWED'.
+	'<option value='.S_BACKEND_ERROR.'>BACKEND_ERROR'.
+	'</select><p>'.
 	'Time stamp: <input name=t size=45 maxlength=100 value='.getUTCTimeStamp().'><p>' .
 	'info: <input name=info size=45 maxlength=100><p>' .
 	'<input type=submit value="Test sign the response">' .
