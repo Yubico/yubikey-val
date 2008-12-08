@@ -71,7 +71,7 @@ if ($ad['chk_sig'] && $h == '') {
 	// Compare it
 	if ($hmac != $h) {
 		sendResp(S_BAD_SIGNATURE);
-		debug('h=' . $h . ', hmac=' . $hmac);
+		debug('client hmac=' . $h . ', server hmac=' . $hmac);
 		exit;
 	}
 }
