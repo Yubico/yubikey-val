@@ -72,11 +72,16 @@ if ($reqHash != $h) {
 $tokenId = base64_encode(genRandRaw(6));
 $secret = base64_encode(genRandRaw(16));
 
-$a = addNewKey($tokenId, 1, $secret, '', $client);
-$keyid = $sn = $a['keyid'];
+if (($a=addNewKey($tokenId, 1, $secret, '', $client)) == null) {
+	$keyid = -1;
+}
+
+$keyid = $a['keyid'];
+$sn = $a['sn'];
+$usrid = $a['usrid'];
 
 if ($keyid > 0) {
-	debug('Key '.$keyid.' added');
+	debug('Key '.$keyid.' added. sn='.$sn.', usrid='.$usrid);
 	reply(S_OK, $ci['secret'], $client, $nonce, $sn);
 } else {
 	reply(S_BACKEND_ERROR, $ci['secret'], $client, $nonce);
