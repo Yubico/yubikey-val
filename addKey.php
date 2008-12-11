@@ -89,7 +89,7 @@ if ($keyid > 0) {
 }
 
 function reply($status, $apiKey, $client_id, $nonce, $sn='', $info='') {
-	global $tokenId, $secret;
+	global $tokenId, $secret, $usrid;
 	
 	if ($status == null) {
 		$status = S_BACKEND_ERROR;
@@ -108,10 +108,8 @@ function reply($status, $apiKey, $client_id, $nonce, $sn='', $info='') {
 		echo 'sn='.$sn.PHP_EOL;
 	}
 	
-	if ($tokenId != '') {
-		echo 'token_id='.($a['token_id'] = $tokenId).PHP_EOL;
-		echo 'user_id='.($a['user_id'] = $tokenId).PHP_EOL;//TODO
-	}
+	echo 'token_id='.($a['token_id'] = $tokenId).PHP_EOL;
+	echo 'user_id='.($a['user_id'] = $usrid).PHP_EOL;//TODO
 	
 	echo 't='.($a['t']=getUTCTimeStamp()).PHP_EOL;
 	$h = sign($a, $apiKey);
