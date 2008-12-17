@@ -153,7 +153,7 @@ if ($scDiff == 0) { // Same use session, check time stamp diff
 	
 	if ($ad['chk_time']) {
 		$lastTime = strtotime($ad['accessed']);
-		debug('Last accessed: '.$lastAccess.', '.$lastTime.', '.date("F j, Y, g:i a", $lastTime));
+		debug('Last accessed: '.$ad['accessed'].', '.$lastTime.', '.date("F j, Y, g:i a", $lastTime));
 		$elapsed = time() - $lastTime;
 		debug('Elapsed time from last validation: ' . $elapsed . ' secs');
 		$deviation = abs($elapsed - $tsDelta);
