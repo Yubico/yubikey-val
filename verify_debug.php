@@ -1,5 +1,5 @@
 <?php $trace = true;
 
-require 'verifyOTP.php';
+require 'verify.php';
 
 ?>
