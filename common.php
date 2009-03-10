@@ -38,11 +38,12 @@ function genRandRaw($len) {
 	return $s;
 }
 
-// Return eg. 2008-11-21T06:11:55
+// Return eg. 2008-11-21T06:11:55Z0711
 //            
 function getUTCTimeStamp() {
 	date_default_timezone_set('UTC');
-	return date('Y-m-d\TH:i:s', time());
+	$tiny = substr(microtime(false), 2, 3);
+	return date('Y-m-d\TH:i:s\Z0', time()) . $tiny;
 }
 
 // Sign a http query string in the array of key-value pairs
