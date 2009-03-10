@@ -9,6 +9,8 @@ if (!isset ($trace)) {
 	$trace = 0;
 }
 
+//// Extract values from HTTP request
+//
 $client = getHttpVal('id', 0);
 if ($client <= 0) {
 	debug('Client ID is missing');
@@ -21,8 +23,42 @@ if ($otp == '') {
 	debug('OTP is missing');
 	sendResp(S_MISSING_PARAMETER, 'otp');
 	exit;
-} else {
-	$otp = strtolower($otp);
+}
+$otp = strtolower($otp);
+
+//// Get Client info from DB
+//
+$cd = getClientData($client);
+if ($cd == null) {
+	debug('Invalid client id ' . $client);
+	sendResp(S_NO_SUCH_CLIENT, $client);
+	exit;
+}
+debug($cd);
+
+//// Check client signature
+//
+$apiKey = base64_decode($cd['secret']);
+$h = getHttpVal('h', '');
+
+if ($cd['chk_sig'] && $h == '') {
+	sendResp(S_MISSING_PARAMETER, 'h');
+	debug('Signature missing');
+	exit;
+} else if ($cd['chk_sig'] || $h != '') {
+	// Create the signature using the API key
+	$a = array ();
+	$a['id'] = $client;
+	$a['otp'] = $otp;
+	$hmac = sign($a, $apiKey);
+
+	// Compare it
+	if ($hmac != $h) {
+		sendResp(S_BAD_SIGNATURE);
+		debug('client hmac=' . $h . ', server hmac=' . $hmac);
+		exit;
+	}
+	debug('signature ok h=' . $h);
 }
 
 //// Get Yubikey from DB
@@ -38,43 +74,10 @@ if ($ad == null) {
 	debug($ad);
 }
 
-//// Check the client ID - does the client own the Yubikey?
-//
-
-if ($ad['chk_owner'] && $ad['client_id'] != $client) {
-	debug('Client-' . $client . ' is not the owner of the Yubikey!');
-	sendResp(S_BAD_CLIENT, 'Not owner of the Yubikey');
-	exit;
-}
-
 $k = b64ToModhex($ad['secret']);
 //debug('aes key in modhex = '.$k);
 $key16 = ModHex :: Decode($k);
 //debug('aes key in hex = ['.$key16.'], length = '.strlen($key16));
-$apiKey = base64_decode($ad['c_secret']);
-
-//// Check signature
-//
-$h = getHttpVal('h', '');
-
-if ($ad['chk_sig'] && $h == '') {
-	sendResp(S_MISSING_PARAMETER, 'h');
-	debug('Signature missing');
-	exit;
-} else if ($ad['chk_sig'] || $h != '') {
-	// Create the signature using the API key
-	$a = array ();
-	$a['id'] = $client;
-	$a['otp'] = $otp;
-	$hmac = sign($a, $apiKey);
-
-	// Compare it
-	if ($hmac != $h) {
-		sendResp(S_BAD_SIGNATURE);
-		debug('client hmac=' . $h . ', server hmac=' . $hmac);
-		exit;
-	}
-}
 
 //// Decode OTP from input
 //
@@ -86,38 +89,6 @@ if (!is_array($decoded_token)) {
 	exit;
 }
 
-//// Sanity check key status
-//
-if ($ad['active'] < 1) {
-	sendResp(S_BAD_OTP, 'Suspended');
-	exit;
-}
-
-//// Sanity check client status
-//
-if ($ad['c_active'] < 1) {
-	sendResp(S_BAD_CLIENT);
-	exit;
-}
-
-//// Sanity check token ID
-//
-if (strlen($decoded_token["public_id"]) == 12) {
-	debug("Token ID OK (" . $decoded_token["public_id"] . ")");
-} else {
-	debug("TOKEN ID FAILED, " . $decoded_token["public_id"]);
-	sendResp(S_BAD_OTP, $otp);
-	exit;
-}
-
-//// Sanity check the OTP
-//
-if (strlen($decoded_token["token"]) != 32) {
-	debug("Wrong OTP length," . strlen($decoded_token["token"]));
-	sendResp(S_BAD_OTP, $otp);
-	exit;
-}
-
 //// Check the session counter
 //
 $sessionCounter = $decoded_token["session_counter"]; // From the req
@@ -125,6 +96,19 @@ $seenSessionCounter = $ad['counter']; // From DB
 $scDiff = $seenSessionCounter - $sessionCounter;
 if ($scDiff > 0) {
 	debug("Replayed session counter=" . $sessionCounter . ', seen=' . $seenSessionCounter);
+	sendResp(S_REPLAYED_OTP);
+	exit;
+} else {
+	debug("Session counter OK (" . $sessionCounter . ")");
+}
+
+//// Check the session use
+//
+$sessionUse = $decoded_token["session_use"]; // From the req
+$seenSessionUse = $ad['sessionUse']; // From DB
+$sucDiff = $seenSessionUse - $sessionUse;
+if ($sucDiff > 0) {
+	debug("Replayed session use=" . $sessionUse . ', seen=' . $seenSessionUse);
 	sendResp(S_REPLAYED_OTP);
 	exit;
 } else {
@@ -162,7 +146,7 @@ if ($scDiff == 0) { // Same use session, check time stamp diff
 			$percent.')');
 		if ($deviation > TS_TOLERANCE * $elapsed) {
 			debug("Is the OTP generated from a real crypto key?");
-			sendResp(S_SECURITY_ERROR);
+			sendResp(S_PHISHED_OTP);
 			exit;
 		}
 	}
@@ -215,14 +199,18 @@ function sendResp($status, $info = null) {
 		$status = S_BACKEND_ERROR;
 	}
 
-	echo 'status=' . ($a['status'] = $status) . PHP_EOL;
-	if ($info != null) {
-		echo 'info=' . ($a['info'] = $info) . PHP_EOL;
-	}
-	echo 't=' . ($a['t'] = getUTCTimeStamp()) . PHP_EOL;
+	$a['status'] = $status;
+	#$a['info'] = $info;
+	$a['t'] = getUTCTimeStamp();
 	$h = sign($a, $apiKey);
-	echo 'h=' . $h . PHP_EOL;
-	echo PHP_EOL;
+
+	echo "h=" . $h . "\r\n";
+	echo "t=" . ($a['t']) . "\r\n";
+	echo "status=" . ($a['status']) . "\r\n";
+	if ($a['info'] != null) {
+		echo "info=" . ($a['info']) . "\r\n";
+	}
+	echo "\r\n";
 
 } // End sendResp
 
@@ -230,6 +218,7 @@ function updDB($keyid, $new, $client) {
 	$stmt = 'UPDATE yubikeys SET ' .
 	'accessed=NOW(),' .
 	'counter=' . $new['session_counter'] . ',' .
+	'sessionUse=' . $new['session_use'] . ',' .
 	'low=' . $new['low'] . ',' .
 	'high=' . $new['high'] .
 	' WHERE id=' . $keyid;
