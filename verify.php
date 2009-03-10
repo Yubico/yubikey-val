@@ -1,6 +1,4 @@
 <?php
-require_once '../yubiphpbase/appinclude.php';
-require_once '../yubiphpbase/yubi_lib.php';
 require_once 'common.php';
 
 header("content-type: text/plain");
@@ -228,8 +226,6 @@ function updDB($keyid, $new, $client) {
 		writeLog($err);
 		return false;
 	}
-
-	addHist(0, $_SERVER['REMOTE_ADDR'], $keyid, $client);
 
 	return true;
 }

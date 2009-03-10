@@ -11,6 +11,66 @@ define('S_BACKEND_ERROR', 'BACKEND_ERROR');
 define('TS_SEC', 0.119);
 define('TS_TOLERANCE', 0.3);
 
+require_once 'yubikey.php';
+require_once 'config.php';
+
+function writeLog($msg, $debug=false) {
+    	$fileMsg = date( 'Y-m-d H:i:s: ').trim($msg);
+    	if (isset($_SERVER['REMOTE_ADDR'])) {
+    		$fileMsg .= ' by '.$_SERVER['REMOTE_ADDR'];
+    	}
+	$fileMsg .= "\n";
+	error_log($fileMsg, 3, "/tmp/yms.log");
+}
+
+function unescape($s) {
+	return str_replace('\\', "", $s);
+}
+
+function getHttpVal($key, $defaultVal) {
+	$val = $defaultVal;
+	if (array_key_exists($key, $_GET)) {
+		$val = $_GET[$key];
+  	} else if (array_key_exists($key, $_POST)) {
+  		$val = $_POST[$key];
+  	}
+  	//return unescape(trim($val));
+  	$v = unescape(trim($val));
+  	return $v;
+}
+
+///////////////////// 
+//
+// DB Related
+// 
+///////////////////
+
+$conn = mysql_connect($baseParams['__DB_HOST__'],
+		      $baseParams['__DB_USER__'],
+		      $baseParams['__DB_PW__'])
+  or die('Could not connect to database: ' . mysql_error());
+mysql_select_db($baseParams['__DB_NAME__'], $conn)
+  or die('Could not select database');
+
+function query($q) {
+	global $conn;
+	$result = mysql_query($q, $conn);
+	if (!$result) {
+		$err = "Invalid query -- $q -- ";
+		writeLog($err);
+		die($err . mysql_error());
+	}
+	return $result;
+}
+
+function mysql_quote($value) {
+	return "'" . mysql_real_escape_string($value) . "'";	
+}
+
+function truncate($s, $max) {
+    return (strlen($s) > $max) ? substr($s, 0, $max-3).'...' : $s;
+}
+
 function debug($msg, $exit = false) {
 	global $trace;
 	if ($trace) {
@@ -62,4 +122,53 @@ function sign($a, $apiKey, $debug=false) {
 		
 } // sign an array of query string
 
+define('DEVICE_ID_LEN', 12);
+
+function modhexToB64($modhex_str) {
+	$s = ModHex::Decode($modhex_str);
+	return base64_encode($s);
+}
+
+function b64ToModhex($b64_str) {
+	$s = base64_decode($b64_str);
+	return ModHex::Encode($s);
+}
+
+function b64ToHex($b64_str) {
+	$s = '';
+	$tid = base64_decode($b64_str);
+	$a = str_split($tid);
+	for ($i=0; $i < count($a); $i++) {
+		$s .= dechex(ord($a[$i]));
+	}
+	return $s;
+}
+
+// $devId: The first 12 chars from the OTP
+function getAuthData($devId) {
+	$tokenId = modhexToB64($devId);
+	$stmt = 'SELECT id, client_id, secret, active, counter, '.
+	  '             sessionUse, low, high, accessed '.
+	  '      FROM yubikeys WHERE active AND tokenId='.mysql_quote($tokenId);
+	$r = query($stmt);
+	if (mysql_num_rows($r) > 0) {
+		$row = mysql_fetch_assoc($r);
+		mysql_free_result($r);
+		return $row;
+	}
+	return null;
+} // End getAuthData
+
+// $clientId: The decimal client identity
+function getClientData($clientId) {
+	$stmt = 'SELECT secret, chk_sig, chk_owner, chk_time'.
+		' FROM clients WHERE active AND id='.mysql_quote($clientId);
+	$r = query($stmt);
+	if (mysql_num_rows($r) > 0) {
+		$row = mysql_fetch_assoc($r);
+		mysql_free_result($r);
+		return $row;
+	}
+	return null;
+} // End getClientData
 ?>
