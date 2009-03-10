@@ -1,5 +1,5 @@
 <?php require_once '../yubiphpbase/appinclude.php';
-	  require_once '../yubiphpbase/key_lib.php';
+	  require_once '../yubiphpbase/yubi_lib.php';
 	  require_once 'common.php';
 	  
 header("content-type: text/plain");
