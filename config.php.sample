@@ -7,5 +7,6 @@ $baseParams['__DB_HOST__'] = 'localhost';
 $baseParams['__DB_USER__'] = 'username';
 $baseParams['__DB_PW__'] = 'password';
 $baseParams['__DB_NAME__'] = 'yubico';
+$baseParams['__YKKMS_URL__'] = "http://ykkms.example.com/wsapi/decrypt/?otp=";
 
 ?>

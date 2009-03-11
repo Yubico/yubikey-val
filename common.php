@@ -13,7 +13,6 @@ define('TS_REL_TOLERANCE', 0.3);
 define('TS_ABS_TOLERANCE', 20);
 define('DEVICE_ID_LEN', 12);
 
-require_once 'yubikey.php';
 require_once 'config.php';
 
 function unescape($s) {
@@ -108,30 +107,42 @@ function sign($a, $apiKey, $debug=false) {
 		
 } // sign an array of query string
 
-function modhexToB64($modhex_str) {
-	$s = ModHex::Decode($modhex_str);
-	return base64_encode($s);
+function hex2b64 ($hex_str) {
+  $bin = pack("H*", $hex_str);
+  return base64_encode($bin);
 }
 
-function b64ToModhex($b64_str) {
-	$s = base64_decode($b64_str);
-	return ModHex::Encode($s);
+function modhex2b64 ($modhex_str) {
+  $hex_str = strtr ($modhex_str, "cbdefghijklnrtuv", "0123456789abcdef");
+  return hex2b64($hex_str);
 }
 
-function b64ToHex($b64_str) {
-	$s = '';
-	$tid = base64_decode($b64_str);
-	$a = str_split($tid);
-	for ($i=0; $i < count($a); $i++) {
-		$s .= dechex(ord($a[$i]));
-	}
-	return $s;
-}
+// decryptOTP using YK-KSM
+function decryptOTP($otp) {
+  global $baseParams;
+
+  $url = $baseParams['__YKKMS_URL__'] . $otp;
+  $ch = curl_init($url);
+  curl_setopt($ch, CURLOPT_USERAGENT, "YK-VAL");
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  $response = curl_exec($ch);
+  curl_close($ch);
+
+  debug($response);
+
+  if (sscanf ($response,
+	      "OK counter=%04x high=%02x low=%04x use=%02x",
+	      $ret["session_counter"], $ret["high"],
+	      $ret["low"], $ret["session_use"]) != 4) {
+    return false;
+  }
+  return $ret;
+} // End decryptOTP
 
 // $devId: The first 12 chars from the OTP
 function getAuthData($devId) {
-	$tokenId = modhexToB64($devId);
-	$stmt = 'SELECT id, client_id, secret, active, counter, '.
+	$tokenId = modhex2b64($devId);
+	$stmt = 'SELECT id, client_id, active, counter, '.
 	  'sessionUse, low, high, accessed FROM yubikeys WHERE active '.
 	  'AND tokenId='.mysql_quote($tokenId);
 	$r = query($stmt);

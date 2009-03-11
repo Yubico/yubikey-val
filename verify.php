@@ -69,19 +69,14 @@ if ($ad == null) {
 	debug($ad);
 }
 
-$k = b64ToModhex($ad['secret']);
-//debug('aes key in modhex = '.$k);
-$key16 = ModHex :: Decode($k);
-//debug('aes key in hex = ['.$key16.'], length = '.strlen($key16));
-
 //// Decode OTP from input
 //
-$otpinfo = Yubikey :: Decode($otp, $key16);
-debug($otpinfo);
+$otpinfo = decryptOTP($otp);
 if (!is_array($otpinfo)) {
-	sendResp(S_BAD_OTP);
+	sendResp(S_BACKEND_ERROR);
 	exit;
 }
+debug($otpinfo);
 
 //// Check the session counter
 //
@@ -118,7 +113,7 @@ query($stmt);
 //// Check the time stamp
 //
 if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
-  $ts = $otpinfo['timestamp'];
+  $ts = ($otpinfo['high'] << 16) + $otpinfo['low'];
   $seenTs = ($ad['high'] << 16) + $ad['low'];
   $tsDiff = $ts - $seenTs;
   $tsDelta = $tsDiff * TS_SEC;
