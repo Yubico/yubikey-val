@@ -1,4 +1,5 @@
 <?php
+
 define('S_OK', 'OK');
 define('S_BAD_OTP', 'BAD_OTP');
 define('S_REPLAYED_OTP', 'REPLAYED_OTP');
@@ -8,12 +9,12 @@ define('S_MISSING_PARAMETER', 'MISSING_PARAMETER');
 define('S_NO_SUCH_CLIENT', 'NO_SUCH_CLIENT');
 define('S_OPERATION_NOT_ALLOWED', 'OPERATION_NOT_ALLOWED');
 define('S_BACKEND_ERROR', 'BACKEND_ERROR');
-define('TS_SEC', 0.119);
+
+define('TS_SEC', 1/8);
 define('TS_REL_TOLERANCE', 0.3);
 define('TS_ABS_TOLERANCE', 20);
-define('DEVICE_ID_LEN', 12);
 
-require_once 'config.php';
+define('DEVICE_ID_LEN', 12);
 
 function unescape($s) {
 	return str_replace('\\', "", $s);
@@ -29,19 +30,6 @@ function getHttpVal($key, $defaultVal) {
   	$v = unescape(trim($val));
   	return $v;
 }
-
-///////////////////// 
-//
-// DB Related
-// 
-///////////////////
-
-$conn = mysql_connect($baseParams['__DB_HOST__'],
-		      $baseParams['__DB_USER__'],
-		      $baseParams['__DB_PW__'])
-  or die('Could not connect to database: ' . mysql_error());
-mysql_select_db($baseParams['__DB_NAME__'], $conn)
-  or die('Could not select database');
 
 function query($q) {
 	global $conn;
@@ -117,11 +105,9 @@ function modhex2b64 ($modhex_str) {
   return hex2b64($hex_str);
 }
 
-// decryptOTP using YK-KSM
-function decryptOTP($otp) {
-  global $baseParams;
-
-  $url = $baseParams['__YKKMS_URL__'] . $otp;
+// $otp: A yubikey OTP
+function decryptOTP($otp, $base_url) {
+  $url = $base_url . $otp;
   $ch = curl_init($url);
   curl_setopt($ch, CURLOPT_USERAGENT, "YK-VAL");
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

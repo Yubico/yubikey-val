@@ -1,9 +1,17 @@
 <?php
 require_once 'common.php';
+require_once 'config.php';
 
 header("content-type: text/plain");
 
 debug("Request: " . $_SERVER['QUERY_STRING']);
+
+$conn = mysql_connect($baseParams['__DB_HOST__'],
+		      $baseParams['__DB_USER__'],
+		      $baseParams['__DB_PW__'])
+  or die('Could not connect to database: ' . mysql_error());
+mysql_select_db($baseParams['__DB_NAME__'], $conn)
+  or die('Could not select database');
 
 //// Extract values from HTTP request
 //
@@ -71,7 +79,7 @@ if ($ad == null) {
 
 //// Decode OTP from input
 //
-$otpinfo = decryptOTP($otp);
+$otpinfo = decryptOTP($otp, $baseParams['__YKKMS_URL__']);
 if (!is_array($otpinfo)) {
 	sendResp(S_BACKEND_ERROR);
 	exit;
