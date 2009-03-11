@@ -108,7 +108,7 @@ function decryptOTP($otp, $base_url) {
   $response = curl_exec($ch);
   curl_close($ch);
 
-  debug($response);
+  debug("YK-KSM response: $response (url $url)");
 
   if (sscanf ($response,
 	      "OK counter=%04x high=%02x low=%04x use=%02x",
