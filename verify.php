@@ -80,111 +80,76 @@ $key16 = ModHex :: Decode($k);
 //// Decode OTP from input
 //
 debug('OTP validation req:');
-$decoded_token = Yubikey :: Decode($otp, $key16);
-debug($decoded_token);
-if (!is_array($decoded_token)) {
+$otpinfo = Yubikey :: Decode($otp, $key16);
+debug($otpinfo);
+if (!is_array($otpinfo)) {
 	sendResp(S_BAD_OTP, $otp);
 	exit;
 }
 
 //// Check the session counter
 //
-$sessionCounter = $decoded_token["session_counter"]; // From the req
+$sessionCounter = $otpinfo["session_counter"]; // From the req
 $seenSessionCounter = $ad['counter']; // From DB
-$scDiff = $seenSessionCounter - $sessionCounter;
-if ($scDiff > 0) {
-	debug("Replayed session counter=" . $sessionCounter . ', seen=' . $seenSessionCounter);
+if ($sessionCounter < $seenSessionCounter) {
+	debug("Replay, session counter, seen=" . $seenSessionCounter .
+	      " this=" . $sessionCounter);
 	sendResp(S_REPLAYED_OTP);
 	exit;
 } else {
-	debug("Session counter OK (" . $sessionCounter . ")");
+	debug("Session counter OK, seen=" . $seenSessionCounter .
+	      " this=" . $sessionCounter);
 }
 
 //// Check the session use
 //
-$sessionUse = $decoded_token["session_use"]; // From the req
+$sessionUse = $otpinfo["session_use"]; // From the req
 $seenSessionUse = $ad['sessionUse']; // From DB
-$sucDiff = $seenSessionUse - $sessionUse;
-if ($sucDiff > 0) {
-	debug("Replayed session use=" . $sessionUse . ', seen=' . $seenSessionUse);
+if ($sessionCounter == $seenSessionCounter && $sessionUse <= $seenSessionUse) {
+	debug("Replay, session use, seen=" . $seenSessionUse .
+	      ' this=' . $sessionUse);
 	sendResp(S_REPLAYED_OTP);
 	exit;
 } else {
-	debug("Session counter OK (" . $sessionCounter . ")");
+	debug("Session use OK, seen=" . $seenSessionUse .
+	      ' this=' . $sessionUse);
 }
+
+updateDB($ad['id'], $otpinfo['session_counter'], $otpinfo['session_use'],
+	 $otpinfo['high'], $otpinfo['low']);
 
 //// Check the time stamp
 //
-if ($scDiff == 0) { // Same use session, check time stamp diff
-	$ts = $decoded_token['timestamp'];
-	$seenTs = ($ad['high'] << 16) + $ad['low'];
-	$tsDiff = $ts - $seenTs;
-	if ($tsDiff <= 0) {
-		debug("Replayed time stamp=" . $ts . ', seen=' . $seenTs);
-		sendResp(S_REPLAYED_OTP);
-		exit;
-	} else {
-		updDB($ad['id'], $decoded_token, $client);
-		$tsDelta = $tsDiff * TS_SEC;
-		debug("Timestamp OK (" . $ts . ") delta count=" . $tsDiff .
-		'-> delta secs=' . $tsDelta);
-	}
+if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
+  $ts = $otpinfo['timestamp'];
+  $seenTs = ($ad['high'] << 16) + $ad['low'];
+  $tsDiff = $ts - $seenTs;
+  $tsDelta = $tsDiff * TS_SEC;
 
-	//// Check the real time
-	//
-	
-	if ($ad['chk_time']) {
-		$lastTime = strtotime($ad['accessed']);
-		debug('Last accessed: '.$ad['accessed'].', '.$lastTime.', '.date("F j, Y, g:i a", $lastTime));
-		$elapsed = time() - $lastTime;
-		debug('Elapsed time from last validation: ' . $elapsed . ' secs');
-		$deviation = abs($elapsed - $tsDelta);
-		$percent = truncate(100*$deviation/$elapsed, 8) . '%';
-		debug("Key time deviation vs. elapsed time=".$deviation.' secs ('.
-			$percent.')');
-		if ($deviation > TS_TOLERANCE * $elapsed) {
-			debug("Is the OTP generated from a real crypto key?");
-			sendResp(S_PHISHED_OTP);
-			exit;
-		}
-	}
-} // End check time stamp
-
-//// Check the high counter
-//
-//$hi = $decoded_token["high"]; // From the req
-//$seenHi = $ad['high']; // From DB
-//$hiDiff = $seenHi - $hi;
-//if ($scDiff == 0 && $hiDiff > 0) {
-//	debug("Replayed hi counter=".$hi.', seen='.$seenHi);
-//	sendResp(S_REPLAYED_OTP);
-//	exit;
-//} else {
-//	debug("Hi counter OK (".$hi.")");
-//}
-
-//// Check the low counter
-//
-//$lo = $decoded_token["low"]; // From the req
-//$seenLo = $ad['low']; // From DB
-//$loDiff = $seenLo - $lo;
-//if ($scDiff == 0 && $hiDiff == 0 && $loDiff >= 0) {
-//	debug("Replayed low counter=".$lo.', seen='.$seenLo);
-//	sendResp(S_REPLAYED_OTP);
-//	exit;
-//} else {
-//	debug("Lo counter OK (".$lo.")");
-//}
-
-//// Update the DB only upon validation success
-//
-if (updDB($ad['id'], $decoded_token, $client)) {
-	debug('Validation database updated');
-	sendResp(S_OK);
-} else {
-	debug('Failed to update validation database');
-	sendResp(S_BACKEND_ERROR);
+  //// Check the real time
+  //
+  $lastTime = strtotime($ad['accessed']);
+  $now = time();
+  $elapsed = $now - $lastTime;
+  $deviation = abs($elapsed - $tsDelta);
+  $percent = round(100*$deviation/$elapsed);
+  debug("Timestamp seen=" . $seenTs . " this=" . $ts .
+	" delta=" . $tsDiff . ' secs=' . $tsDelta .
+	' accessed=' . $lastTime .' (' . $ad['accessed'] . ') now='
+	. $now . ' (' . strftime("%Y-%m-%d %H:%M:%S", $now)
+	. ') elapsed=' . $elapsed .
+	' deviation=' . $deviation . ' secs or '.
+	$percent . '%');
+  if ($deviation > TS_TOLERANCE * $elapsed) {
+    debug("OTP failed phishing test");
+    if ($ad['chk_time']) {
+      sendResp(S_DELAYED_OTP);
+      exit;
+    }
+  }
 }
+
+sendResp(S_OK);
 
 //////////////////////////
 // 		Functions
@@ -212,21 +177,14 @@ function sendResp($status, $info = null) {
 
 } // End sendResp
 
-function updDB($keyid, $new, $client) {
-	$stmt = 'UPDATE yubikeys SET ' .
-	'accessed=NOW(),' .
-	'counter=' . $new['session_counter'] . ',' .
-	'sessionUse=' . $new['session_use'] . ',' .
-	'low=' . $new['low'] . ',' .
-	'high=' . $new['high'] .
-	' WHERE id=' . $keyid;
-	if (!query($stmt)) {
-		$err = 'Failed to update validation data of key: ' . $keyid . ' by ' . $stmt;
-		debug($err);
-		writeLog($err);
-		return false;
-	}
-
-	return true;
+function updateDB($id, $session_counter, $session_use, $ts_high, $ts_low) {
+  $stmt = 'UPDATE yubikeys SET ' .
+    'accessed=NOW(),' .
+    'counter=' . $session_counter . ',' .
+    'sessionUse=' . $session_use . ',' .
+    'low=' . $ts_low . ',' .
+    'high=' . $ts_high .
+    ' WHERE id=' . $id;
+  query($stmt);
 }
 ?>

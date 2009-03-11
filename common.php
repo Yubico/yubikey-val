@@ -2,7 +2,7 @@
 define('S_OK', 'OK');
 define('S_BAD_OTP', 'BAD_OTP');
 define('S_REPLAYED_OTP', 'REPLAYED_OTP');
-define('S_PHISHED_OTP', 'PHISHED_OTP');
+define('S_DELAYED_OTP', 'DELAYED_OTP');
 define('S_BAD_SIGNATURE', 'BAD_SIGNATURE');
 define('S_MISSING_PARAMETER', 'MISSING_PARAMETER');
 define('S_NO_SUCH_CLIENT', 'NO_SUCH_CLIENT');
@@ -54,6 +54,7 @@ mysql_select_db($baseParams['__DB_NAME__'], $conn)
 
 function query($q) {
 	global $conn;
+	debug('Query: '.$q);
 	$result = mysql_query($q, $conn);
 	if (!$result) {
 		$err = "Invalid query -- $q -- ";
@@ -67,19 +68,18 @@ function mysql_quote($value) {
 	return "'" . mysql_real_escape_string($value) . "'";	
 }
 
-function truncate($s, $max) {
-    return (strlen($s) > $max) ? substr($s, 0, $max-3).'...' : $s;
-}
-
 function debug($msg, $exit = false) {
 	global $trace;
 	if ($trace) {
 		if (is_array($msg)) {
-			//print_r($msg);
+			$str = "";
+			foreach($msg as $key => $value){
+			  $str .= " $key=$value";
+			}
 		} else {
-			echo '<p>Debug> ' . $msg;
+			$str = ' ' . $msg;
 		}
-		echo "\n";
+		echo '<p>Debug>' . $str . "\n";
 	}
 	if ($exit) {
 		die('<font color=red><h4>Exit</h4></font>');
