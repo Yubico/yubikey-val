@@ -32,7 +32,7 @@ $otp = strtolower($otp);
 
 //// Get Client info from DB
 //
-$cd = getClientData($client);
+$cd = getClientData($conn, $client);
 if ($cd == null) {
 	debug('Invalid client id ' . $client);
 	sendResp(S_NO_SUCH_CLIENT);
@@ -67,7 +67,7 @@ if ($cd['chk_sig'] && $h == '') {
 //// Get Yubikey from DB
 //
 $devId = substr($otp, 0, DEVICE_ID_LEN);
-$ad = getAuthData($devId);
+$ad = getAuthData($conn, $devId);
 
 if ($ad == null) {
 	debug('Invalid Yubikey ' . $devId);
@@ -116,7 +116,7 @@ $stmt = 'UPDATE yubikeys SET accessed=NOW()' .
   ', low=' . $otpinfo['low'] .
   ', high=' . $otpinfo['high'] .
   ' WHERE id=' . $ad['id'];
-query($stmt);
+query($conn, $stmt);
 
 //// Check the time stamp
 //

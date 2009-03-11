@@ -31,16 +31,13 @@ function getHttpVal($key, $defaultVal) {
   	return $v;
 }
 
-function query($q) {
-	global $conn;
-	debug('Query: '.$q);
-	$result = mysql_query($q, $conn);
-	if (!$result) {
-		$err = "Invalid query -- $q -- ";
-		writeLog($err);
-		die($err . mysql_error());
-	}
-	return $result;
+function query($conn, $q) {
+  debug('Query: '.$q);
+  $result = mysql_query($q, $conn);
+  if (!$result) {
+    die("Query error: " . mysql_error());
+  }
+  return $result;
 }
 
 function mysql_quote($value) {
@@ -69,7 +66,7 @@ function getUTCTimeStamp() {
 
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
-function sign($a, $apiKey, $debug=false) {
+function sign($a, $apiKey) {
 	ksort($a);
 	$qs = '';
 	$n = count($a);
@@ -122,12 +119,12 @@ function decryptOTP($otp, $base_url) {
 } // End decryptOTP
 
 // $devId: The first 12 chars from the OTP
-function getAuthData($devId) {
+function getAuthData($conn, $devId) {
 	$tokenId = modhex2b64($devId);
 	$stmt = 'SELECT id, client_id, active, counter, '.
 	  'sessionUse, low, high, accessed FROM yubikeys WHERE active '.
 	  'AND tokenId='.mysql_quote($tokenId);
-	$r = query($stmt);
+	$r = query($conn, $stmt);
 	if (mysql_num_rows($r) > 0) {
 		$row = mysql_fetch_assoc($r);
 		mysql_free_result($r);
@@ -137,10 +134,10 @@ function getAuthData($devId) {
 } // End getAuthData
 
 // $clientId: The decimal client identity
-function getClientData($clientId) {
+function getClientData($conn, $clientId) {
 	$stmt = 'SELECT id, secret, chk_sig, chk_owner, chk_time'.
 	  ' FROM clients WHERE active AND id='.mysql_quote($clientId);
-	$r = query($stmt);
+	$r = query($conn, $stmt);
 	if (mysql_num_rows($r) > 0) {
 		$row = mysql_fetch_assoc($r);
 		mysql_free_result($r);
