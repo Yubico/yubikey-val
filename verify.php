@@ -64,19 +64,6 @@ if ($cd['chk_sig'] && $h == '') {
 	}
 }
 
-//// Get Yubikey from DB
-//
-$devId = substr($otp, 0, DEVICE_ID_LEN);
-$ad = getAuthData($conn, $devId);
-
-if ($ad == null) {
-	debug('Invalid Yubikey ' . $devId);
-	sendResp(S_BAD_OTP);
-	exit;
-} else {
-	debug($ad);
-}
-
 //// Decode OTP from input
 //
 $otpinfo = decryptOTP($otp, $baseParams['__YKKMS_URL__']);
@@ -85,6 +72,17 @@ if (!is_array($otpinfo)) {
 	exit;
 }
 debug($otpinfo);
+
+//// Get Yubikey from DB
+//
+$devId = substr($otp, 0, DEVICE_ID_LEN);
+$ad = getAuthData($conn, $devId);
+if (!is_array($ad)) {
+	debug('Invalid Yubikey ' . $devId);
+	sendResp(S_BAD_OTP);
+	exit;
+}
+debug($ad);
 
 //// Check the session counter
 //
