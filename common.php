@@ -80,17 +80,13 @@ function sign($a, $apiKey, $debug=false) {
 			$qs .= '&';
 		}
 	}
-
-	// Generate the signature
-//	debug('API key: '.base64_encode($apiKey)); // API key of the client
-	debug('SIGN: '.$qs);
 	
 	// the TRUE at the end states we want the raw value, not hexadecimal form
 	$hmac = hash_hmac('sha1', utf8_encode($qs), $apiKey, true);
 	$hmac = base64_encode($hmac);
-	if ($debug) {
-		debug('h='.$hmac);		
-	}
+
+	debug('SIGN: ' . $qs . ' H=' . $hmac);
+
 	return $hmac;
 		
 } // sign an array of query string
@@ -142,7 +138,7 @@ function getAuthData($devId) {
 
 // $clientId: The decimal client identity
 function getClientData($clientId) {
-	$stmt = 'SELECT secret, chk_sig, chk_owner, chk_time'.
+	$stmt = 'SELECT id, secret, chk_sig, chk_owner, chk_time'.
 	  ' FROM clients WHERE active AND id='.mysql_quote($clientId);
 	$r = query($stmt);
 	if (mysql_num_rows($r) > 0) {
