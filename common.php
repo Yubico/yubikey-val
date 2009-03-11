@@ -108,7 +108,8 @@ function decryptOTP($otp, $base_url) {
   curl_setopt($ch, CURLOPT_TIMEOUT, 5);
   $response = curl_exec($ch);
   $error = curl_error ($ch);
-  debug("YK-KSM response: $response error: " . $error);
+  $errno = curl_errno ($ch);
+  debug("YK-KSM response: $response errno: " . $errno . " error: " . $error);
   $info = curl_getinfo ($ch);
   debug($info);
   curl_close($ch);
