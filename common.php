@@ -9,7 +9,8 @@ define('S_NO_SUCH_CLIENT', 'NO_SUCH_CLIENT');
 define('S_OPERATION_NOT_ALLOWED', 'OPERATION_NOT_ALLOWED');
 define('S_BACKEND_ERROR', 'BACKEND_ERROR');
 define('TS_SEC', 0.119);
-define('TS_TOLERANCE', 0.3);
+define('TS_REL_TOLERANCE', 0.3);
+define('TS_ABS_TOLERANCE', 20);
 
 require_once 'yubikey.php';
 require_once 'config.php';

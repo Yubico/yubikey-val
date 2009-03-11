@@ -132,15 +132,15 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
   $now = time();
   $elapsed = $now - $lastTime;
   $deviation = abs($elapsed - $tsDelta);
-  $percent = round(100*$deviation/$elapsed);
+  $percent = $deviation/$elapsed;
   debug("Timestamp seen=" . $seenTs . " this=" . $ts .
 	" delta=" . $tsDiff . ' secs=' . $tsDelta .
 	' accessed=' . $lastTime .' (' . $ad['accessed'] . ') now='
 	. $now . ' (' . strftime("%Y-%m-%d %H:%M:%S", $now)
 	. ') elapsed=' . $elapsed .
 	' deviation=' . $deviation . ' secs or '.
-	$percent . '%');
-  if ($deviation > TS_TOLERANCE * $elapsed) {
+	round(100*$percent) . '%');
+  if ($deviation > TS_ABS_TOLERANCE && $percent > TS_REL_TOLERANCE) {
     debug("OTP failed phishing test");
     if ($ad['chk_time']) {
       sendResp(S_DELAYED_OTP);
