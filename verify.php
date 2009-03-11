@@ -3,23 +3,21 @@ require_once 'common.php';
 
 header("content-type: text/plain");
 
-if (!isset ($trace)) {
-	$trace = 0;
-}
+debug("Request: " . $_SERVER['QUERY_STRING']);
 
 //// Extract values from HTTP request
 //
 $client = getHttpVal('id', 0);
 if ($client <= 0) {
 	debug('Client ID is missing');
-	sendResp(S_MISSING_PARAMETER, 'id');
+	sendResp(S_MISSING_PARAMETER);
 	exit;
 }
 
 $otp = getHttpVal('otp', '');
 if ($otp == '') {
 	debug('OTP is missing');
-	sendResp(S_MISSING_PARAMETER, 'otp');
+	sendResp(S_MISSING_PARAMETER);
 	exit;
 }
 $otp = strtolower($otp);
@@ -29,7 +27,7 @@ $otp = strtolower($otp);
 $cd = getClientData($client);
 if ($cd == null) {
 	debug('Invalid client id ' . $client);
-	sendResp(S_NO_SUCH_CLIENT, $client);
+	sendResp(S_NO_SUCH_CLIENT);
 	exit;
 }
 debug($cd);
@@ -40,8 +38,8 @@ $apiKey = base64_decode($cd['secret']);
 $h = getHttpVal('h', '');
 
 if ($cd['chk_sig'] && $h == '') {
-	sendResp(S_MISSING_PARAMETER, 'h');
 	debug('Signature missing');
+	sendResp(S_MISSING_PARAMETER);
 	exit;
 } else if ($cd['chk_sig'] || $h != '') {
 	// Create the signature using the API key
@@ -52,21 +50,20 @@ if ($cd['chk_sig'] && $h == '') {
 
 	// Compare it
 	if ($hmac != $h) {
-		sendResp(S_BAD_SIGNATURE);
 		debug('client hmac=' . $h . ', server hmac=' . $hmac);
+		sendResp(S_BAD_SIGNATURE);
 		exit;
 	}
-	debug('signature ok h=' . $h);
 }
 
 //// Get Yubikey from DB
 //
-$devId = substr($otp, 0, 12);
+$devId = substr($otp, 0, DEVICE_ID_LEN);
 $ad = getAuthData($devId);
 
 if ($ad == null) {
 	debug('Invalid Yubikey ' . $devId);
-	sendResp(S_BAD_OTP, $otp);
+	sendResp(S_BAD_OTP);
 	exit;
 } else {
 	debug($ad);
@@ -79,11 +76,10 @@ $key16 = ModHex :: Decode($k);
 
 //// Decode OTP from input
 //
-debug('OTP validation req:');
 $otpinfo = Yubikey :: Decode($otp, $key16);
 debug($otpinfo);
 if (!is_array($otpinfo)) {
-	sendResp(S_BAD_OTP, $otp);
+	sendResp(S_BAD_OTP);
 	exit;
 }
 
@@ -96,9 +92,6 @@ if ($sessionCounter < $seenSessionCounter) {
 	      " this=" . $sessionCounter);
 	sendResp(S_REPLAYED_OTP);
 	exit;
-} else {
-	debug("Session counter OK, seen=" . $seenSessionCounter .
-	      " this=" . $sessionCounter);
 }
 
 //// Check the session use
@@ -110,13 +103,17 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse <= $seenSessionUse) {
 	      ' this=' . $sessionUse);
 	sendResp(S_REPLAYED_OTP);
 	exit;
-} else {
-	debug("Session use OK, seen=" . $seenSessionUse .
-	      ' this=' . $sessionUse);
 }
 
-updateDB($ad['id'], $otpinfo['session_counter'], $otpinfo['session_use'],
-	 $otpinfo['high'], $otpinfo['low']);
+//// Valid OTP, update database
+//
+$stmt = 'UPDATE yubikeys SET accessed=NOW()' .
+  ', counter=' .$otpinfo['session_counter'] .
+  ', sessionUse=' . $otpinfo['session_use'] .
+  ', low=' . $otpinfo['low'] .
+  ', high=' . $otpinfo['high'] .
+  ' WHERE id=' . $ad['id'];
+query($stmt);
 
 //// Check the time stamp
 //
@@ -155,36 +152,21 @@ sendResp(S_OK);
 // 		Functions
 //////////////////////////
 
-function sendResp($status, $info = null) {
-	global $ad, $apiKey;
+function sendResp($status) {
+	global $apiKey;
 
 	if ($status == null) {
 		$status = S_BACKEND_ERROR;
 	}
 
 	$a['status'] = $status;
-	#$a['info'] = $info;
 	$a['t'] = getUTCTimeStamp();
 	$h = sign($a, $apiKey);
 
 	echo "h=" . $h . "\r\n";
 	echo "t=" . ($a['t']) . "\r\n";
 	echo "status=" . ($a['status']) . "\r\n";
-	if ($a['info'] != null) {
-		echo "info=" . ($a['info']) . "\r\n";
-	}
 	echo "\r\n";
 
 } // End sendResp
-
-function updateDB($id, $session_counter, $session_use, $ts_high, $ts_low) {
-  $stmt = 'UPDATE yubikeys SET ' .
-    'accessed=NOW(),' .
-    'counter=' . $session_counter . ',' .
-    'sessionUse=' . $session_use . ',' .
-    'low=' . $ts_low . ',' .
-    'high=' . $ts_high .
-    ' WHERE id=' . $id;
-  query($stmt);
-}
 ?>

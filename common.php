@@ -11,18 +11,10 @@ define('S_BACKEND_ERROR', 'BACKEND_ERROR');
 define('TS_SEC', 0.119);
 define('TS_REL_TOLERANCE', 0.3);
 define('TS_ABS_TOLERANCE', 20);
+define('DEVICE_ID_LEN', 12);
 
 require_once 'yubikey.php';
 require_once 'config.php';
-
-function writeLog($msg, $debug=false) {
-    	$fileMsg = date( 'Y-m-d H:i:s: ').trim($msg);
-    	if (isset($_SERVER['REMOTE_ADDR'])) {
-    		$fileMsg .= ' by '.$_SERVER['REMOTE_ADDR'];
-    	}
-	$fileMsg .= "\n";
-	error_log($fileMsg, 3, "/tmp/yms.log");
-}
 
 function unescape($s) {
 	return str_replace('\\', "", $s);
@@ -35,7 +27,6 @@ function getHttpVal($key, $defaultVal) {
   	} else if (array_key_exists($key, $_POST)) {
   		$val = $_POST[$key];
   	}
-  	//return unescape(trim($val));
   	$v = unescape(trim($val));
   	return $v;
 }
@@ -69,22 +60,16 @@ function mysql_quote($value) {
 	return "'" . mysql_real_escape_string($value) . "'";	
 }
 
-function debug($msg, $exit = false) {
-	global $trace;
-	if ($trace) {
-		if (is_array($msg)) {
-			$str = "";
-			foreach($msg as $key => $value){
-			  $str .= " $key=$value";
-			}
-		} else {
-			$str = ' ' . $msg;
-		}
-		echo '<p>Debug>' . $str . "\n";
-	}
-	if ($exit) {
-		die('<font color=red><h4>Exit</h4></font>');
-	}
+function debug($msg) {
+  if (is_array($msg)) {
+    $str = "";
+    foreach($msg as $key => $value){
+      $str .= "$key=$value ";
+    }
+  } else {
+    $str = $msg;
+  }
+  error_log($str);
 }
 
 // Return eg. 2008-11-21T06:11:55Z0711
@@ -108,7 +93,7 @@ function sign($a, $apiKey, $debug=false) {
 			$qs .= '&';
 		}
 	}
-	
+
 	// Generate the signature
 //	debug('API key: '.base64_encode($apiKey)); // API key of the client
 	debug('SIGN: '.$qs);
@@ -122,8 +107,6 @@ function sign($a, $apiKey, $debug=false) {
 	return $hmac;
 		
 } // sign an array of query string
-
-define('DEVICE_ID_LEN', 12);
 
 function modhexToB64($modhex_str) {
 	$s = ModHex::Decode($modhex_str);
@@ -149,8 +132,8 @@ function b64ToHex($b64_str) {
 function getAuthData($devId) {
 	$tokenId = modhexToB64($devId);
 	$stmt = 'SELECT id, client_id, secret, active, counter, '.
-	  '             sessionUse, low, high, accessed '.
-	  '      FROM yubikeys WHERE active AND tokenId='.mysql_quote($tokenId);
+	  'sessionUse, low, high, accessed FROM yubikeys WHERE active '.
+	  'AND tokenId='.mysql_quote($tokenId);
 	$r = query($stmt);
 	if (mysql_num_rows($r) > 0) {
 		$row = mysql_fetch_assoc($r);
@@ -163,7 +146,7 @@ function getAuthData($devId) {
 // $clientId: The decimal client identity
 function getClientData($clientId) {
 	$stmt = 'SELECT secret, chk_sig, chk_owner, chk_time'.
-		' FROM clients WHERE active AND id='.mysql_quote($clientId);
+	  ' FROM clients WHERE active AND id='.mysql_quote($clientId);
 	$r = query($stmt);
 	if (mysql_num_rows($r) > 0) {
 		$row = mysql_fetch_assoc($r);
