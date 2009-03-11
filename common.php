@@ -104,11 +104,14 @@ function decryptOTP($otp, $base_url) {
   $ch = curl_init($url);
   curl_setopt($ch, CURLOPT_USERAGENT, "YK-VAL");
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_FAILONERROR, true);
   curl_setopt($ch, CURLOPT_TIMEOUT, 5);
   $response = curl_exec($ch);
+  $error = curl_error ($ch);
+  debug("YK-KSM response: $response error: " . $error);
+  $info = curl_getinfo ($ch);
+  debug($info);
   curl_close($ch);
-
-  debug("YK-KSM response: $response (url $url)");
 
   if (sscanf ($response,
 	      "OK counter=%04x high=%02x low=%04x use=%02x",
