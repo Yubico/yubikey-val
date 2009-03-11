@@ -104,6 +104,7 @@ function decryptOTP($otp, $base_url) {
   $ch = curl_init($url);
   curl_setopt($ch, CURLOPT_USERAGENT, "YK-VAL");
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 5);
   $response = curl_exec($ch);
   curl_close($ch);
 
