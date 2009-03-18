@@ -126,9 +126,10 @@ function decryptOTP($otp, $base_url) {
 // $devId: The first 12 chars from the OTP
 function getAuthData($conn, $devId) {
 	$tokenId = modhex2b64($devId);
-	$stmt = 'SELECT id, client_id, active, counter, '.
-	  'sessionUse, low, high, accessed FROM yubikeys WHERE active '.
-	  'AND tokenId='.mysql_quote($tokenId);
+	$stmt =
+	  'SELECT id, client_id, counter, sessionUse, low, high, accessed '.
+	  'FROM yubikeys '.
+	  'WHERE active AND tokenId='.mysql_quote($tokenId);
 	$r = query($conn, $stmt);
 	if (mysql_num_rows($r) > 0) {
 		$row = mysql_fetch_assoc($r);
@@ -140,8 +141,10 @@ function getAuthData($conn, $devId) {
 
 // $clientId: The decimal client identity
 function getClientData($conn, $clientId) {
-	$stmt = 'SELECT id, secret, chk_time'.
-	  ' FROM clients WHERE active AND id='.mysql_quote($clientId);
+	$stmt =
+	  'SELECT id, secret, chk_time '.
+	  'FROM clients '.
+	  'WHERE active AND id='.mysql_quote($clientId);
 	$r = query($conn, $stmt);
 	if (mysql_num_rows($r) > 0) {
 		$row = mysql_fetch_assoc($r);
