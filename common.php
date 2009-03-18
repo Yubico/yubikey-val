@@ -116,8 +116,8 @@ function decryptOTP($otp, $base_url) {
 
   if (sscanf ($response,
 	      "OK counter=%04x low=%04x high=%02x use=%02x",
-	      $ret["session_counter"], $ret["high"],
-	      $ret["low"], $ret["session_use"]) != 4) {
+	      $ret["session_counter"], $ret["low"], $ret["high"],
+	      $ret["session_use"]) != 4) {
     return false;
   }
   return $ret;
