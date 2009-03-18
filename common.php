@@ -140,7 +140,7 @@ function getAuthData($conn, $devId) {
 
 // $clientId: The decimal client identity
 function getClientData($conn, $clientId) {
-	$stmt = 'SELECT id, secret, chk_sig, chk_owner, chk_time'.
+	$stmt = 'SELECT id, secret, chk_time'.
 	  ' FROM clients WHERE active AND id='.mysql_quote($clientId);
 	$r = query($conn, $stmt);
 	if (mysql_num_rows($r) > 0) {

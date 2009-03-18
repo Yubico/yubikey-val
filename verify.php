@@ -46,11 +46,7 @@ debug($cd);
 //
 $apiKey = base64_decode($cd['secret']);
 
-if ($cd['chk_sig'] && $h == '') {
-	debug('Signature missing');
-	sendResp(S_MISSING_PARAMETER);
-	exit;
-} else if ($cd['chk_sig'] || $h != '') {
+if ($h != '') {
 	// Create the signature using the API key
 	$a = array ();
 	$a['id'] = $client;
