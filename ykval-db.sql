@@ -1,10 +1,5 @@
-// DROP DATABASE yubico;
-// CREATE DATABASE yubico;
-// USE yubico;
-
-// DROP TABLE IF EXISTS clients;
-// DROP TABLE IF EXISTS perms;
-// DROP TABLE IF EXISTS yubikeys;
+CREATE DATABASE yubico;
+USE yubico;
 
 CREATE TABLE clients (
   id int NOT NULL auto_increment,
