@@ -75,7 +75,13 @@ debug($otpinfo);
 
 //// Get Yubikey from DB
 //
-$devId = substr($otp, 0, DEVICE_ID_LEN);
+if (strlen($otp) <= TOKEN_LEN) {
+  debug('Too short OTP: ' . $otp);
+  sendResp(S_BAD_OTP);
+  exit;
+}
+
+$devId = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
 $ad = getAuthData($conn, $devId);
 if (!is_array($ad)) {
 	debug('Invalid Yubikey ' . $devId);

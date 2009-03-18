@@ -14,7 +14,7 @@ define('TS_SEC', 1/8);
 define('TS_REL_TOLERANCE', 0.3);
 define('TS_ABS_TOLERANCE', 20);
 
-define('DEVICE_ID_LEN', 12);
+define('TOKEN_LEN', 32);
 
 function unescape($s) {
 	return str_replace('\\', "", $s);
