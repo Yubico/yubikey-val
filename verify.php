@@ -15,6 +15,8 @@ mysql_select_db($baseParams['__DB_NAME__'], $conn)
 
 //// Extract values from HTTP request
 //
+$h = getHttpVal('h', '');
+
 $client = getHttpVal('id', 0);
 if ($client <= 0) {
 	debug('Client ID is missing');
@@ -43,7 +45,6 @@ debug($cd);
 //// Check client signature
 //
 $apiKey = base64_decode($cd['secret']);
-$h = getHttpVal('h', '');
 
 if ($cd['chk_sig'] && $h == '') {
 	debug('Signature missing');
@@ -64,6 +65,14 @@ if ($cd['chk_sig'] && $h == '') {
 	}
 }
 
+//// Sanity check OTP
+//
+if (strlen($otp) <= TOKEN_LEN) {
+  debug('Too short OTP: ' . $otp);
+  sendResp(S_BAD_OTP);
+  exit;
+}
+
 //// Decode OTP from input
 //
 $otpinfo = decryptOTP($otp, $baseParams['__YKKMS_URL__']);
@@ -75,12 +84,6 @@ debug($otpinfo);
 
 //// Get Yubikey from DB
 //
-if (strlen($otp) <= TOKEN_LEN) {
-  debug('Too short OTP: ' . $otp);
-  sendResp(S_BAD_OTP);
-  exit;
-}
-
 $devId = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
 $ad = getAuthData($conn, $devId);
 if (!is_array($ad)) {
