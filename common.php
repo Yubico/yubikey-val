@@ -127,9 +127,9 @@ function decryptOTP($otp, $base_url) {
 function getAuthData($conn, $devId) {
 	$tokenId = modhex2b64($devId);
 	$stmt =
-	  'SELECT id, client_id, counter, sessionUse, low, high, accessed '.
+	  'SELECT id, active, client_id, counter, sessionUse, low, high, accessed '.
 	  'FROM yubikeys '.
-	  'WHERE active AND tokenId='.mysql_quote($tokenId);
+	  'WHERE tokenId='.mysql_quote($tokenId);
 	$r = query($conn, $stmt);
 	if (mysql_num_rows($r) > 0) {
 		$row = mysql_fetch_assoc($r);
@@ -138,6 +138,13 @@ function getAuthData($conn, $devId) {
 	}
 	return null;
 } // End getAuthData
+
+function addNewKey($conn, $devId) {
+	$tokenId = modhex2b64($devId);
+	$stmt = 'INSERT INTO yubikeys (client_id, active, created, tokenId, counter) '.
+	  'VALUES (1, true, NOW(), ' . mysql_quote($tokenId) . ', 0)';
+	$r = query($conn, $stmt);
+}
 
 // $clientId: The decimal client identity
 function getClientData($conn, $clientId) {

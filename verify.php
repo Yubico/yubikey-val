@@ -83,11 +83,21 @@ debug($otpinfo);
 $devId = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
 $ad = getAuthData($conn, $devId);
 if (!is_array($ad)) {
+	debug('Discovered Yubikey ' . $devId);
+	addNewKey($conn, $devId);
+}
+$ad = getAuthData($conn, $devId);
+if (!is_array($ad)) {
 	debug('Invalid Yubikey ' . $devId);
 	sendResp(S_BAD_OTP);
 	exit;
 }
 debug($ad);
+if ($ad['active'] != 1) {
+	debug('De-activated Yubikey ' . $devId);
+	sendResp(S_BAD_OTP);
+	exit;
+}
 
 //// Check the session counter
 //
