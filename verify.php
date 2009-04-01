@@ -85,12 +85,12 @@ $ad = getAuthData($conn, $devId);
 if (!is_array($ad)) {
 	debug('Discovered Yubikey ' . $devId);
 	addNewKey($conn, $devId);
-}
-$ad = getAuthData($conn, $devId);
-if (!is_array($ad)) {
-	debug('Invalid Yubikey ' . $devId);
-	sendResp(S_BAD_OTP);
-	exit;
+	$ad = getAuthData($conn, $devId);
+	if (!is_array($ad)) {
+		debug('Invalid Yubikey ' . $devId);
+		sendResp(S_BAD_OTP);
+		exit;
+	}
 }
 debug($ad);
 if ($ad['active'] != 1) {
