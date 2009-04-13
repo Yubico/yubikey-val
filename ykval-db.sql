@@ -35,7 +35,7 @@ CREATE TABLE yubikeys (
   created datetime NOT NULL,
   accessed datetime,
   tokenId varchar(60) binary unique not null,
-  userId varchar(60) UNIQUE NOT NULL,
+  userId varchar(60) NOT NULL,
   secret varchar(60) NOT NULL,
   counter int,
   low int,
