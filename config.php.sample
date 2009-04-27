@@ -4,9 +4,9 @@
 //
 $baseParams = array ();
 $baseParams['__DB_HOST__'] = 'localhost';
-$baseParams['__DB_USER__'] = 'username';
+$baseParams['__DB_USER__'] = 'ykval_verifier';
 $baseParams['__DB_PW__'] = 'password';
-$baseParams['__DB_NAME__'] = 'yubico';
+$baseParams['__DB_NAME__'] = 'ykval';
 
 // otp2ksmurls: Return array of YK-KSM URLs for decrypting OTP for
 // CLIENT.  The URLs must be fully qualified, i.e., contain the OTP
