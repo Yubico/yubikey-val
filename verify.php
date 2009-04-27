@@ -40,7 +40,7 @@ if ($cd == null) {
 	sendResp(S_NO_SUCH_CLIENT);
 	exit;
 }
-debug($cd);
+debug("Client data:", $cd);
 
 //// Check client signature
 //
@@ -69,14 +69,22 @@ if (strlen($otp) <= TOKEN_LEN) {
   exit;
 }
 
+//// Which YK-KSM should we talk to?
+//
+$urls = otp2ksmurls ($otp, $client);
+if (!is_array($urls)) {
+  sendResp(S_BACKEND_ERROR);
+  exit;
+}
+
 //// Decode OTP from input
 //
-$otpinfo = decryptOTP($otp, $baseParams['__YKKMS_URL__']);
+$otpinfo = KSMdecryptOTP($urls);
 if (!is_array($otpinfo)) {
 	sendResp(S_BACKEND_ERROR);
 	exit;
 }
-debug($otpinfo);
+debug("Decrypted OTP:", $otpinfo);
 
 //// Get Yubikey from DB
 //
@@ -92,7 +100,7 @@ if (!is_array($ad)) {
 		exit;
 	}
 }
-debug($ad);
+debug("Auth data:", $ad);
 if ($ad['active'] != 1) {
 	debug('De-activated Yubikey ' . $devId);
 	sendResp(S_BAD_OTP);

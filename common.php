@@ -32,10 +32,10 @@ function getHttpVal($key, $defaultVal) {
 }
 
 function query($conn, $q) {
-  debug('Query: '.$q);
+  debug('SQL query: ' . $q);
   $result = mysql_query($q, $conn);
   if (!$result) {
-    die("Query error: " . mysql_error());
+    die("SQL query error: " . mysql_error());
   }
   return $result;
 }
@@ -44,15 +44,18 @@ function mysql_quote($value) {
 	return "'" . mysql_real_escape_string($value) . "'";	
 }
 
-function debug($msg) {
-  if (is_array($msg)) {
-    $str = "";
-    foreach($msg as $key => $value){
-      $str .= "$key=$value ";
+function debug() {
+  $str = "";
+  foreach (func_get_args() as $msg)
+    {
+      if (is_array($msg)) {
+	foreach($msg as $key => $value){
+	  $str .= "$key=$value ";
+	}
+      } else {
+	$str .= $msg . " ";
+      }
     }
-  } else {
-    $str = $msg;
-  }
   error_log($str);
 }
 
@@ -98,22 +101,82 @@ function modhex2b64 ($modhex_str) {
   return hex2b64($hex_str);
 }
 
-// $otp: A yubikey OTP
-function decryptOTP($otp, $base_url) {
-  $url = $base_url . $otp;
-  $ch = curl_init($url);
-  curl_setopt($ch, CURLOPT_USERAGENT, "YK-VAL");
-  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-  curl_setopt($ch, CURLOPT_FAILONERROR, true);
-  curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-  $response = curl_exec($ch);
-  $error = curl_error ($ch);
-  $errno = curl_errno ($ch);
-  debug("YK-KSM response: $response errno: " . $errno . " error: " . $error);
-  $info = curl_getinfo ($ch);
-  debug($info);
-  curl_close($ch);
+// This function takes a list of URLs.  It will return the content of
+// the first successfully retrieved URL, whose content matches ^OK.
+// The request are sent asynchronously.  Some of the URLs can fail
+// with unknown host, connection errors, or network timeout, but as
+// long as one of the URLs given work, data will be returned.  If all
+// URLs fail, data from some URL that did not match ^OK is returned,
+// or if all URLs failed, false.
+function retrieveURLasync ($urls) {
+  $mh = curl_multi_init();
 
+  $ch = array();
+  foreach ($urls as $id => $url) {
+    $handle = curl_init();
+
+    curl_setopt($handle, CURLOPT_URL, $url);
+    curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
+    curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($handle, CURLOPT_FAILONERROR, true);
+    curl_setopt($handle, CURLOPT_TIMEOUT, 10);
+
+    curl_multi_add_handle($mh, $handle);
+
+    $ch[$handle] = $handle;
+  }
+
+  $str = false;
+
+  do {
+    while (($mrc = curl_multi_exec($mh, $active)) == CURLM_CALL_MULTI_PERFORM)
+      ;
+
+    while ($info = curl_multi_info_read($mh)) {
+      debug ("YK-KSM multi", $info);
+      if ($info['result'] == CURL_OK) {
+	$str = curl_multi_getcontent($info['handle']);
+	
+	if (preg_match("/^OK/", $str)) {
+	  $error = curl_error ($info['handle']);
+	  $errno = curl_errno ($info['handle']);
+	  $info = curl_getinfo ($info['handle']);
+	  debug("YK-KSM errno/error: " . $errno . "/" . $error, $info);
+
+	  foreach ($ch as $h) {
+	    curl_multi_remove_handle ($mh, $h);
+	    curl_close ($h);
+	  }
+	  curl_multi_close ($mh);
+
+	  return $str;
+	}
+
+	curl_multi_remove_handle ($mh, $info['handle']);
+	curl_close ($info['handle']);
+	unset ($ch[$info['handle']]);
+      }
+
+      curl_multi_select ($mh);
+    }
+  } while($active);
+
+  foreach ($ch as $h) {
+    curl_multi_remove_handle ($mh, $h);
+    curl_close ($h);
+  }
+  curl_multi_close ($mh);
+
+  return $str;
+}
+
+// $otp: A yubikey OTP
+function KSMdecryptOTP($urls) {
+  $ret = array();
+  $response = retrieveURLasync ($urls);
+  if ($response) {
+    debug("YK-KSM response: " . $response);
+  }
   if (sscanf ($response,
 	      "OK counter=%04x low=%04x high=%02x use=%02x",
 	      $ret["session_counter"], $ret["low"], $ret["high"],
