@@ -30,4 +30,6 @@ CREATE TABLE yubikeys (
 CREATE USER ykval_verifier;
 GRANT SELECT,INSERT,UPDATE(accessed, counter, low, high, sessionUse)
        ON ykval.yubikeys to 'ykval_verifier'@'localhost';
+GRANT SELECT(id, secret, chk_time, active)
+       ON ykval.clients to 'ykval_verifier'@'localhost';
 FLUSH PRIVILEGES;
