@@ -1,6 +1,6 @@
 <?php
-require_once 'common.php';
-require_once 'config.php';
+require_once 'ykval-common.php';
+require_once 'ykval-config.php';
 
 header("content-type: text/plain");
 
