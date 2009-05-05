@@ -13,16 +13,16 @@ $baseParams['__DB_NAME__'] = 'ykval';
 // itself.
 function otp2ksmurls ($otp, $client) {
   if ($client == 42) {
-    return array("http://another-ykkms.example.com/wsapi/decrypt/?otp=$otp");
+    return array("http://another-ykkms.example.com/wsapi/decrypt?otp=$otp");
   }
 
   if (preg_match ("/^dteffujehknh/", $otp)) {
-    return array("http://different-ykkms.example.com/wsapi/decrypt/?otp=$otp");
+    return array("http://different-ykkms.example.com/wsapi/decrypt?otp=$otp");
   }
 
   return array(
-	       "http://ykkms1.example.com/wsapi/decrypt/?otp=$otp",
-	       "http://ykkms2.example.com/wsapi/decrypt/?otp=$otp",
+	       "http://ykkms1.example.com/wsapi/decrypt?otp=$otp",
+	       "http://ykkms2.example.com/wsapi/decrypt?otp=$otp",
 	       );
 }
 
