@@ -6,8 +6,8 @@ CREATE TABLE clients (
   id INT NOT NULL AUTO_INCREMENT,
   active BOOLEAN DEFAULT TRUE,
   created DATETIME NOT NULL,
-  email VARCHAR(255),
   secret VARCHAR(60) NOT NULL DEFAULT '',
+  email VARCHAR(255),
   notes VARCHAR(100),
   PRIMARY KEY (id)
 );
