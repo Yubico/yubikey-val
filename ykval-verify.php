@@ -8,10 +8,15 @@ debug("Request: " . $_SERVER['QUERY_STRING']);
 
 $conn = mysql_connect($baseParams['__DB_HOST__'],
 		      $baseParams['__DB_USER__'],
-		      $baseParams['__DB_PW__'])
-  or die('Could not connect to database: ' . mysql_error());
-mysql_select_db($baseParams['__DB_NAME__'], $conn)
-  or die('Could not select database');
+		      $baseParams['__DB_PW__']);
+if (!$conn) {
+  sendResp(S_BACKEND_ERROR);
+  exit;
+}
+if (!mysql_select_db($baseParams['__DB_NAME__'], $conn)) {
+  sendResp(S_BACKEND_ERROR);
+  exit;
+}
 
 //// Extract values from HTTP request
 //
