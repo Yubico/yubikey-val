@@ -224,4 +224,19 @@ function getClientData($conn, $clientId) {
 	}
 	return null;
 } // End getClientData
+
+function sendResp($status, $apiKey = '') {
+  if ($status == null) {
+    $status = S_BACKEND_ERROR;
+  }
+
+  $a['status'] = $status;
+  $a['t'] = getUTCTimeStamp();
+  $h = sign($a, $apiKey);
+
+  echo "h=" . $h . "\r\n";
+  echo "t=" . ($a['t']) . "\r\n";
+  echo "status=" . ($a['status']) . "\r\n";
+  echo "\r\n";
+}
 ?>

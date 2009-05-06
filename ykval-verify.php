@@ -2,6 +2,8 @@
 require_once 'ykval-common.php';
 require_once 'ykval-config.php';
 
+$apiKey = '';
+
 header("content-type: text/plain");
 
 debug("Request: " . $_SERVER['QUERY_STRING']);
@@ -10,40 +12,34 @@ $conn = mysql_connect($baseParams['__DB_HOST__'],
 		      $baseParams['__DB_USER__'],
 		      $baseParams['__DB_PW__']);
 if (!$conn) {
-  sendResp(S_BACKEND_ERROR);
+  sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
 }
 if (!mysql_select_db($baseParams['__DB_NAME__'], $conn)) {
-  sendResp(S_BACKEND_ERROR);
+  sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
 }
 
 //// Extract values from HTTP request
 //
 $h = getHttpVal('h', '');
-
 $client = getHttpVal('id', 0);
-if ($client <= 0) {
-	debug('Client ID is missing');
-	sendResp(S_MISSING_PARAMETER);
-	exit;
-}
-
 $otp = getHttpVal('otp', '');
-if ($otp == '') {
-	debug('OTP is missing');
-	sendResp(S_MISSING_PARAMETER);
-	exit;
-}
 $otp = strtolower($otp);
 
 //// Get Client info from DB
 //
+if ($client <= 0) {
+  debug('Client ID is missing');
+  sendResp(S_MISSING_PARAMETER, $apiKey);
+  exit;
+}
+
 $cd = getClientData($conn, $client);
 if ($cd == null) {
-	debug('Invalid client id ' . $client);
-	sendResp(S_NO_SUCH_CLIENT);
-	exit;
+  debug('Invalid client id ' . $client);
+  sendResp(S_NO_SUCH_CLIENT);
+  exit;
 }
 debug("Client data:", $cd);
 
@@ -52,25 +48,30 @@ debug("Client data:", $cd);
 $apiKey = base64_decode($cd['secret']);
 
 if ($h != '') {
-	// Create the signature using the API key
-	$a = array ();
-	$a['id'] = $client;
-	$a['otp'] = $otp;
-	$hmac = sign($a, $apiKey);
+  // Create the signature using the API key
+  $a = array ();
+  $a['id'] = $client;
+  $a['otp'] = $otp;
+  $hmac = sign($a, $apiKey);
 
-	// Compare it
-	if ($hmac != $h) {
-		debug('client hmac=' . $h . ', server hmac=' . $hmac);
-		sendResp(S_BAD_SIGNATURE);
-		exit;
-	}
+  // Compare it
+  if ($hmac != $h) {
+    debug('client hmac=' . $h . ', server hmac=' . $hmac);
+    sendResp(S_BAD_SIGNATURE, $apiKey);
+    exit;
+  }
 }
 
 //// Sanity check OTP
 //
+if ($otp == '') {
+  debug('OTP is missing');
+  sendResp(S_MISSING_PARAMETER, $apiKey);
+  exit;
+}
 if (strlen($otp) <= TOKEN_LEN) {
   debug('Too short OTP: ' . $otp);
-  sendResp(S_BAD_OTP);
+  sendResp(S_BAD_OTP, $apiKey);
   exit;
 }
 
@@ -78,7 +79,7 @@ if (strlen($otp) <= TOKEN_LEN) {
 //
 $urls = otp2ksmurls ($otp, $client);
 if (!is_array($urls)) {
-  sendResp(S_BACKEND_ERROR);
+  sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
 }
 
@@ -86,8 +87,8 @@ if (!is_array($urls)) {
 //
 $otpinfo = KSMdecryptOTP($urls);
 if (!is_array($otpinfo)) {
-	sendResp(S_BACKEND_ERROR);
-	exit;
+  sendResp(S_BAD_OTP, $apiKey);
+  exit;
 }
 debug("Decrypted OTP:", $otpinfo);
 
@@ -96,20 +97,20 @@ debug("Decrypted OTP:", $otpinfo);
 $devId = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
 $ad = getAuthData($conn, $devId);
 if (!is_array($ad)) {
-	debug('Discovered Yubikey ' . $devId);
-	addNewKey($conn, $devId);
-	$ad = getAuthData($conn, $devId);
-	if (!is_array($ad)) {
-		debug('Invalid Yubikey ' . $devId);
-		sendResp(S_BACKEND_ERROR);
-		exit;
-	}
+  debug('Discovered Yubikey ' . $devId);
+  addNewKey($conn, $devId);
+  $ad = getAuthData($conn, $devId);
+  if (!is_array($ad)) {
+    debug('Invalid Yubikey ' . $devId);
+    sendResp(S_BACKEND_ERROR, $apiKey);
+    exit;
+  }
 }
 debug("Auth data:", $ad);
 if ($ad['active'] != 1) {
-	debug('De-activated Yubikey ' . $devId);
-	sendResp(S_BAD_OTP);
-	exit;
+  debug('De-activated Yubikey ' . $devId);
+  sendResp(S_BAD_OTP, $apiKey);
+  exit;
 }
 
 //// Check the session counter
@@ -117,10 +118,10 @@ if ($ad['active'] != 1) {
 $sessionCounter = $otpinfo["session_counter"]; // From the req
 $seenSessionCounter = $ad['counter']; // From DB
 if ($sessionCounter < $seenSessionCounter) {
-	debug("Replay, session counter, seen=" . $seenSessionCounter .
-	      " this=" . $sessionCounter);
-	sendResp(S_REPLAYED_OTP);
-	exit;
+  debug("Replay, session counter, seen=" . $seenSessionCounter .
+	" this=" . $sessionCounter);
+  sendResp(S_REPLAYED_OTP, $apiKey);
+  exit;
 }
 
 //// Check the session use
@@ -128,10 +129,10 @@ if ($sessionCounter < $seenSessionCounter) {
 $sessionUse = $otpinfo["session_use"]; // From the req
 $seenSessionUse = $ad['sessionUse']; // From DB
 if ($sessionCounter == $seenSessionCounter && $sessionUse <= $seenSessionUse) {
-	debug("Replay, session use, seen=" . $seenSessionUse .
-	      ' this=' . $sessionUse);
-	sendResp(S_REPLAYED_OTP);
-	exit;
+  debug("Replay, session use, seen=" . $seenSessionUse .
+	' this=' . $sessionUse);
+  sendResp(S_REPLAYED_OTP, $apiKey);
+  exit;
 }
 
 //// Valid OTP, update database
@@ -169,33 +170,11 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
   if ($deviation > TS_ABS_TOLERANCE && $percent > TS_REL_TOLERANCE) {
     debug("OTP failed phishing test");
     if (0) {
-      sendResp(S_DELAYED_OTP);
+      sendResp(S_DELAYED_OTP, $apiKey);
       exit;
     }
   }
 }
 
-sendResp(S_OK);
-
-//////////////////////////
-// 		Functions
-//////////////////////////
-
-function sendResp($status) {
-	global $apiKey;
-
-	if ($status == null) {
-		$status = S_BACKEND_ERROR;
-	}
-
-	$a['status'] = $status;
-	$a['t'] = getUTCTimeStamp();
-	$h = sign($a, $apiKey);
-
-	echo "h=" . $h . "\r\n";
-	echo "t=" . ($a['t']) . "\r\n";
-	echo "status=" . ($a['status']) . "\r\n";
-	echo "\r\n";
-
-} // End sendResp
+sendResp(S_OK, $apiKey);
 ?>
