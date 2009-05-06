@@ -26,8 +26,8 @@ CREATE TABLE yubikeys (
   PRIMARY KEY (id)
 );
 
--- DROP USER ykval_verifier;
-CREATE USER ykval_verifier;
+-- DROP USER 'ykval_verifier'@'localhost';
+CREATE USER 'ykval_verifier'@'localhost';
 GRANT SELECT,INSERT,UPDATE(accessed, counter, low, high, sessionUse)
        ON ykval.yubikeys to 'ykval_verifier'@'localhost';
 GRANT SELECT(id, secret, active)
