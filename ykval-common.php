@@ -35,7 +35,8 @@ function query($conn, $q) {
   debug('SQL query: ' . $q);
   $result = mysql_query($q, $conn);
   if (!$result) {
-    die("SQL query error: " . mysql_error());
+    debug("SQL query error: " . mysql_error());
+    return;
   }
   return $result;
 }
