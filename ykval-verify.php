@@ -163,7 +163,7 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
 	round(100*$percent) . '%');
   if ($deviation > TS_ABS_TOLERANCE && $percent > TS_REL_TOLERANCE) {
     debug("OTP failed phishing test");
-    if ($cd['chk_time']) {
+    if (0) {
       sendResp(S_DELAYED_OTP);
       exit;
     }

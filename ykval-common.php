@@ -212,7 +212,7 @@ function addNewKey($conn, $devId) {
 // $clientId: The decimal client identity
 function getClientData($conn, $clientId) {
 	$stmt =
-	  'SELECT id, secret, chk_time '.
+	  'SELECT id, secret '.
 	  'FROM clients '.
 	  'WHERE active AND id='.mysql_quote($clientId);
 	$r = query($conn, $stmt);

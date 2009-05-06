@@ -6,9 +6,9 @@ CREATE TABLE clients (
   id INT NOT NULL AUTO_INCREMENT,
   active BOOLEAN DEFAULT TRUE,
   created DATETIME NOT NULL,
-  email VARCHAR(255) NOT NULL DEFAULT '',
+  email VARCHAR(255),
   secret VARCHAR(60) NOT NULL DEFAULT '',
-  chk_time BOOLEAN DEFAULT TRUE,
+  notes VARCHAR(100),
   PRIMARY KEY (id)
 );
 
@@ -30,6 +30,6 @@ CREATE TABLE yubikeys (
 CREATE USER ykval_verifier;
 GRANT SELECT,INSERT,UPDATE(accessed, counter, low, high, sessionUse)
        ON ykval.yubikeys to 'ykval_verifier'@'localhost';
-GRANT SELECT(id, secret, chk_time, active)
+GRANT SELECT(id, secret, active)
        ON ykval.clients to 'ykval_verifier'@'localhost';
 FLUSH PRIVILEGES;
