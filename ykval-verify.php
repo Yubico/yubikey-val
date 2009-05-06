@@ -101,7 +101,7 @@ if (!is_array($ad)) {
 	$ad = getAuthData($conn, $devId);
 	if (!is_array($ad)) {
 		debug('Invalid Yubikey ' . $devId);
-		sendResp(S_BAD_OTP);
+		sendResp(S_BACKEND_ERROR);
 		exit;
 	}
 }
