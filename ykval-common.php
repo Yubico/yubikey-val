@@ -189,11 +189,11 @@ function KSMdecryptOTP($urls) {
 
 // $devId: The first 12 chars from the OTP
 function getAuthData($conn, $devId) {
-	$tokenId = modhex2b64($devId);
+	$publicName = modhex2b64($devId);
 	$stmt =
 	  'SELECT id, active, counter, sessionUse, low, high, accessed '.
 	  'FROM yubikeys '.
-	  'WHERE tokenId='.mysql_quote($tokenId);
+	  'WHERE publicName='.mysql_quote($publicName);
 	$r = query($conn, $stmt);
 	if (mysql_num_rows($r) > 0) {
 		$row = mysql_fetch_assoc($r);
@@ -204,9 +204,9 @@ function getAuthData($conn, $devId) {
 } // End getAuthData
 
 function addNewKey($conn, $devId) {
-	$tokenId = modhex2b64($devId);
-	$stmt = 'INSERT INTO yubikeys (active, created, tokenId, counter) '.
-	  'VALUES (true, NOW(), ' . mysql_quote($tokenId) . ', 0)';
+	$publicName = modhex2b64($devId);
+	$stmt = 'INSERT INTO yubikeys (active, created, publicName, counter) '.
+	  'VALUES (true, NOW(), ' . mysql_quote($publicName) . ', 0)';
 	$r = query($conn, $stmt);
 }
 
