@@ -45,12 +45,12 @@ if (!$result) {
   debug("SQL query error: " . mysql_error());
   logdie("code=maxiderror");
 }
-$max = mysql_fetch_row ($result);
+$id = mysql_fetch_row ($result);
 mysql_free_result($result);
-$max = $max[0] + 1;
+$id = $id[0] + 1;
 
 $query = "INSERT INTO clients (id, created, email, otp, secret) " .
-  "VALUES (\"$max\", NOW(), " . mysql_quote($email) . ", " .
+  "VALUES (\"$id\", NOW(), " . mysql_quote($email) . ", " .
   mysql_quote($otp) . ", " . "\"$b64rnd\")";
 if (!mysql_query($query, $conn)) {
   debug("SQL query error: " . mysql_error());
@@ -59,6 +59,6 @@ if (!mysql_query($query, $conn)) {
 
 mysql_close($conn);
 
-debug("Successfully added client ID $max");
-echo "code=ok\nmax=$max\nkey=$b64rnd\n";
+debug("Successfully added client ID $id");
+echo "code=ok\nid=$id\nkey=$b64rnd\n";
 ?>
