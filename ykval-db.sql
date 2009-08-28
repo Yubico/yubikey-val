@@ -8,8 +8,8 @@ CREATE TABLE clients (
   created DATETIME NOT NULL,
   secret VARCHAR(60) NOT NULL DEFAULT '',
   email VARCHAR(255),
-  notes VARCHAR(100) DEFAULT '',
   otp VARCHAR(100) DEFAULT '',
+  notes VARCHAR(100) DEFAULT '',
   PRIMARY KEY (id)
 );
 
@@ -24,6 +24,7 @@ CREATE TABLE yubikeys (
   low INT,
   high INT,
   sessionUse INT,
+  notes VARCHAR(100) DEFAULT '',
   PRIMARY KEY (id)
 );
 
