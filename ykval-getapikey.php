@@ -40,7 +40,8 @@ fclose ($fh);
 $b64rnd = base64_encode ($rnd);
 
 $query = "SELECT MAX(id) FROM clients";
-if (!mysql_query($query, $conn)) {
+$result = mysql_query($query, $conn);
+if (!$result) {
   debug("SQL query error: " . mysql_error());
   logdie("code=maxiderror");
 }
