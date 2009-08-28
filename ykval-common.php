@@ -16,6 +16,12 @@ define('TS_ABS_TOLERANCE', 20);
 
 define('TOKEN_LEN', 32);
 
+function logdie ($str)
+{
+  error_log($str);
+  die($str . "\n");
+}
+
 function unescape($s) {
 	return str_replace('\\', "", $s);
 }

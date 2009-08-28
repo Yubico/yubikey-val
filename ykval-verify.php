@@ -8,14 +8,14 @@ header("content-type: text/plain");
 
 debug("Request: " . $_SERVER['QUERY_STRING']);
 
-$conn = mysql_connect($baseParams['__DB_HOST__'],
-		      $baseParams['__DB_USER__'],
-		      $baseParams['__DB_PW__']);
+$conn = mysql_connect($baseParams['__YKVAL_DB_HOST__'],
+		      $baseParams['__YKVAL_DB_USER__'],
+		      $baseParams['__YKVAL_DB_PW__']);
 if (!$conn) {
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
 }
-if (!mysql_select_db($baseParams['__DB_NAME__'], $conn)) {
+if (!mysql_select_db($baseParams['__YKVAL_DB_NAME__'], $conn)) {
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
 }

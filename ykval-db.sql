@@ -32,4 +32,9 @@ GRANT SELECT,INSERT,UPDATE(accessed, counter, low, high, sessionUse)
        ON ykval.yubikeys to 'ykval_verifier'@'localhost';
 GRANT SELECT(id, secret, active)
        ON ykval.clients to 'ykval_verifier'@'localhost';
+
+CREATE USER 'ykval_getapikey'@'localhost';
+GRANT SELECT(id),INSERT
+	ON ykval.clients to 'ykval_getapikey'@'localhost';
+
 FLUSH PRIVILEGES;
