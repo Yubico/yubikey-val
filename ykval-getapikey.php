@@ -46,13 +46,16 @@ $max = mysql_fetch_row ($result);
 mysql_free_result($result);
 $max = $max[0] + 1;
 
-$query = "INSERT INTO clients (id, created, email, notes, secret) " .
+$query = "INSERT INTO clients (id, created, email, otp, secret) " .
   "VALUES (\"$max\", NOW(), " . mysql_quote($email) . ", " .
-  mysql_quote("OTP " . $otp) . ", " . "\"$b64rnd\")";
-query($conn, $query)
-  or logdie("code=inserterror");
+  mysql_quote($otp) . ", " . "\"$b64rnd\")";
+if (!mysql_query($query, $conn)) {
+  debug("SQL query error: " . mysql_error());
+  logdie("code=inserterror");
+}
 
 mysql_close($conn);
 
-logdie("code=ok\nmax=$max\nkey=$b64rnd");
+debug("Successfully added client ID $max");
+echo "code=ok\nmax=$max\nkey=$b64rnd\n";
 ?>
