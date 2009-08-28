@@ -34,6 +34,7 @@ GRANT SELECT,INSERT,UPDATE(accessed, counter, low, high, sessionUse)
 GRANT SELECT(id, secret, active)
        ON ykval.clients to 'ykval_verifier'@'localhost';
 
+-- DROP USER 'ykval_getapikey'@'localhost';
 CREATE USER 'ykval_getapikey'@'localhost';
 GRANT SELECT(id),INSERT
 	ON ykval.clients to 'ykval_getapikey'@'localhost';
