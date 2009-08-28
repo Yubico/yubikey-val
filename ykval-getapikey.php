@@ -1,0 +1,58 @@
+<?php
+require_once 'ykval-common.php';
+require_once 'ykval-config.php';
+require_once 'Auth/Yubico.php';
+
+header("content-type: text/plain");
+
+debug("Request: " . $_SERVER['QUERY_STRING']);
+
+$conn = mysql_connect($baseParams['__YKGAK_DB_HOST__'],
+		      $baseParams['__YKGAK_DB_USER__'],
+		      $baseParams['__YKGAK_DB_PW__']);
+if (!$conn) {
+  logdie("code=connecterror");
+}
+if (!mysql_select_db($baseParams['__YKGAK_DB_NAME__'], $conn)) {
+  logdie("code=selecterror");
+}
+
+$email = $_REQUEST["email"];
+$otp = $_REQUEST["otp"];
+if (!$email || !$otp || !(strpos($email . $otp, " ") === FALSE)) {
+  logdie("code=noparam");
+}
+
+$yubi = &new Auth_Yubico($baseParams['__YKGAK_ID__'],
+			 $baseParams['__YKGAK_KEY__']);
+$auth = $yubi->verify($otp);
+if (PEAR::isError($auth)) {
+  logdie("code=badotp\nstatus=" . $auth->getMessage());
+}
+
+$sqlid = mysql_real_escape_string($email . " " . $yubikey);
+
+$fh = fopen("/dev/urandom", "r")
+  or logdie ("code=openerror");
+$rnd = fread ($fh, 20)
+  or logdie ("code=readerror");
+fclose ($fh);
+$b64rnd = base64_encode ($rnd);
+
+$query = "SELECT MAX(id) FROM clients";
+$result = query($conn, $query)
+  or logdie("code=maxiderror");
+$max = mysql_fetch_row ($result);
+mysql_free_result($result);
+$max = $max[0] + 1;
+
+$query = "INSERT INTO clients (id, created, email, notes, secret) " .
+  "VALUES (\"$max\", NOW(), " . mysql_quote($email) . ", " .
+  mysql_quote("OTP " . $otp) . ", " . "\"$b64rnd\")";
+query($conn, $query)
+  or logdie("code=inserterror");
+
+mysql_close($conn);
+
+logdie("code=ok\nmax=$max\nkey=$b64rnd");
+?>
