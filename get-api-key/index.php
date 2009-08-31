@@ -65,7 +65,7 @@ if ($email && $otp) {
 	Authentication failure. Please try again. </h1>
       <?php } ?>
 
-    <p><form name="getapikey"><table>
+    <p><form name="getapikey" method="post"><table>
 	  <tr><td>E-mail address:</td>
 	    <td><input type="text" name="email"></td></tr>
 	  <tr><td>Yubikey OTP:</td>
