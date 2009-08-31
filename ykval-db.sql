@@ -40,4 +40,11 @@ CREATE USER 'ykval_getapikey'@'localhost';
 GRANT SELECT(id),INSERT
 	ON ykval.clients to 'ykval_getapikey'@'localhost';
 
+-- DROP USER 'ykval_revoke'@'localhost';
+CREATE USER 'ykval_revoke'@'localhost';
+GRANT UPDATE(active)
+        ON ykval.yubikeys to 'ykval_revoke'@'localhost';
+GRANT SELECT(publicName)
+        ON ykval.yubikeys to 'ykval_revoke'@'localhost';
+
 FLUSH PRIVILEGES;
