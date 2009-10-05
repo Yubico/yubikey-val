@@ -231,17 +231,25 @@ function getClientData($conn, $clientId) {
 	return null;
 } // End getClientData
 
-function sendResp($status, $apiKey = '') {
+function sendResp($status, $apiKey = '', $extra = null) {
   if ($status == null) {
     $status = S_BACKEND_ERROR;
   }
 
   $a['status'] = $status;
   $a['t'] = getUTCTimeStamp();
+  if ($extra){
+    foreach ($extra as $param => $value) $a[$param] = $value;
+  }
   $h = sign($a, $apiKey);
 
   echo "h=" . $h . "\r\n";
   echo "t=" . ($a['t']) . "\r\n";
+  if ($extra){
+    foreach ($extra as $param => $value) {
+      echo $param . "=" . $value . "\r\n";
+    }
+  }
   echo "status=" . ($a['status']) . "\r\n";
   echo "\r\n";
 }

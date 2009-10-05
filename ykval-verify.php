@@ -26,6 +26,7 @@ $h = getHttpVal('h', '');
 $client = getHttpVal('id', 0);
 $otp = getHttpVal('otp', '');
 $otp = strtolower($otp);
+$timestamp = getHttpVal('timestamp', 0);
 
 //// Get Client info from DB
 //
@@ -52,6 +53,8 @@ if ($h != '') {
   $a = array ();
   $a['id'] = $client;
   $a['otp'] = $otp;
+  // include timestamp in signature if it exists
+  if ($timestamp) $a['timestamp'] = $timestamp;
   $hmac = sign($a, $apiKey);
 
   // Compare it
@@ -159,7 +162,14 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
   $now = time();
   $elapsed = $now - $lastTime;
   $deviation = abs($elapsed - $tsDelta);
-  $percent = $deviation/$elapsed;
+
+  // Time delta server might verify multiple OTPS in a row. In such case validation server doesn't 
+  // have time to tick a whole second and we need to avoid division by zero. 
+  if ($elapsed != 0) {
+    $percent = $deviation/$elapsed;
+  } else {
+    $percent = 1;
+  }
   debug("Timestamp seen=" . $seenTs . " this=" . $ts .
 	" delta=" . $tsDiff . ' secs=' . $tsDelta .
 	' accessed=' . $lastTime .' (' . $ad['accessed'] . ') now='
@@ -176,5 +186,12 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
   }
 }
 
-sendResp(S_OK, $apiKey);
+if ($timestamp==1){
+  $extra['timestamp'] = ($otpinfo['high'] << 16) + $otpinfo['low'];
+  $extra['sessioncounter'] = $sessionCounter;
+  $extra['sessionuse'] = $sessionUse;
+  sendResp(S_OK, $apiKey, $extra);
+ } else {
+  sendResp(S_OK, $apiKey);
+ }  
 ?>
