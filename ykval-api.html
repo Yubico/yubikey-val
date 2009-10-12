@@ -94,6 +94,11 @@ with the following parameters (note that this request need not be signed):
 
     <td>The OTP from the YubiKey.</td>
   </tr>
+  <tr>
+    <td><code>timestamp</td>
+    <td>string</td>
+    <td>No</td>
+    <td>Timestamp=1 requests timestamp and session counter information the response</td>
 
   <tr>
     <td><code>h</code></td>
@@ -108,7 +113,13 @@ An example request (broken into two lines for legibility):
 <pre>
 http://api.yubico.com/wsapi/verify?otp=vvvvvvcucrlcietctc\
 kflvnncdgckubflugerlnr&id=87 </pre>
-<br />	
+<br />
+And if you require additional information on timestamp and session counters:
+<pre>
+http://api.yubico.com/wsapi/verify?otp=vvvvvvcucrlcietctc\
+kflvnncdgckubflugerlnr&id=87&timestamp=1 </pre>
+<br />
+	
 <hr size="1" noshade color="#cccccc">
 <br />
 
@@ -145,6 +156,21 @@ The response has the following values:
     <td>string</td>
     <td>Additional information if the status
       is <code>MISSING_PARAMETER</code>.</td>
+  </tr>
+  <tr>
+    <td><code>timestamp</code></td>
+    <td>string</td>
+    <td>YubiKey internal timestamp value when key was pressed</td>
+  </tr>
+  <tr>
+    <td><code>sessioncounter</code></td>
+    <td>string</td>
+    <td>YubiKey internal usage counter when key was pressed</td>
+  </tr>
+  <tr>
+    <td><code>sessionuse</code></td>
+    <td>string</td>
+    <td>YubiKey internal session usage counter when key was pressed</td>
   </tr>
 </table>
 <br /><br />
