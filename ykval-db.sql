@@ -28,6 +28,15 @@ CREATE TABLE yubikeys (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE queue (
+  id INT NOT NULL UNIQUE AUTO_INCREMENT,
+  added DATETIME DEFAULT NOW(),
+  server VARCHAR(100) NOT NULL,
+  info VARCHAR(100) NOT NULL,
+  otp VARCHAR(100) NOT NULL,
+  PRIMARY KEY (id)
+);
+
 -- DROP USER 'ykval_verifier'@'localhost';
 CREATE USER 'ykval_verifier'@'localhost';
 GRANT SELECT,INSERT,UPDATE(accessed, counter, low, high, sessionUse)
