@@ -9,6 +9,8 @@ define('S_MISSING_PARAMETER', 'MISSING_PARAMETER');
 define('S_NO_SUCH_CLIENT', 'NO_SUCH_CLIENT');
 define('S_OPERATION_NOT_ALLOWED', 'OPERATION_NOT_ALLOWED');
 define('S_BACKEND_ERROR', 'BACKEND_ERROR');
+define('S_NOT_ENOUGH_ANSWERS', 'NOT_ENOUGH_ANSWERS');
+
 
 define('TS_SEC', 1/8);
 define('TS_REL_TOLERANCE', 0.3);
@@ -74,6 +76,19 @@ function getUTCTimeStamp() {
 	return date('Y-m-d\TH:i:s\Z0', time()) . $tiny;
 }
 
+# NOTE: When we evolve to using general DB-interface, this functinality
+# should be moved there. 
+function DbTimeToUnix($db_time)
+{
+  $unix=strptime($db_time, '%F %H:%M:%S');
+  return mktime($unix[tm_hour], $unix[tm_min], $unix[tm_sec], $unix[tm_mon]+1, $unix[tm_mday], $unix[tm_year]+1900);
+}
+
+function UnixToDbTime($unix)
+{
+  return date('Y-m-d H:i:s', $unix);
+}  
+
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
 function sign($a, $apiKey) {
@@ -113,9 +128,9 @@ function modhex2b64 ($modhex_str) {
 // The request are sent asynchronously.  Some of the URLs can fail
 // with unknown host, connection errors, or network timeout, but as
 // long as one of the URLs given work, data will be returned.  If all
-// URLs fail, data from some URL that did not match ^OK is returned,
-// or if all URLs failed, false.
-function retrieveURLasync ($urls) {
+// URLs fail, data from some URL that did not match parameter $match 
+// (defaults to ^OK) is returned, or if all URLs failed, false.
+function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
   $mh = curl_multi_init();
 
   $ch = array();
@@ -134,6 +149,8 @@ function retrieveURLasync ($urls) {
   }
 
   $str = false;
+  $ans_count = 0;
+  $ans_arr = array();
 
   do {
     while (($mrc = curl_multi_exec($mh, $active)) == CURLM_CALL_MULTI_PERFORM)
@@ -143,22 +160,29 @@ function retrieveURLasync ($urls) {
       debug ("YK-KSM multi", $info);
       if ($info['result'] == CURL_OK) {
 	$str = curl_multi_getcontent($info['handle']);
-	
-	if (preg_match("/^OK/", $str)) {
+	debug($str);
+	if (preg_match("/".$match."/", $str)) {
 	  $error = curl_error ($info['handle']);
 	  $errno = curl_errno ($info['handle']);
-	  $info = curl_getinfo ($info['handle']);
-	  debug("YK-KSM errno/error: " . $errno . "/" . $error, $info);
+	  $cinfo = curl_getinfo ($info['handle']);
+	  debug("YK-KSM errno/error: " . $errno . "/" . $error, $cinfo);
+	  $ans_count++;
+	  debug("found entry");
+	  if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
+	  else $ans_arr[]=$str;
+	}
 
+	if ($ans_count >= $ans_req) {
 	  foreach ($ch as $h) {
 	    curl_multi_remove_handle ($mh, $h);
 	    curl_close ($h);
 	  }
 	  curl_multi_close ($mh);
-
-	  return $str;
+	  
+	  if ($ans_count==1) return $ans_arr[0];
+	  else return $ans_arr;
 	}
-
+	
 	curl_multi_remove_handle ($mh, $info['handle']);
 	curl_close ($info['handle']);
 	unset ($ch[$info['handle']]);

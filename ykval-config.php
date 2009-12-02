@@ -5,7 +5,9 @@ $baseParams = array ();
 $baseParams['__YKVAL_DB_HOST__'] = 'localhost';
 $baseParams['__YKVAL_DB_NAME__'] = 'ykval';
 $baseParams['__YKVAL_DB_USER__'] = 'ykval_verifier';
-$baseParams['__YKVAL_DB_PW__'] = 'password';
+$baseParams['__YKVAL_DB_PW__'] = 'lab';
+# For the validation server sync
+$baseParams['__YKVAL_SYNC_POOL__'] = "api2.yubico.com/wsapi/sync;api3.yubico.com/wsapi/sync;api4.yubico.com/wsapi/sync";
 
 # For the get-api-key service.
 $baseParams['__YKGAK_DB_HOST__'] = $baseParams['__YKVAL_DB_HOST__'];
@@ -21,6 +23,9 @@ $baseParams['__YKR_DB_NAME__'] = $baseParams['__YKVAL_DB_NAME__'];
 $baseParams['__YKR_DB_USER__'] = 'ykval_revoke';
 $baseParams['__YKR_DB_PW__'] = 'thirdpassword';
 $baseParams['__YKR_IP__'] = '1.2.3.4';
+
+
+
 
 // otp2ksmurls: Return array of YK-KSM URLs for decrypting OTP for
 // CLIENT.  The URLs must be fully qualified, i.e., contain the OTP

@@ -1,6 +1,7 @@
 <?php
 require_once 'ykval-common.php';
 require_once 'ykval-config.php';
+require_once 'ykval-synclib.php';
 
 $apiKey = '';
 
@@ -146,7 +147,52 @@ $stmt = 'UPDATE yubikeys SET accessed=NOW()' .
   ', low=' . $otpinfo['low'] .
   ', high=' . $otpinfo['high'] .
   ' WHERE id=' . $ad['id'];
+$r=query($conn, $stmt);
+
+$stmt = 'SELECT accessed FROM yubikeys WHERE id=' . $ad['id'];
+$r=query($conn, $stmt);
+if (mysql_num_rows($r) > 0) {
+  $row = mysql_fetch_assoc($r);
+  mysql_free_result($r);
+  $modified=DbTimeToUnix($row['accessed']);
+ }  
+ else {
+   $modified=0;
+ }
+
+//// Queue sync requests
+$sl = new SyncLib();
+// We need the modifed value from the DB
+$stmp = 'SELECT accessed FROM yubikeys WHERE id=' . $ad['id'];
 query($conn, $stmt);
+$sl->queue($modified, 
+	   $otp, 
+	   $devId, 
+	   $otpinfo['session_counter'], 
+	   $otpinfo['session_use'], 
+	   $otpinfo['high'], 
+	   $otpinfo['low']);
+$required_answers=$sl->getNumberOfServers();
+$syncres=$sl->sync($required_answers);
+$answers=$sl->getNumberOfAnswers();
+$valid_answers=$sl->getNumberOfValidAnswers();
+
+debug("ykval-verify:notice:number of servers=" . $required_answers);
+debug("ykval-verify:notice:number of answers=" . $answers);
+debug("ykval-verify:notice:number of valid answers=" . $valid_answers);
+if($syncres==False) {
+# sync returned false, indicating that 
+# either at least 1 answer marked OTP as invalid or
+# there were not enough answers
+  debug("ykval-verify:notice:Sync failed");
+  if ($valid_answers!=$answers) {
+    sendResp(S_REPLAYED_OTP, $apiKey);
+    exit;
+  } else {
+    sendResp(S_NOT_ENOUGH_ANSWERS, $apiKey);
+    exit;
+  }
+ }
 
 //// Check the time stamp
 //

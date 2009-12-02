@@ -30,8 +30,8 @@ CREATE TABLE yubikeys (
 
 CREATE TABLE queue (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
-  queued_time DATETIME DEFAULT NOW(),
-  modified_time DATETIME DEFAULT NOW(),
+  queued_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  modified_time TIMESTAMP,
   otp VARCHAR(100) NOT NULL,
   server VARCHAR(100) NOT NULL,
   info VARCHAR(100) NOT NULL,
@@ -44,6 +44,8 @@ GRANT SELECT,INSERT,UPDATE(accessed, counter, low, high, sessionUse)
        ON ykval.yubikeys to 'ykval_verifier'@'localhost';
 GRANT SELECT(id, secret, active)
        ON ykval.clients to 'ykval_verifier'@'localhost';
+GRANT SELECT,INSERT,UPDATE,DELETE 
+	ON ykval.queue to 'ykval_verifier'@'localhost';
 
 -- DROP USER 'ykval_getapikey'@'localhost';
 CREATE USER 'ykval_getapikey'@'localhost';
