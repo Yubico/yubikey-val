@@ -55,7 +55,9 @@ class SyncLib
   }
   public function queue($modified, $otp, $identity, $counter, $use, $high, $low)
   {
-    $info='yk_identity=' . $identity .
+    $info='modified=' . $modified .
+      '&otp=' . $otp .
+      '&yk_identity=' . $identity .
       '&yk_counter=' . $counter .
       '&yk_use=' . $use .
       '&yk_high=' . $high .
