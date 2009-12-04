@@ -340,14 +340,16 @@ class SyncLib
 	curl_multi_select ($mh);
       }
     } while($active);
+
     
     foreach ($ch as $h) {
       curl_multi_remove_handle ($mh, $h);
       curl_close ($h);
     }
     curl_multi_close ($mh);
-    
-    return $str;
+
+    if ($ans_count>0) return $ans_arr;
+    else return $str;
   }
   
 }
