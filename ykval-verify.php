@@ -165,13 +165,30 @@ $sl = new SyncLib();
 // We need the modifed value from the DB
 $stmp = 'SELECT accessed FROM yubikeys WHERE id=' . $ad['id'];
 query($conn, $stmt);
-$sl->queue($modified, 
-	   $otp, 
-	   $devId, 
-	   $otpinfo['session_counter'], 
-	   $otpinfo['session_use'], 
-	   $otpinfo['high'], 
-	   $otpinfo['low']);
+
+$otpParams=array('modified'=>$modified, 
+		 'otp'=>$otp, 
+		 'yk_identity'=>$devId, 
+		 'yk_counter'=>$otpinfo['session_counter'], 
+		 'yk_use'=>$otpinfo['session_use'], 
+		 'yk_high'=>$otpinfo['high'], 
+		 'yk_low'=>$otpinfo['low']);
+
+$localParams=array('modified'=>DbTimeToUnix($ad['accessed']), 
+		   'otp'=>'', 
+		   'yk_identity'=>$devId, 
+		   'yk_counter'=>$ad['counter'], 
+		   'yk_use'=>$ad['sessionUse'], 
+		   'yk_high'=>$ad['high'], 
+		   'yk_low'=>$ad['low']);
+
+
+if (!$sl->queue($otpParams, $localParams)) {
+  debug("ykval-verify:critical:failed to queue sync requests");
+  sendResp(S_BACKEND_ERROR, $apiKey);
+  exit;
+ }
+
 $required_answers=$sl->getNumberOfServers();
 $syncres=$sl->sync($required_answers);
 $answers=$sl->getNumberOfAnswers();

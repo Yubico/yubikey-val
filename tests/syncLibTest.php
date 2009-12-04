@@ -38,13 +38,22 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
     $queue_length = $sl->getQueueLength();
 
 
-    $sl->queue(1259585588, 
-	       "ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui", 
-	       "cccccccccccc", 
-	       10,
-	       20,
-	       100,
-	       1000);
+    $sl->queue(array('modified'=>1259585588,
+		     'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+		     'yk_identity'=>"cccccccccccc",
+		     'yk_counter'=>10,
+		     'yk_use'=>20,
+		     'yk_high'=>100,
+		     'yk_low'=>1000),
+	       array('modified'=>1259585588,
+		     'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+		     'yk_identity'=>"cccccccccccc",
+		     'yk_counter'=>10,
+		     'yk_use'=>18,
+		     'yk_high'=>100,
+		     'yk_low'=>1000)
+	       );
+
     
     $this->assertEquals($nr_servers + $queue_length, $sl->getQueueLength());
     $lastSync=$sl->getLast();
@@ -102,26 +111,47 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
 			     "http://localhost/wsapi/syncvalid3");
     
     $start_length=$sl->getQueueLength();
-    $this->assertTrue($sl->queue(1259671571+1000,
-				 "ccccccccccccculnnjikvhjduicubtkcvgvkcdcvdjhk",
-				 "cccccccccccc", 
-				 9,
-				 3,
-				 55,
-				 18000));
+    $this->assertTrue(
+		      $sl->queue(array('modified'=>1259585588+1000,
+				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+				       'yk_identity'=>"cccccccccccc",
+				       'yk_counter'=>9,
+				       'yk_use'=>3,
+				       'yk_high'=>100,
+				       'yk_low'=>1000),
+				 array('modified'=>1259585588,
+				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+				       'yk_identity'=>"cccccccccccc",
+				       'yk_counter'=>10,
+				       'yk_use'=>18,
+				       'yk_high'=>100,
+				       'yk_low'=>1000)
+				 ));
+
+
     
     $res=$sl->sync(3);
     $this->assertEquals(3, $sl->getNumberOfValidAnswers());
     $this->assertTrue($res, "all sync servers should be configured to return ok values");
     $this->assertEquals($start_length, $sl->getQueueLength());
 
-    $this->assertTrue($sl->queue(1259671571+1000,
-				 "ccccccccccccculnnjikvhjduicubtkcvgvkcdcvdjhk",
-				 "cccccccccccc", 
-				 9,
-				 3,
-				 55,
-				 18000));
+    $this->assertTrue(
+		      $sl->queue(array('modified'=>1259585588+1000,
+				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+				       'yk_identity'=>"cccccccccccc",
+				       'yk_counter'=>9,
+				       'yk_use'=>3,
+				       'yk_high'=>100,
+				       'yk_low'=>1000),
+				 array('modified'=>1259585588,
+				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+				       'yk_identity'=>"cccccccccccc",
+				       'yk_counter'=>10,
+				       'yk_use'=>18,
+				       'yk_high'=>100,
+				       'yk_low'=>1000)
+				 ));
+
     
     $res=$sl->sync(2);
     $this->assertEquals(2, $sl->getNumberOfValidAnswers());
@@ -139,13 +169,23 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
 			     "http://localhost/wsapi/syncinvalid3");
     
     $start_length=$sl->getQueueLength();
-    $this->assertTrue($sl->queue(1259671571+1000,
-				 "ccccccccccccculnnjikvhjduicubtkcvgvkcdcvdjhk",
-				 "cccccccccccc", 
-				 9,
-				 3,
-				 55,
-				 18000));
+    $this->assertTrue(
+		      $sl->queue(array('modified'=>1259585588+1000,
+				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+				       'yk_identity'=>"cccccccccccc",
+				       'yk_counter'=>9,
+				       'yk_use'=>3,
+				       'yk_high'=>100,
+				       'yk_low'=>1000),
+				 array('modified'=>1259585588,
+				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+				       'yk_identity'=>"cccccccccccc",
+				       'yk_counter'=>10,
+				       'yk_use'=>18,
+				       'yk_high'=>100,
+				       'yk_low'=>1000)
+				 ));
+
     
     $res=$sl->sync(3);
     $this->assertEquals(0, $sl->getNumberOfValidAnswers());
@@ -163,13 +203,23 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
 			     "http://localhost/wsapi/syncvalid3");
     
     $start_length=$sl->getQueueLength();
-    $this->assertTrue($sl->queue(1259671571+1000,
-				 "ccccccccccccculnnjikvhjduicubtkcvgvkcdcvdjhk",
-				 "cccccccccccc", 
-				 9,
-				 3,
-				 55,
-				 18000));
+    $this->assertTrue(
+		      $sl->queue(array('modified'=>1259585588+1000,
+				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+				       'yk_identity'=>"cccccccccccc",
+				       'yk_counter'=>9,
+				       'yk_use'=>3,
+				       'yk_high'=>100,
+				       'yk_low'=>1000),
+				 array('modified'=>1259585588,
+				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+				       'yk_identity'=>"cccccccccccc",
+				       'yk_counter'=>10,
+				       'yk_use'=>18,
+				       'yk_high'=>100,
+				       'yk_low'=>1000)
+				 ));
+
     
     $res=$sl->sync(1);
     $this->assertEquals(1, $sl->getNumberOfValidAnswers());

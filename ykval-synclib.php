@@ -53,27 +53,25 @@ class SyncLib
   {
     return count($this->db->last('queue', NULL));
   }
-  public function queue($modified, $otp, $identity, $counter, $use, $high, $low)
+  public function queue($otpParams, $localParams)
   {
-    $info='yk_identity=' . $identity .
-      '&yk_counter=' . $counter .
-      '&yk_use=' . $use .
-      '&yk_high=' . $high .
-      '&yk_low=' . $low;
     
-    $this->otpParams['modified']=$modified;
-    $this->otpParams['otp']=$otp;
-    $this->otpParams['yk_identity']=$identity;
-    $this->otpParams['yk_counter']=$counter;
-    $this->otpParams['yk_use']=$use;
-    $this->otpParams['yk_high']=$high;
-    $this->otpParams['yk_low']=$low;
+    
+    $info='yk_identity=' . $otpParams['yk_identity'] .
+      '&yk_counter=' . $otpParams['yk_counter'] .
+      '&yk_use=' . $otpParams['yk_use'] .
+      '&yk_high=' . $otpParams['yk_high'] .
+      '&yk_low=' . $otpParams['yk_low'];
+    
+    $this->otpParams = $otpParams;
+    $this->localParams = $localParams;
+    
     
     $res=True;
     foreach ($this->syncServers as $server) {
       
-      if(! $this->db->save('queue', array('modified_time'=>$this->UnixToDbTime($modified), 
-					  'otp'=>$otp, 
+      if(! $this->db->save('queue', array('modified_time'=>$this->UnixToDbTime($otpParams['modified']), 
+					  'otp'=>$otpParams['otp'], 
 					  'server'=>$server,
 					  'random_key'=>$this->random_key,
 					  'info'=>$info))) $res=False;
@@ -201,7 +199,8 @@ class SyncLib
     /*
      Parse responses
     */
-    $localParams=$this->getLocalParams($this->otpParams['yk_identity']);
+    $lastLocalParams=$this->getLocalParams($this->otpParams['yk_identity']);
+    $localParams = $this->localParams;
 
     $this->answers = count($ans_arr);
     $this->valid_answers = 0;
@@ -212,7 +211,7 @@ class SyncLib
       $this->log("notice", "response contains ", $resParams);
       
       /* Check if internal DB should be updated */
-      if ($this->countersHigherThan($resParams, $localParams)) {
+      if ($this->countersHigherThan($resParams, $lastLocalParams)) {
 	$this->updateDbCounters($resParams);
       }
       

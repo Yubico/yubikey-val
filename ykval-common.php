@@ -136,7 +136,7 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
   $ch = array();
   foreach ($urls as $id => $url) {
     $handle = curl_init();
-
+    debug("url is: " . $url);
     curl_setopt($handle, CURLOPT_URL, $url);
     curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
     curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
