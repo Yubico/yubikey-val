@@ -7,7 +7,7 @@ $baseParams['__YKVAL_DB_NAME__'] = 'ykval';
 $baseParams['__YKVAL_DB_USER__'] = 'ykval_verifier';
 $baseParams['__YKVAL_DB_PW__'] = 'lab';
 # For the validation server sync
-$baseParams['__YKVAL_SYNC_POOL__'] = "api2.yubico.com/wsapi/sync;api3.yubico.com/wsapi/sync;api4.yubico.com/wsapi/sync";
+$baseParams['__YKVAL_SYNC_POOL__'] = "http://api2.yubico.com/wsapi/sync;http://api3.yubico.com/wsapi/sync;http://api4.yubico.com/wsapi/sync";
 
 # For the get-api-key service.
 $baseParams['__YKGAK_DB_HOST__'] = $baseParams['__YKVAL_DB_HOST__'];
