@@ -157,27 +157,29 @@ class SyncLib
 
   public function updateDbCounters($params)
   {
-
-
     $res=$this->db->lastBy('yubikeys', 'publicName', modhex2b64($params['yk_identity']));
     if (isset($res['id'])) {
-      if(! $this->db->update('yubikeys', 
-			     $res['id'], 
-			     array('accessed'=>$this->UnixToDbTime($params['modified']), 
-				   'counter'=>$params['yk_counter'], 
-				   'sessionUse'=>$params['yk_use'],
-				   'low'=>$params['yk_low'],
-				   'high'=>$params['yk_high'])))
+      $condition='('.$params['yk_counter'].'>counter or ('.$params['yk_counter'].'=counter and ' .
+	$params['yk_use'] . '>sessionUse))' ;
+      if(! $this->db->conditional_update('yubikeys', 
+					 $res['id'], 
+					 array('accessed'=>$this->UnixToDbTime($params['modified']), 
+					       'counter'=>$params['yk_counter'], 
+					       'sessionUse'=>$params['yk_use'],
+					       'low'=>$params['yk_low'],
+					       'high'=>$params['yk_high']), 
+					 $condition))
 	{
 	  error_log("ykval-synclib:critical: failed to update internal DB with new counters");
 	  return false;
 	} else {
-	$this->log("notice", "updated database ", $params);
+	if (mysql_affected_rows()>0) $this->log("notice", "updated database ", $params);
+	else $this->log('notice', 'database not updated', $params);
 	return true;
       }
     } else return false;
   }
-    
+  
   public function countersHigherThan($p1, $p2)
   {
     if ($p1['yk_counter'] > $p2['yk_counter'] ||
@@ -341,10 +343,10 @@ class SyncLib
       $this->log("notice", "local db contains ", $localParams);
       $this->log("notice", "response contains ", $resParams);
       
-      /* Check if internal DB should be updated */
-      if ($this->countersHigherThan($resParams, $lastLocalParams)) {
-	$this->updateDbCounters($resParams);
-      }
+      /* Update internal DB (conditional) */
+      
+      $this->updateDbCounters($resParams);
+      
       
       /* Check for warnings 
        

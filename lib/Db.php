@@ -120,11 +120,11 @@ class Db
    */
   public function connect(){
     if (! $this->db_conn = mysql_connect($this->host, $this->user, $this->pwd)) {
-      echo 'Could not connect: ' . mysql_error();
+      error_log('Could not connect: ' . mysql_error());
       return false;
     }
     if (! mysql_select_db($this->db_name)) {
-      echo 'Could not select database ' . $this->db_name;
+      error_log('Could not select database ' . $this->db_name);
       $this->disconnect();
       return false;
     }
@@ -135,6 +135,7 @@ class Db
   {
     mysql_query("TRUNCATE TABLE " . $name);
   }
+
   /**
    * function to update row in database
    *
@@ -159,14 +160,44 @@ class Db
     // Insert UPDATE statement at beginning
     $query = "UPDATE " . $table . " SET " . $query; 
     if (! mysql_query($query)){
-      echo 'Query failed: ' . mysql_error();
-      echo 'Query was: ' . $query;
       error_log('Query failed: ' . mysql_error());
       error_log('Query was: ' . $query);
       return false;
     }
     return true;
   }
+  /**
+   * function to update row in database
+   *
+   * @param string $table Database table to update row in
+   * @param int $id Id on row to update
+   * @param array $values Array with key=>values to update
+   * @param string $condition conditional statement
+   * @return boolean True on success, otherwise false.
+   *
+   */
+  public function conditional_update($table, $id, $values, $condition)
+  {
+    
+    foreach ($values as $key=>$value){
+      if ($value != null) $query = $query . " " . $key . "='" . $value . "',";
+    }
+    if (! $query) {
+      log("no values to set in query. Not updating DB");
+      return true;
+    }
+
+    $query = rtrim($query, ",") . " WHERE id = " . $id . " and " . $condition;
+    // Insert UPDATE statement at beginning
+    $query = "UPDATE " . $table . " SET " . $query; 
+    if (! mysql_query($query)){
+        error_log('Query failed: ' . mysql_error());
+      error_log('Query was: ' . $query);
+      return false;
+    }
+    return true;
+  }
+
   /**
    * function to insert new row in database
    *
@@ -188,8 +219,8 @@ class Db
     $query = rtrim($query, ",");
     $query = $query . ")";
     if (! mysql_query($query)){
-      echo 'Query failed: ' . mysql_error();
-      echo 'Query was: ' . $query;
+      error_log('Query failed: ' . mysql_error());
+      error_log('Query was: ' . $query);
       return false;
     }
     return true;
@@ -227,9 +258,8 @@ or false on failure.
     if ($nr!=null) $query.= " LIMIT " . $nr;
     $result = mysql_query($query);
     if (! $result) {
-      echo 'Query failed: ' . mysql_error();
-      echo 'Query was: ' . $query;
-      
+      error_log('Query failed: ' . mysql_error());
+      error_log('Query was: ' . $query);
       return false;
     }
     if ($nr==1) {
@@ -278,9 +308,8 @@ or false on failure.
     if ($nr!=null) $query.= " LIMIT " . $nr;
     $result = mysql_query($query);
     if (! $result) {
-      echo 'Query failed: ' . mysql_error();
-      echo 'Query was: ' . $query;
-      
+      error_log('Query failed: ' . mysql_error());
+      error_log('Query was: ' . $query);
       return false;
     }
     if ($nr==1) {
@@ -324,9 +353,8 @@ or false on failure.
     if ($nr!=null) $query.= " LIMIT " . $nr;
     $result = mysql_query($query);
     if (! $result) {
-      echo 'Query failed: ' . mysql_error();
-      echo 'Query was: ' . $query;
-      
+      error_log('Query failed: ' . mysql_error());
+      error_log('Query was: ' . $query);
       return false;
     }
     return $result;
