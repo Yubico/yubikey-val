@@ -11,7 +11,7 @@ $resync = $baseParams['__YKVAL_SYNC_INTERVAL__'];
 while (True) {
   $sl->reSync($baseParams['__YKVAL_SYNC_OLD_LIMIT__']);
   
-  sleep($baseParams['__YKVAL_SYNC_INTERVAL__');)
-    }
+  sleep($baseParams['__YKVAL_SYNC_INTERVAL__']);
+ }
 
 ?>
