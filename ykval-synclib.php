@@ -42,7 +42,7 @@ class SyncLib
   function getLast() 
   {
     $res=$this->db->last('queue', 1);
-    parse_str($this->otpPartFromInfoString($res['info']), $info);
+    $info=$this->otpParamsFromInfoString($res['info']);
     return array('modified'=>$this->DbTimeToUnix($res['modified_time']), 
 		 'otp'=>$res['otp'], 
 		 'server'=>$res['server'], 
@@ -67,14 +67,21 @@ class SyncLib
       ',local_counter=' . $localParams['yk_counter'] .
       '&local_use=' . $localParams['yk_use'];
   }
+  public function otpParamsFromInfoString($info) {
+    $out=explode(",", $info);
+    parse_str($out[0], $params);
+    return $params;
+  }
   public function otpPartFromInfoString($info) {
     $out=explode(",", $info);
     return $out[0];
   }
-  public function localPartFromInfoString($info) 
+  public function localParamsFromInfoString($info) 
   {
     $out=explode(",", $info);
-    return $out[1];
+    parse_str($out[1], $params);
+    return array('yk_counter'=>$params['local_counter'], 
+		 'yk_use'=>$params['local_use']);
   }
   public function queue($otpParams, $localParams)
   {
@@ -197,7 +204,7 @@ class SyncLib
     $this->db->deleteByMultiple('queue', array("modified_time"=>$this->UnixToDbTime($this->otpParams['modified']), "random_key"=>$this->random_key, 'server'=>$server));
   }
 
-  public function reSync($older_than)
+  public function reSync($older_than=10)
   {
     $urls=array();
     # TODO: move statement to DB class, this looks grotesque
@@ -256,8 +263,8 @@ class SyncLib
 	foreach($entries as $entry) {
 	  /* Warnings */
 	  
-	  parse_str($this->localPartFromInfoString($entry['info']), $localParams);
-	  parse_str($this->otpPartFromInfoString($entry['info']), $otpParams);
+	  $localParams=$this->localParamsFromInfoString($entry['info']);
+	  $otpParams=$this->otpParamsFromInfoString($entry['info']);
 	  
 	  /* Check for warnings 
 	   
