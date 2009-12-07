@@ -10,8 +10,12 @@ $baseParams['__YKVAL_DB_PW__'] = 'lab';
 $baseParams['__YKVAL_SYNC_POOL__'] = "http://api2.yubico.com/wsapi/sync;http://api3.yubico.com/wsapi/sync;http://api4.yubico.com/wsapi/sync";
 $baseParams['__YKVAL_SYNC_INTERVAL__'] = 60;
 $baseParams['__YKVAL_SYNC_MAX_SIMUL__'] = 50;
-$baseParams['__YKVAL_SYNC_TIMEOUT__'] = 30;
+$baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__'] = 30;
 $baseParams['__YKVAL_SYNC_OLD_LIMIT__'] = 1;
+$baseParams['__YKVAL_SYNC_FAST_LEVEL__'] = 1;
+$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'] = 50;
+$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'] = 50;
+$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
 
 # For the get-api-key service.
 $baseParams['__YKGAK_DB_HOST__'] = $baseParams['__YKVAL_DB_HOST__'];

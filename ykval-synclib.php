@@ -20,7 +20,7 @@ class SyncLib
     $this->db->connect();
     $this->random_key=rand(0,1<<16);
     $this->max_url_chunk=$baseParams['__YKVAL_SYNC_MAX_SIMUL__'];
-    $this->resync_timeout=$baseParams['__YKVAL_SYNC_TIMEOUT__'];
+    $this->resync_timeout=$baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__'];
 
   }
 
@@ -303,7 +303,7 @@ class SyncLib
       }
     }
   }
-  public function sync($ans_req) 
+  public function sync($ans_req, $timeout=1) 
   {
     /*
      Construct URLs
@@ -321,7 +321,7 @@ class SyncLib
     /*
      Send out requests
     */
-    if (count($urls)>=$ans_req) $ans_arr=$this->retrieveURLasync($urls, $ans_req);
+    if (count($urls)>=$ans_req) $ans_arr=$this->retrieveURLasync($urls, $ans_req, $timeout);
     else return false;
 
     if (!is_array($ans_arr)) {
@@ -423,7 +423,7 @@ class SyncLib
       curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
       curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
       curl_setopt($handle, CURLOPT_FAILONERROR, true);
-      curl_setopt($handle, CURLOPT_TIMEOUT, 10);
+      curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
       
       curl_multi_add_handle($mh, $handle);
       
@@ -468,7 +468,7 @@ class SyncLib
 	  unset ($ch[$info['handle']]);
 	}
 	
-	curl_multi_select ($mh, $timeout);
+	curl_multi_select ($mh);
       }
     } while($active);
 

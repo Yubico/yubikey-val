@@ -9,6 +9,8 @@ header("content-type: text/plain");
 
 debug("Request: " . $_SERVER['QUERY_STRING']);
 
+$protocol_version=2.0;
+
 $conn = mysql_connect($baseParams['__YKVAL_DB_HOST__'],
 		      $baseParams['__YKVAL_DB_USER__'],
 		      $baseParams['__YKVAL_DB_PW__']);
@@ -28,6 +30,17 @@ $client = getHttpVal('id', 0);
 $otp = getHttpVal('otp', '');
 $otp = strtolower($otp);
 $timestamp = getHttpVal('timestamp', 0);
+if ($protocol_version>=2.0) {
+
+  $sl = getHttpVal('sl', '');
+  if (strcasecmp($sl, 'fast')==0) $sl=$baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
+  if (strcasecmp($sl, 'secure')==0) $sl=$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
+  if (!$sl) $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
+
+  $timeout = getHttpVal('timeout', '');  
+
+  if (!$timeout) $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
+ }
 
 //// Get Client info from DB
 //
@@ -54,10 +67,11 @@ if ($h != '') {
   $a = array ();
   $a['id'] = $client;
   $a['otp'] = $otp;
-  // include timestamp in signature if it exists
+  // include timestamp,sl and timeout in signature if it exists
   if ($timestamp) $a['timestamp'] = $timestamp;
+  if ($sl) $a['sl'] = $sl;
+  if ($timeout) $a['timeout'] = $timeout;
   $hmac = sign($a, $apiKey);
-
   // Compare it
   if ($hmac != $h) {
     debug('client hmac=' . $h . ', server hmac=' . $hmac);
@@ -161,7 +175,7 @@ if (mysql_num_rows($r) > 0) {
  }
 
 //// Queue sync requests
-$sl = new SyncLib();
+$sync = new SyncLib();
 // We need the modifed value from the DB
 $stmp = 'SELECT accessed FROM yubikeys WHERE id=' . $ad['id'];
 query($conn, $stmt);
@@ -183,33 +197,48 @@ $localParams=array('modified'=>DbTimeToUnix($ad['accessed']),
 		   'yk_low'=>$ad['low']);
 
 
-if (!$sl->queue($otpParams, $localParams)) {
+if (!$sync->queue($otpParams, $localParams)) {
   debug("ykval-verify:critical:failed to queue sync requests");
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }
 
-$required_answers=$sl->getNumberOfServers();
-$syncres=$sl->sync($required_answers);
-$answers=$sl->getNumberOfAnswers();
-$valid_answers=$sl->getNumberOfValidAnswers();
+$nr_servers=$sync->getNumberOfServers();
+$req_answers=ceil($nr_servers*$sl/100);
+if ($req_answers>0) {
+  $syncres=$sync->sync($req_answers, $timeout);
+  $nr_answers=$sync->getNumberOfAnswers();
+  $nr_valid_answers=$sync->getNumberOfValidAnswers();
+  $sl_success_rate=floor($nr_valid_answers / $nr_servers * 100);
+  
+ } else {
+  $nr_answers=0;
+  $nr_valid_answers=0;
+  $sl_success_rate=0;
+ }
+debug("ykval-verify:notice:synclevel=" . $sl .
+      " nr servers=" . $nr_servers .
+      " req answers=" . $req_answers .
+      " answers=" . $nr_answers .
+      " valid answers=" . $nr_valid_answers .
+      " sl success rate=" . $sl_success_rate .
+      " timeout=" . $timeout);
 
-debug("ykval-verify:notice:number of servers=" . $required_answers);
-debug("ykval-verify:notice:number of answers=" . $answers);
-debug("ykval-verify:notice:number of valid answers=" . $valid_answers);
 if($syncres==False) {
-# sync returned false, indicating that 
-# either at least 1 answer marked OTP as invalid or
-# there were not enough answers
+  /* sync returned false, indicating that 
+   either at least 1 answer marked OTP as invalid or
+   there were not enough answers */
   debug("ykval-verify:notice:Sync failed");
-  if ($valid_answers!=$answers) {
+  if ($nr_valid_answers!=$nr_answers) {
     sendResp(S_REPLAYED_OTP, $apiKey);
     exit;
   } else {
+    $extra=array('sl'=>$sl_success_rate);
     sendResp(S_NOT_ENOUGH_ANSWERS, $apiKey);
     exit;
   }
  }
+
 
 //// Check the time stamp
 //
@@ -249,12 +278,18 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
   }
 }
 
+/* Construct response parameters */
+$extra=array();
+if ($protocol_version>=2.0) {
+  $extra['otp']=$otp;
+  $extra['sl'] = $sl_success_rate;
+ }
 if ($timestamp==1){
   $extra['timestamp'] = ($otpinfo['high'] << 16) + $otpinfo['low'];
   $extra['sessioncounter'] = $sessionCounter;
   $extra['sessionuse'] = $sessionUse;
-  sendResp(S_OK, $apiKey, $extra);
- } else {
-  sendResp(S_OK, $apiKey);
- }  
+ }
+
+sendResp(S_OK, $apiKey, $extra);
+
 ?>
