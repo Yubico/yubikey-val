@@ -207,7 +207,7 @@ class SyncLib
       $collection[]=$row;
     }
     foreach ($collection as $row) {
-      $this>log('notice', "server=" . $row['server'] . " , info=" . $row['info']);
+      $this->log('notice', "server=" . $row['server'] . " , info=" . $row['info']);
 
       $urls[]=$row['server'] .  
 	"?otp=" . $row['otp'] .
