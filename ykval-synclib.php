@@ -19,6 +19,8 @@ class SyncLib
 		     $baseParams['__YKVAL_DB_NAME__']);
     $this->db->connect();
     $this->random_key=rand(0,1<<16);
+    $this->max_url_chunk=100;
+
   }
 
   function DbTimeToUnix($db_time)
@@ -39,7 +41,7 @@ class SyncLib
   function getLast() 
   {
     $res=$this->db->last('queue', 1);
-    parse_str($res['info'], $info);
+    parse_str($this->otpPartFromInfoString($res['info']), $info);
     return array('modified'=>$this->DbTimeToUnix($res['modified_time']), 
 		 'otp'=>$res['otp'], 
 		 'server'=>$res['server'], 
@@ -53,16 +55,30 @@ class SyncLib
   {
     return count($this->db->last('queue', NULL));
   }
-  public function queue($otpParams, $localParams)
+
+  public function createInfoString($otpParams, $localParams)
   {
-    
-    
-    $info='yk_identity=' . $otpParams['yk_identity'] .
+    return 'yk_identity=' . $otpParams['yk_identity'] .
       '&yk_counter=' . $otpParams['yk_counter'] .
       '&yk_use=' . $otpParams['yk_use'] .
       '&yk_high=' . $otpParams['yk_high'] .
-      '&yk_low=' . $otpParams['yk_low'];
-    
+      '&yk_low=' . $otpParams['yk_low'] .
+      ',local_counter=' . $localParams['yk_counter'] .
+      '&local_use=' . $localParams['yk_use'];
+  }
+  public function otpPartFromInfoString($info) {
+    $out=explode(",", $info);
+    return $out[0];
+  }
+  public function localPartFromInfoString($info) 
+  {
+    $out=explode(",", $info);
+    return $out[1];
+  }
+  public function queue($otpParams, $localParams)
+  {
+
+    $info=$this->createInfoString($otpParams, $localParams);
     $this->otpParams = $otpParams;
     $this->localParams = $localParams;
     
@@ -169,7 +185,114 @@ class SyncLib
 	 $p1['yk_use'] >= $p2['yk_use'])) return true;
     else return false;
   }
-  
+
+
+  public function deleteQueueEntry($answer) 
+  {
+
+    preg_match('/url=(.*)\?/', $answer, $out);
+    $server=$out[1];
+    debug("server=" . $server);
+    $this->db->deleteByMultiple('queue', array("modified_time"=>$this->UnixToDbTime($this->otpParams['modified']), "random_key"=>$this->random_key, 'server'=>$server));
+  }
+
+  public function reSync($older_than)
+  {
+    $urls=array();
+    # TODO: move statement to DB class, this looks grotesque
+    $res=$this->db->customQuery("select * from queue WHERE queued_time < DATE_SUB(now(), INTERVAL " . $older_than . " MINUTE)");
+    echo "found " . mysql_num_rows($res) . " old entries\n";
+    $collection=array();
+    while($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
+      $collection[]=$row;
+    }
+    foreach ($collection as $row) {
+      echo "server=" . $row['server'] . " , info=" . $row['info'] . "\n";
+
+      $urls[]=$row['server'] .  
+	"?otp=" . $row['otp'] .
+	"&modified=" . $this->DbTimeToUnix($row['modified_time']) .
+	"&" . $this->otpPartFromInfoString($row['info']);
+      
+    }
+
+    /* We do not want to sent out to many requests at once since this
+     tends to be very slow since most system have limits on number
+     of outgoing connections */
+    $url_chunks=array_chunk($urls, $this->max_url_chunk);
+    foreach($url_chunks as $urls) {
+      
+      $ans_arr=$this->retrieveURLasync($urls, count($urls));
+      
+      if (!is_array($ans_arr)) {
+	$this->log('notice', 'No responses from validation server pool'); 
+	$ans_arr=array();
+      }
+      
+      foreach ($ans_arr as $answer){
+	/* Parse out parameters from each response */
+	$resParams=$this->parseParamsFromMultiLineString($answer);
+	$this->log("notice", "response contains ", $resParams);
+	
+	/* Update database counters */
+	$this->updateDbCounters($resParams);
+	
+	/* Warnings and deletion */
+	preg_match("/url=(.*)\?.*otp=([[:alpha:]]*)/", $answer, $out);
+	$server=$out[1];
+	$otp=$out[2];
+	
+	$this->log('notice', 'Searching for entry with' .
+		   ' server=' . $server .
+		   ' otp=' . $otp);
+	
+	$entries=$this->db->findByMultiple('queue', 
+					   array('server'=>$server, 
+						 'otp'=>$otp));
+	$this->log('notice', 'found ' . count($entries) . ' entries');
+	if (count($entries)>1) $this->log('warning', 'Multiple queue entries with the same OTP. We could have an OTP replay attempt in the system');
+	
+	foreach($entries as $entry) {
+	  /* Warnings */
+	  
+	  parse_str($this->localPartFromInfoString($entry['info']), $localParams);
+	  parse_str($this->otpPartFromInfoString($entry['info']), $otpParams);
+	  
+	  /* Check for warnings 
+	   
+	   If received sync response have lower counters than locally saved 
+	   last counters (indicating that remote server wasn't synced) 
+	  */
+	  if ($this->countersHigherThan($localParams, $resParams)) {
+	    $this->log("warning", "queued:Remote server out of sync, local counters ", $localParams);
+	    $this->log("warning", "queued:Remote server out of sync, remote counters ", $resParams);
+	  }
+	  
+	  /* If received sync response have higher counters than locally saved 
+	   last counters (indicating that local server wasn't synced) 
+	  */
+	  if ($this->countersHigherThan($resParams, $localParams)) {
+	    $this->log("warning", "queued:Local server out of sync, local counters ", $localParams);
+	    $this->log("warning", "queued:Local server out of sync, remote counters ", $resParams);
+	  }
+      
+	  /* If received sync response have higher counters than OTP counters
+	   (indicating REPLAYED_OTP) 
+	  */
+	  if ($this->countersHigherThanOrEqual($resParams, $otpParams)) {
+	    $this->log('critical', 'queued:replayed OTP, queued sync request indicated OTP as invalid');
+	    $this->log("warning", "queued:replayed OTP, remote counters " , $resParams);
+	    $this->log("warning", "queued:replayed OTP, otp counters", $otpParams);
+	  }
+
+	  
+	  /* Deletion */
+	  $this->log('notice', 'deleting queue entry with id=' . $entry['id']);
+	  $this->db->deleteByMultiple('queue', array('id'=>$entry['id']));
+	}
+      }
+    }
+  }
   public function sync($ans_req) 
   {
     /*
@@ -182,7 +305,7 @@ class SyncLib
       $urls[]=$row['server'] .  
 	"?otp=" . $row['otp'] .
 	"&modified=" . $this->DbTimeToUnix($row['modified_time']) .
-	"&" . $row['info'];
+	"&" . $this->otpPartFromInfoString($row['info']);
     }
 
     /*
@@ -246,10 +369,8 @@ class SyncLib
       if (!$this->countersHigherThanOrEqual($resParams, $this->otpParams)) $this->valid_answers++;
       
       /*  Delete entry from table */
-      preg_match('/url=(.*)\?/', $answer, $out);
-      $server=$out[1];
-      debug("server=" . $server);
-      $this->db->deleteByMultiple('queue', array("modified_time"=>$this->UnixToDbTime($this->otpParams['modified']), "random_key"=>$this->random_key, 'server'=>$server));
+      $this->deleteQueueEntry($answer);
+
       
     }
    

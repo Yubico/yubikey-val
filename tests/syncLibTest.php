@@ -27,7 +27,7 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
   {
     $sl = new SyncLib();
     $this->assertGreaterThan(1, $sl->getNumberOfServers());
-    $this->assertEquals($sl->getServer(0), "api2.yubico.com/wsapi/sync");
+    $this->assertEquals($sl->getServer(0), "http://api2.yubico.com/wsapi/sync");
   }
 
 
