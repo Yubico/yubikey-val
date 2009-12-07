@@ -19,7 +19,8 @@ class SyncLib
 		     $baseParams['__YKVAL_DB_NAME__']);
     $this->db->connect();
     $this->random_key=rand(0,1<<16);
-    $this->max_url_chunk=100;
+    $this->max_url_chunk=$baseParams['__YKVAL_SYNC_MAX_SIMUL__'];
+    $this->resync_timeout=$baseParams['__YKVAL_SYNC_TIMEOUT__'];
 
   }
 
@@ -222,7 +223,7 @@ class SyncLib
     $url_chunks=array_chunk($urls, $this->max_url_chunk);
     foreach($url_chunks as $urls) {
       
-      $ans_arr=$this->retrieveURLasync($urls, count($urls));
+      $ans_arr=$this->retrieveURLasync($urls, count($urls), $this->resync_timeout);
       
       if (!is_array($ans_arr)) {
 	$this->log('notice', 'No responses from validation server pool'); 
@@ -402,7 +403,7 @@ class SyncLib
    URLs fail, data from some URL that did not match parameter $match 
    (defaults to ^OK) is returned, or if all URLs failed, false.
   */
-  function retrieveURLasync ($urls, $ans_req=1) {
+  function retrieveURLasync ($urls, $ans_req=1, $timeout=1.0) {
     $mh = curl_multi_init();
 
     $ch = array();
@@ -458,7 +459,7 @@ class SyncLib
 	  unset ($ch[$info['handle']]);
 	}
 	
-	curl_multi_select ($mh);
+	curl_multi_select ($mh, $timeout);
       }
     } while($active);
 

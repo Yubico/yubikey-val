@@ -5,13 +5,13 @@ require_once 'ykval-config.php';
 
 $sl = new SyncLib();
 
-
+$resync = $baseParams['__YKVAL_SYNC_INTERVAL__'];
 # Loop forever and resync
 
 while (True) {
-  $sl->reSync(10);
+  $sl->reSync($baseParams['__YKVAL_SYNC_OLD_LIMIT__']);
   
-  sleep(60);
- }
+  sleep($baseParams['__YKVAL_SYNC_INTERVAL__');)
+    }
 
 ?>

@@ -35,7 +35,7 @@ CREATE TABLE queue (
   random_key INT,
   otp VARCHAR(100) NOT NULL,
   server VARCHAR(100) NOT NULL,
-  info VARCHAR(100) NOT NULL,
+  info VARCHAR(256) NOT NULL,
   PRIMARY KEY (id)
 );
 
