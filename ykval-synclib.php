@@ -201,13 +201,13 @@ class SyncLib
     $urls=array();
     # TODO: move statement to DB class, this looks grotesque
     $res=$this->db->customQuery("select * from queue WHERE queued_time < DATE_SUB(now(), INTERVAL " . $older_than . " MINUTE)");
-    echo "found " . mysql_num_rows($res) . " old entries\n";
+    $this->log('notice', "found " . mysql_num_rows($res) . " old queue entries");
     $collection=array();
     while($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
       $collection[]=$row;
     }
     foreach ($collection as $row) {
-      echo "server=" . $row['server'] . " , info=" . $row['info'] . "\n";
+      $this>log('notice', "server=" . $row['server'] . " , info=" . $row['info']);
 
       $urls[]=$row['server'] .  
 	"?otp=" . $row['otp'] .
