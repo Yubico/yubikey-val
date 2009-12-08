@@ -234,7 +234,7 @@ if($syncres==False) {
     exit;
   } else {
     $extra=array('sl'=>$sl_success_rate);
-    sendResp(S_NOT_ENOUGH_ANSWERS, $apiKey);
+    sendResp(S_NOT_ENOUGH_ANSWERS, $apiKey, $extra);
     exit;
   }
  }
