@@ -1,0 +1,36 @@
+#!/usr/bin/php -q
+<?php
+
+require_once 'ykval-synclib.php';
+require_once 'ykval-config.php';
+require_once "System/Daemon.php";                 
+
+$appname="ykval-daemon";
+
+System_Daemon::setOption("appName", $appname);  
+System_Daemon::setOption("appDescription", "Yubico val-server sync daemon"); 
+System_Daemon::setOption("authorName", "olov@yubico.com");  
+System_Daemon::setOption("authorEmail", "olov@yubico.com"); 
+
+
+System_Daemon::start();                           // Spawn Deamon!
+
+$autostart_path = System_Daemon::writeAutoRun();
+if ($path){ 
+  error_log("Successfully created autostart script at " . $autostart_path);
+ }
+error_log($appname . " started");
+
+$sl = new SyncLib();
+
+# Loop forever and resync
+while (True) {
+  $sl->reSync($baseParams['__YKVAL_SYNC_OLD_LIMIT__']);
+  
+  sleep($baseParams['__YKVAL_SYNC_INTERVAL__']);
+ }
+
+System_Daemon::stop();
+?>
+
+
