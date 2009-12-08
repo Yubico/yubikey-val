@@ -321,8 +321,7 @@ class SyncLib
     /*
      Send out requests
     */
-    if (count($urls)>=$ans_req) $ans_arr=$this->retrieveURLasync($urls, $ans_req, $timeout);
-    else return false;
+    $ans_arr=$this->retrieveURLasync($urls, $ans_req, $timeout);
 
     if (!is_array($ans_arr)) {
       $this->log('warning', 'No responses from validation server pool'); 

@@ -33,13 +33,8 @@ $timestamp = getHttpVal('timestamp', 0);
 if ($protocol_version>=2.0) {
 
   $sl = getHttpVal('sl', '');
-  if (strcasecmp($sl, 'fast')==0) $sl=$baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
-  if (strcasecmp($sl, 'secure')==0) $sl=$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
-  if (!$sl) $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
-
   $timeout = getHttpVal('timeout', '');  
 
-  if (!$timeout) $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
  }
 
 //// Get Client info from DB
@@ -71,6 +66,7 @@ if ($h != '') {
   if ($timestamp) $a['timestamp'] = $timestamp;
   if ($sl) $a['sl'] = $sl;
   if ($timeout) $a['timeout'] = $timeout;
+  
   $hmac = sign($a, $apiKey);
   // Compare it
   if ($hmac != $h) {
@@ -203,13 +199,19 @@ if (!$sync->queue($otpParams, $localParams)) {
   exit;
  }
 
+/* Change default protocol "strings" to numeric values */
+if (strcasecmp($sl, 'fast')==0) $sl=$baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
+if (strcasecmp($sl, 'secure')==0) $sl=$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
+if (!$sl) $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
+if (!$timeout) $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
+
 $nr_servers=$sync->getNumberOfServers();
-$req_answers=ceil($nr_servers*$sl/100);
+$req_answers=ceil($nr_servers*$sl/100.0);
 if ($req_answers>0) {
   $syncres=$sync->sync($req_answers, $timeout);
   $nr_answers=$sync->getNumberOfAnswers();
   $nr_valid_answers=$sync->getNumberOfValidAnswers();
-  $sl_success_rate=floor($nr_valid_answers / $nr_servers * 100);
+  $sl_success_rate=floor(100.0 * $nr_valid_answers / $nr_servers);
   
  } else {
   $nr_answers=0;
