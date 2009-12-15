@@ -24,6 +24,7 @@ CREATE TABLE yubikeys (
   low INT,
   high INT,
   sessionUse INT,
+  nonce VARCHAR(64) DEFAULT '',
   notes VARCHAR(100) DEFAULT '',
   PRIMARY KEY (id)
 );
