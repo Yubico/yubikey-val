@@ -197,7 +197,7 @@ class SyncLib
       $resParams['yk_high']=$out[1];
       preg_match("/^yk_low=([0-9]*)/m", $str, $out);
       $resParams['yk_low']=$out[1];
-      preg_match("/^nonce=([[:alpha:]]*)/m", $str, $out);
+      preg_match("/^nonce=([[:alnum:]]*)/m", $str, $out);
       $resParams['nonce']=$out[1];
 
       return $resParams;
@@ -384,7 +384,6 @@ class SyncLib
     /*
      Parse responses
     */
-    $lastLocalParams=$this->getLocalParams($this->otpParams['yk_identity']);
     $localParams = $this->localParams;
 
     $this->answers = count($ans_arr);
