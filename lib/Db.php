@@ -121,6 +121,7 @@ class Db
   public function connect(){
     if (! $this->db_conn = mysql_connect($this->host, $this->user, $this->pwd)) {
       error_log('Could not connect: ' . mysql_error());
+      $this->db_conn=Null;
       return false;
     }
     if (! mysql_select_db($this->db_name)) {
@@ -180,7 +181,7 @@ class Db
   {
     
     foreach ($values as $key=>$value){
-      if ($value != null) $query = $query . " " . $key . "='" . $value . "',";
+      $query = $query . " " . $key . "='" . $value . "',";
     }
     if (! $query) {
       log("no values to set in query. Not updating DB");
@@ -190,6 +191,7 @@ class Db
     $query = rtrim($query, ",") . " WHERE id = " . $id . " and " . $condition;
     // Insert UPDATE statement at beginning
     $query = "UPDATE " . $table . " SET " . $query; 
+    error_log("query is " . $query);
     if (! mysql_query($query)){
         error_log('Query failed: ' . mysql_error());
       error_log('Query was: ' . $query);

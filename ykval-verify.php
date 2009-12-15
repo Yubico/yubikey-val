@@ -9,34 +9,47 @@ header("content-type: text/plain");
 
 debug("Request: " . $_SERVER['QUERY_STRING']);
 
-$protocol_version=2.0;
+if (preg_match("/\/wsapi\/([0-9]*)\.([0-9]*)\//", $_SERVER['REQUEST_URI'], $out)) {
+  $protocol_version=$out[1]+$out[2]*0.1;
+ } else {
+  $protocol_version=1.0;
+ }
+debug("found protocol version " . $protocol_version);
 
-$conn = mysql_connect($baseParams['__YKVAL_DB_HOST__'],
-		      $baseParams['__YKVAL_DB_USER__'],
-		      $baseParams['__YKVAL_DB_PW__']);
-if (!$conn) {
+/* Initialize the sync library. Strive to use this instead of custom DB requests, 
+ custom comparisons etc */ 
+$sync = new SyncLib();
+if (! $sync->isConnected()) {
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
-}
-if (!mysql_select_db($baseParams['__YKVAL_DB_NAME__'], $conn)) {
-  sendResp(S_BACKEND_ERROR, $apiKey);
-  exit;
-}
+ }
 
-//// Extract values from HTTP request
-//
+/* Extract values from HTTP request
+ */
 $h = getHttpVal('h', '');
 $client = getHttpVal('id', 0);
 $otp = getHttpVal('otp', '');
 $otp = strtolower($otp);
 $timestamp = getHttpVal('timestamp', 0);
 if ($protocol_version>=2.0) {
-
+  
   $sl = getHttpVal('sl', '');
   $timeout = getHttpVal('timeout', '');  
+  $nonce = getHttpVal('nonce', '');
 
+  /* Nonce is required from protocol 2.0 */
+  if(!$nonce || strlen($nonce)<16) {
+    debug('Protocol version >= 2.0. Nonce is missing');
+    sendResp(S_MISSING_PARAMETER, $apiKey);
+    exit;
+  }
  }
 
+if ($protocol_version<2.0) {
+  /* We need to create a nonce manually here */
+  $nonce = md5(uniqid(rand())); 
+  debug('protocol version below 2.0. Created nonce ' . $nonce);
+ }
 //// Get Client info from DB
 //
 if ($client <= 0) {
@@ -45,12 +58,12 @@ if ($client <= 0) {
   exit;
 }
 
-$cd = getClientData($conn, $client);
-if ($cd == null) {
+$cd=$sync->getClientData($client);
+if(!$cd) {
   debug('Invalid client id ' . $client);
   sendResp(S_NO_SUCH_CLIENT);
   exit;
-}
+ }
 debug("Client data:", $cd);
 
 //// Check client signature
@@ -66,7 +79,8 @@ if ($h != '') {
   if ($timestamp) $a['timestamp'] = $timestamp;
   if ($sl) $a['sl'] = $sl;
   if ($timeout) $a['timeout'] = $timeout;
-  
+  if ($nonce) $a['nonce'] = $nonce;
+
   $hmac = sign($a, $apiKey);
   // Compare it
   if ($hmac != $h) {
@@ -109,89 +123,58 @@ debug("Decrypted OTP:", $otpinfo);
 //// Get Yubikey from DB
 //
 $devId = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
-$ad = getAuthData($conn, $devId);
-if (!is_array($ad)) {
-  debug('Discovered Yubikey ' . $devId);
-  addNewKey($conn, $devId);
-  $ad = getAuthData($conn, $devId);
-  if (!is_array($ad)) {
-    debug('Invalid Yubikey ' . $devId);
-    sendResp(S_BACKEND_ERROR, $apiKey);
-    exit;
-  }
-}
-debug("Auth data:", $ad);
-if ($ad['active'] != 1) {
+$yk_identity=$devId;
+$localParams = $sync->getLocalParams($yk_identity);
+if (!$localParams) {
+  debug('Invalid Yubikey ' . $yk_identity);
+  sendResp(S_BACKEND_ERROR, $apiKey);
+  exit;
+ }
+
+debug("Auth data:", $localParams);
+if ($localParams['active'] != 1) {
   debug('De-activated Yubikey ' . $devId);
   sendResp(S_BAD_OTP, $apiKey);
   exit;
 }
 
-//// Check the session counter
-//
-$sessionCounter = $otpinfo["session_counter"]; // From the req
-$seenSessionCounter = $ad['counter']; // From DB
-if ($sessionCounter < $seenSessionCounter) {
-  debug("Replay, session counter, seen=" . $seenSessionCounter .
-	" this=" . $sessionCounter);
-  sendResp(S_REPLAYED_OTP, $apiKey);
-  exit;
-}
+/* Build OTP params */
 
-//// Check the session use
-//
-$sessionUse = $otpinfo["session_use"]; // From the req
-$seenSessionUse = $ad['sessionUse']; // From DB
-if ($sessionCounter == $seenSessionCounter && $sessionUse <= $seenSessionUse) {
-  debug("Replay, session use, seen=" . $seenSessionUse .
-	' this=' . $sessionUse);
-  sendResp(S_REPLAYED_OTP, $apiKey);
-  exit;
-}
-
-//// Valid OTP, update database
-//
-$stmt = 'UPDATE yubikeys SET accessed=NOW()' .
-  ', counter=' .$otpinfo['session_counter'] .
-  ', sessionUse=' . $otpinfo['session_use'] .
-  ', low=' . $otpinfo['low'] .
-  ', high=' . $otpinfo['high'] .
-  ' WHERE id=' . $ad['id'];
-$r=query($conn, $stmt);
-
-$stmt = 'SELECT accessed FROM yubikeys WHERE id=' . $ad['id'];
-$r=query($conn, $stmt);
-if (mysql_num_rows($r) > 0) {
-  $row = mysql_fetch_assoc($r);
-  mysql_free_result($r);
-  $modified=DbTimeToUnix($row['accessed']);
- }  
- else {
-   $modified=0;
- }
-
-//// Queue sync requests
-$sync = new SyncLib();
-// We need the modifed value from the DB
-$stmp = 'SELECT accessed FROM yubikeys WHERE id=' . $ad['id'];
-query($conn, $stmt);
-
-$otpParams=array('modified'=>$modified, 
+$otpParams=array('modified'=>time(), 
 		 'otp'=>$otp, 
+		 'nonce'=>$nonce,
 		 'yk_identity'=>$devId, 
 		 'yk_counter'=>$otpinfo['session_counter'], 
 		 'yk_use'=>$otpinfo['session_use'], 
 		 'yk_high'=>$otpinfo['high'], 
 		 'yk_low'=>$otpinfo['low']);
 
-$localParams=array('modified'=>DbTimeToUnix($ad['accessed']), 
-		   'otp'=>'', 
-		   'yk_identity'=>$devId, 
-		   'yk_counter'=>$ad['counter'], 
-		   'yk_use'=>$ad['sessionUse'], 
-		   'yk_high'=>$ad['high'], 
-		   'yk_low'=>$ad['low']);
 
+/* First check if OTP is seen with the same nonce, in such case we have an replayed request */
+if ($sync->countersEqual($localParams, $otpParams) &&
+    $localParams['nonce']==$otpParams['nonce']) {
+  debug('Replayed request');
+  sendResp(S_REPLAYED_REQUEST, $apikey);
+  exit;
+ }
+
+/* Check the OTP counters against local db */    
+if ($sync->countersHigherThanOrEqual($localParams, $otpParams)) {
+  $sync->log('warning', 'replayed OTP: Local counters higher');
+  $sync->log('warning', 'replayed OTP: Local counters ', $localParams);
+  $sync->log('warning', 'replayed OTP: Otp counters ', $otpParams);
+  sendResp(S_REPLAYED_OTP, $apiKey);
+  exit;
+ }
+
+/* Valid OTP, update database. */
+
+if(!$sync->updateDbCounters($otpParams)) {
+  sendResp(S_BACKEND_ERROR, $apiKey);
+  exit;
+ }
+
+/* Queue sync requests */
 
 if (!$sync->queue($otpParams, $localParams)) {
   debug("ykval-verify:critical:failed to queue sync requests");
@@ -241,6 +224,16 @@ if($syncres==False) {
   }
  }
 
+/* Recreate parameters to make phising test work out 
+ TODO: use timefunctionality in deltatime library instead */
+$sessionCounter = $otpParams['yk_counter'];
+$sessionUse = $otpParams['yk_use'];
+$seenSessionCounter = $localParams['yk_counter'];
+$seenSessionUse = $localParams['yk_use'];
+
+$ad['high']=$localParams['yk_high'];
+$ad['low']=$localParams['yk_low'];
+$ad['accessed']=$sync->unixToDbTime($localParams['modified']);
 
 //// Check the time stamp
 //
@@ -285,6 +278,7 @@ $extra=array();
 if ($protocol_version>=2.0) {
   $extra['otp']=$otp;
   $extra['sl'] = $sl_success_rate;
+  $extra['nonce']= $nonce;
  }
 if ($timestamp==1){
   $extra['timestamp'] = ($otpinfo['high'] << 16) + $otpinfo['low'];

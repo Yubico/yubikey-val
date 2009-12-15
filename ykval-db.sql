@@ -41,7 +41,7 @@ CREATE TABLE queue (
 
 -- DROP USER 'ykval_verifier'@'localhost';
 CREATE USER 'ykval_verifier'@'localhost';
-GRANT SELECT,INSERT,UPDATE(accessed, counter, low, high, sessionUse)
+GRANT SELECT,INSERT,UPDATE(accessed, counter, low, high, sessionUse, nonce)
        ON ykval.yubikeys to 'ykval_verifier'@'localhost';
 GRANT SELECT(id, secret, active)
        ON ykval.clients to 'ykval_verifier'@'localhost';

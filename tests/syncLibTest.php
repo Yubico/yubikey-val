@@ -102,6 +102,27 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
     $this->assertTrue($sl->countersHigherThanOrEqual($otpParams, $localParams));
   }
 
+  public function testCountersEqual()
+  {
+    $sl = new SyncLib();
+    $localParams=array('yk_counter'=>100, 
+		       'yk_use'=>10);
+    $otpParams=array('yk_counter'=>100,
+		     'yk_use'=>10);
+
+    $this->assertTrue($sl->countersEqual($otpParams, $localParams));
+    $otpParams['yk_use']=8;
+    $this->assertFalse($sl->countersEqual($otpParams, $localParams));
+    $otpParams['yk_use']=9;
+    $this->assertFalse($sl->countersEqual($otpParams, $localParams));
+    $otpParams['yk_use']=-11;
+    $this->assertFalse($sl->countersEqual($otpParams, $localParams));
+    $otpParams['yk_use']=10;
+    $otpParams['yk_counter']=101;
+    $this->assertFalse($sl->countersEqual($otpParams, $localParams));
+
+  }
+  
 
   public function testSync1()
   {

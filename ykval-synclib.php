@@ -9,21 +9,27 @@ class SyncLib
   public $syncServers = null;
   public $dbConn = null;
 
-  function __construct()
+  function __construct($logname='ykval-synclib')
   {
+    $this->logname=$logname;
     global $baseParams;
     $this->syncServers = explode(";", $baseParams['__YKVAL_SYNC_POOL__']);
     $this->db=new Db($baseParams['__YKVAL_DB_HOST__'],
 		     $baseParams['__YKVAL_DB_USER__'],
 		     $baseParams['__YKVAL_DB_PW__'],
 		     $baseParams['__YKVAL_DB_NAME__']);
-    $this->db->connect();
+    $this->isConnected=$this->db->connect();
     $this->random_key=rand(0,1<<16);
     $this->max_url_chunk=$baseParams['__YKVAL_SYNC_MAX_SIMUL__'];
     $this->resync_timeout=$baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__'];
 
   }
+  
 
+  function isConnected() 
+  {
+    return $this->isConnected;
+  }
   function DbTimeToUnix($db_time)
   {
     $unix=strptime($db_time, '%F %H:%M:%S');
@@ -39,13 +45,24 @@ class SyncLib
     if (isset($this->syncServers[$index])) return $this->syncServers[$index];
     else return "";
   }
+
+  function getClientData($client)
+  {
+    $res=$this->db->customQuery('SELECT id, secret FROM clients WHERE active AND id='.mysql_quote($client));
+    if(mysql_num_rows($res)>0) {
+      $row = mysql_fetch_assoc($res);
+      mysql_free_result($res);
+      return $row;
+    } else return false;
+  }
   function getLast() 
   {
     $res=$this->db->last('queue', 1);
     $info=$this->otpParamsFromInfoString($res['info']);
     return array('modified'=>$this->DbTimeToUnix($res['modified_time']), 
 		 'otp'=>$res['otp'], 
-		 'server'=>$res['server'], 
+		 'server'=>$res['server'],
+		 'nonce'=>$info['nonce'],
 		 'yk_identity'=>$info['yk_identity'], 
 		 'yk_counter'=>$info['yk_counter'], 
 		 'yk_use'=>$info['yk_use'], 
@@ -64,6 +81,7 @@ class SyncLib
       '&yk_use=' . $otpParams['yk_use'] .
       '&yk_high=' . $otpParams['yk_high'] .
       '&yk_low=' . $otpParams['yk_low'] .
+      '&nonce=' . $otpParams['nonce'] .
       ',local_counter=' . $localParams['yk_counter'] .
       '&local_use=' . $localParams['yk_use'];
   }
@@ -108,33 +126,61 @@ class SyncLib
     else return 0;
   }
 
-  private function log($level, $msg, $params=NULL)
+  public function log($level, $msg, $params=NULL)
   {
-    $logMsg="ykval-synclib:" . $level . ":" . $msg;
-    if ($params) $logMsg .= " modified=" . $params['modified'] .
-		   " yk_identity=" . $params['yk_identity'] .
-		   " yk_counter=" . $params['yk_counter'] .   
-		   " yk_use=" . $params['yk_use'] .   
-		   " yk_high=" . $params['yk_high'] .   
-		   " yk_low=" . $params['yk_low'];
+    $logMsg=$this->logname . ':' . $level . ':' . $msg;
+    if ($params) $logMsg .= ' modified=' . $params['modified'] .
+		   ' nonce=' . $params['nonce'] .
+		   ' yk_identity=' . $params['yk_identity'] .
+		   ' yk_counter=' . $params['yk_counter'] .   
+		   ' yk_use=' . $params['yk_use'] .   
+		   ' yk_high=' . $params['yk_high'] .   
+		   ' yk_low=' . $params['yk_low'];
     error_log($logMsg);
   }
-  private function getLocalParams($yk_identity)
+  function updateLocalParams($id,$params)
+  {
+    return $this->db->update('yubikeys', 
+			     $id, 
+			     array('accessed'=>UnixToDbTime($params['modified']), 
+				   'nonce'=>$params['nonce'], 
+				   'counter'=>$params['yk_counter'], 
+				   'sessionUse'=>$params['yk_use'], 
+				   'high'=>$params['yk_high'], 
+				   'low'=>$params['yk_low']));
+  }
+  function getLocalParams($yk_identity)
   {
     $this->log("notice", "searching for " . $yk_identity . " (" . modhex2b64($yk_identity) . ") in local db");
-    $res = $this->db->lastBy('yubikeys', 'publicName', modhex2b64($yk_identity));
-    $localParams=array('modified'=>$this->DbTimeToUnix($res['accessed']),
-		       'otp'=>$res['otp'],
-		       'yk_identity'=>$yk_identity,
-		       'yk_counter'=>$res['counter'], 
-		       'yk_use'=>$res['sessionUse'],
-		       'yk_high'=>$res['high'],
-		       'yk_low'=>$res['low']);
+    $res = $this->db->findBy('yubikeys', 'publicName', modhex2b64($yk_identity),1);
 
-    $this->log("notice", "counter found in db ", $localParams);
-
-    return $localParams;
-
+    if (!$res) {
+      $this->log('notice', 'Discovered new identity ' . $yk_identity);
+      $this->db->save('yubikeys', array('publicName'=>modhex2b64($yk_identity), 
+				  'active'=>1, 
+				  'counter'=>0, 
+				  'sessionUse'=>0, 
+				  'nonce'=>0));
+      $res=$this->db->findBy('yubikeys', 'publicName', modhex2b64($yk_identity), 1);
+    }
+    if ($res) {
+      $localParams=array('id'=>$res['id'],
+			 'modified'=>$this->DbTimeToUnix($res['accessed']),
+			 'otp'=>$res['otp'],
+			 'nonce'=>$res['nonce'],
+			 'active'=>$res['active'],
+			 'yk_identity'=>$yk_identity,
+			 'yk_counter'=>$res['counter'], 
+			 'yk_use'=>$res['sessionUse'],
+			 'yk_high'=>$res['high'],
+			 'yk_low'=>$res['low']);
+      
+      $this->log("notice", "counter found in db ", $localParams);
+      return $localParams;
+    } else {
+      $this->log('notice', 'params for identity ' . $yk_identity . ' not found in database');
+      return false;
+    }
   }
 
   private function parseParamsFromMultiLineString($str)
@@ -151,6 +197,8 @@ class SyncLib
       $resParams['yk_high']=$out[1];
       preg_match("/^yk_low=([0-9]*)/m", $str, $out);
       $resParams['yk_low']=$out[1];
+      preg_match("/^nonce=([[:alpha:]]*)/m", $str, $out);
+      $resParams['nonce']=$out[1];
 
       return $resParams;
   }
@@ -167,7 +215,8 @@ class SyncLib
 					       'counter'=>$params['yk_counter'], 
 					       'sessionUse'=>$params['yk_use'],
 					       'low'=>$params['yk_low'],
-					       'high'=>$params['yk_high']), 
+					       'high'=>$params['yk_high'], 
+					       'nonce'=>$params['nonce']), 
 					 $condition))
 	{
 	  error_log("ykval-synclib:critical: failed to update internal DB with new counters");
@@ -195,7 +244,9 @@ class SyncLib
 	 $p1['yk_use'] >= $p2['yk_use'])) return true;
     else return false;
   }
-
+  public function countersEqual($p1, $p2) {
+    return ($p1['yk_counter']==$p2['yk_counter']) && ($p1['yk_use']==$p2['yk_use']);
+  }
 
   public function deleteQueueEntry($answer) 
   {
@@ -285,16 +336,18 @@ class SyncLib
 	    $this->log("warning", "queued:Local server out of sync, local counters ", $localParams);
 	    $this->log("warning", "queued:Local server out of sync, remote counters ", $resParams);
 	  }
-      
-	  /* If received sync response have higher counters than OTP counters
-	   (indicating REPLAYED_OTP) 
-	  */
-	  if ($this->countersHigherThanOrEqual($resParams, $otpParams)) {
-	    $this->log('critical', 'queued:replayed OTP, queued sync request indicated OTP as invalid');
+
+	  if ($this->countersHigherThan($resParams, $otpParams) || 
+	      ($this->countersEqual($resParams, $otpParams) &&
+	       $resParams['nonce']!=$otpParams['nonce'])) {
+	    
+	    /* If received sync response have higher counters than OTP or same counters with different nonce
+	     (indicating REPLAYED_OTP) 
+	    */
+	
 	    $this->log("warning", "queued:replayed OTP, remote counters " , $resParams);
 	    $this->log("warning", "queued:replayed OTP, otp counters", $otpParams);
 	  }
-
 	  
 	  /* Deletion */
 	  $this->log('notice', 'deleting queue entry with id=' . $entry['id']);
@@ -349,33 +402,41 @@ class SyncLib
       
       /* Check for warnings 
        
-       If received sync response have lower counters than locally saved 
-       last counters (indicating that remote server wasn't synced) 
+       If received sync response have lower counters than local db
+       (indicating that remote server wasn't synced) 
       */
       if ($this->countersHigherThan($localParams, $resParams)) {
 	$this->log("warning", "Remote server out of sync, local counters ", $localParams);
 	$this->log("warning", "Remote server out of sync, remote counters ", $resParams);
       }
       
-      /* If received sync response have higher counters than locally saved 
-       last counters (indicating that local server wasn't synced) 
+      /* If received sync response have higher counters than local db
+       (indicating that local server wasn't synced) 
       */
       if ($this->countersHigherThan($resParams, $localParams)) {
 	$this->log("warning", "Local server out of sync, local counters ", $localParams);
 	$this->log("warning", "Local server out of sync, remote counters ", $resParams);
       }
       
-      /* If received sync response have higher counters than OTP counters
-       (indicating REPLAYED_OTP) 
-      */
-      if ($this->countersHigherThanOrEqual($resParams, $this->otpParams)) {
+      if ($this->countersHigherThan($resParams, $this->otpParams) || 
+	  ($this->countersEqual($resParams, $this->otpParams) &&
+	   $resParams['nonce']!=$this->otpParams['nonce'])) {
+
+	/* If received sync response have higher counters than OTP or same counters with different nonce
+	 (indicating REPLAYED_OTP) 
+	*/
+	
 	$this->log("warning", "replayed OTP, remote counters " , $resParams);
 	$this->log("warning", "replayed OTP, otp counters", $this->otpParams);
+      } else {
+
+	/* The answer is ok since a REPLAY was not indicated */
+	
+	$this->valid_answers++;
       }
 
       
-      /* Check if answer marks OTP as valid */
-      if (!$this->countersHigherThanOrEqual($resParams, $this->otpParams)) $this->valid_answers++;
+
       
       /*  Delete entry from table */
       $this->deleteQueueEntry($answer);
