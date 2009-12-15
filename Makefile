@@ -26,12 +26,13 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-VERSION=1.1
+VERSION=1.2
 PACKAGE=yubikey-val
 CODE=ykval-api.html ykval-db.sql ykval-revoke.php ykval-common.php	\
 	ykval-verify.php test-multi.php ykval-config.php		\
-	ykval-ping.php
-DOCS=doc/Installation.wiki
+	ykval-ping.php ykval-sync.php ykval-synclib.php ykval-db.php
+DOCS=doc/Installation.wiki doc/ClientInfoFormat.wiki	\
+	doc/ServerReplicationProtocol.wiki
 
 all: $(PACKAGE)-$(VERSION).tgz
 
@@ -45,6 +46,22 @@ $(PACKAGE)-$(VERSION).tgz: $(FILES)
 clean:
 	rm -f *~
 	rm -rf $(PACKAGE)-$(VERSION)
+
+etcprefix = /etc/ykval
+sbinprefix = /usr/sbin
+phpprefix = /usr/share/ykval
+docprefix = /usr/share/doc/ykval
+
+install:
+	install -D ykval-verify.php $(phpprefix)/ykval-verify.php
+	install -D ykval-common.php $(phpprefix)/ykval-common.php
+	install -D ykval-synclib.php $(phpprefix)/ykval-synclib.php
+	install -D ykval-sync.php $(phpprefix)/ykval-sync.php
+	install -D ykval-db.php $(phpprefix)/ykval-db.php
+	install -D ykval-daemon $(sbinprefix)/ykval-daemon
+	install -D -m 700 ykval-config.php $(etcprefix)/config.php
+	install -D ykval-db.sql $(docprefix)/ykval-db.sql
+	install -D $(DOCS) $(docprefix)/
 
 PROJECT=yubikey-val-server-php
 USER=simon75j
