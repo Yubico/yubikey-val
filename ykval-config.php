@@ -6,16 +6,24 @@ $baseParams['__YKVAL_DB_HOST__'] = 'localhost';
 $baseParams['__YKVAL_DB_NAME__'] = 'ykval';
 $baseParams['__YKVAL_DB_USER__'] = 'ykval_verifier';
 $baseParams['__YKVAL_DB_PW__'] = 'lab';
+
 # For the validation server sync
-$baseParams['__YKVAL_SYNC_POOL__'] = "http://api2.yubico.com/wsapi/sync;http://api3.yubico.com/wsapi/sync;http://api4.yubico.com/wsapi/sync";
+$baseParams['__YKVAL_SYNC_POOL__'] = "http://1.2.3.4/wsapi/2.0/sync;http://2.3.4.5/wsapi/2.0/sync;http://3.4.5.6/wsapi/2.0/sync";
+
+# Specify how often the sync daemon awakens
 $baseParams['__YKVAL_SYNC_INTERVAL__'] = 60;
-$baseParams['__YKVAL_SYNC_MAX_SIMUL__'] = 50;
+# Specify how long the sync daemon will wait for response
 $baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__'] = 30;
+# Specify how old entries in the database should be considered aborted attempts
 $baseParams['__YKVAL_SYNC_OLD_LIMIT__'] = 1;
+
+# These are settings for the validation server.
 $baseParams['__YKVAL_SYNC_FAST_LEVEL__'] = 1;
 $baseParams['__YKVAL_SYNC_SECURE_LEVEL__'] = 50;
 $baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'] = 50;
 $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
+
+$baseParams['__YKVAL_SYNC_MAX_SIMUL__'] = 50;
 
 # For the get-api-key service.
 $baseParams['__YKGAK_DB_HOST__'] = $baseParams['__YKVAL_DB_HOST__'];
