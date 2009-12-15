@@ -25,13 +25,6 @@ $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
 
 $baseParams['__YKVAL_SYNC_MAX_SIMUL__'] = 50;
 
-# For the revoke service.
-$baseParams['__YKR_DB_HOST__'] = $baseParams['__YKVAL_DB_HOST__'];
-$baseParams['__YKR_DB_NAME__'] = $baseParams['__YKVAL_DB_NAME__'];
-$baseParams['__YKR_DB_USER__'] = 'ykval_revoke';
-$baseParams['__YKR_DB_PW__'] = 'thirdpassword';
-$baseParams['__YKR_IP__'] = '1.2.3.4';
-
 // otp2ksmurls: Return array of YK-KSM URLs for decrypting OTP for
 // CLIENT.  The URLs must be fully qualified, i.e., contain the OTP
 // itself.
