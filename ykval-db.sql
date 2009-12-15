@@ -49,11 +49,6 @@ GRANT SELECT(id, secret, active)
 GRANT SELECT,INSERT,UPDATE,DELETE 
 	ON ykval.queue to 'ykval_verifier'@'localhost';
 
--- DROP USER 'ykval_getapikey'@'localhost';
-CREATE USER 'ykval_getapikey'@'localhost';
-GRANT SELECT(id),INSERT
-	ON ykval.clients to 'ykval_getapikey'@'localhost';
-
 -- DROP USER 'ykval_revoke'@'localhost';
 CREATE USER 'ykval_revoke'@'localhost';
 GRANT UPDATE(active)

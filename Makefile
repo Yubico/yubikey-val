@@ -29,18 +29,16 @@
 VERSION=1.1
 PACKAGE=yubikey-val
 CODE=ykval-api.html ykval-db.sql ykval-revoke.php ykval-common.php	\
-	ykval-getapikey.php ykval-verify.php test-multi.php		\
-	ykval-config.php ykval-ping.php
+	ykval-verify.php test-multi.php ykval-config.php		\
+	ykval-ping.php
 DOCS=doc/Installation.wiki
-GAK=get-api-key/index.php
 
 all: $(PACKAGE)-$(VERSION).tgz
 
 $(PACKAGE)-$(VERSION).tgz: $(FILES)
-	mkdir $(PACKAGE)-$(VERSION) $(PACKAGE)-$(VERSION)/doc $(PACKAGE)-$(VERSION)/get-api-key
+	mkdir $(PACKAGE)-$(VERSION) $(PACKAGE)-$(VERSION)/doc
 	cp $(CODE) $(PACKAGE)-$(VERSION)/
 	cp $(DOCS) $(PACKAGE)-$(VERSION)/doc/
-	cp $(GAK) $(PACKAGE)-$(VERSION)/get-api-key/
 	tar cfz $(PACKAGE)-$(VERSION).tgz $(PACKAGE)-$(VERSION)
 	rm -rf $(PACKAGE)-$(VERSION)
 
