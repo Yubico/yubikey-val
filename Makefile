@@ -53,15 +53,26 @@ phpprefix = /usr/share/ykval
 docprefix = /usr/share/doc/ykval
 
 install:
+	install -D .htaccess $(phpprefix)/.htaccess
 	install -D ykval-verify.php $(phpprefix)/ykval-verify.php
 	install -D ykval-common.php $(phpprefix)/ykval-common.php
 	install -D ykval-synclib.php $(phpprefix)/ykval-synclib.php
 	install -D ykval-sync.php $(phpprefix)/ykval-sync.php
 	install -D ykval-db.php $(phpprefix)/ykval-db.php
 	install -D ykval-daemon $(sbinprefix)/ykval-daemon
-	install -D -m 700 ykval-config.php $(etcprefix)/config.php
+	install -D -m 700 ykval-config.php $(etcprefix)/ykval-config.php
 	install -D ykval-db.sql $(docprefix)/ykval-db.sql
 	install -D $(DOCS) $(docprefix)/
+
+wwwprefix = /var/www/wsapi
+
+symlink:
+	install -d $(wwwprefix)/2.0
+	ln -sf $(phpprefix)/.htaccess $(wwwprefix)/2.0/.htaccess
+	ln -sf $(phpprefix)/ykval-verify.php $(wwwprefix)/2.0/verify.php
+	ln -sf $(phpprefix)/ykval-sync.php $(wwwprefix)/2.0/sync.php
+	ln -sf 2.0/.htaccess $(wwwprefix)/.htaccess 
+	ln -sf 2.0/verify.php $(wwwprefix)/verify.php
 
 PROJECT=yubikey-val-server-php
 USER=simon75j
