@@ -26,26 +26,21 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-VERSION=1.2
-PACKAGE=yubikey-val
-CODE=ykval-api.html ykval-db.sql ykval-revoke.php ykval-common.php	\
-	ykval-verify.php test-multi.php ykval-config.php		\
-	ykval-ping.php ykval-sync.php ykval-synclib.php ykval-db.php
-DOCS=doc/Installation.wiki doc/ClientInfoFormat.wiki	\
-	doc/ServerReplicationProtocol.wiki
+VERSION = 1.2
+PACKAGE = yubikey-val
+CODE = .htaccess Makefile NEWS ykval-config.php ykval-db.sql		\
+	ykval-common.php ykval-verify.php test-multi.php		\
+	ykval-ping.php ykval-sync.php ykval-synclib.php ykval-db.php	\
+	ykval-api.html ykval-daemon
+DOCS = doc/Installation.wiki doc/ClientInfoFormat.wiki			\
+	doc/ServerReplicationProtocol.wiki doc/Troubleshooting.wiki
 
-all: $(PACKAGE)-$(VERSION).tgz
+all:
+	@echo "Try 'make install' or 'make symlink'."
+	@echo "Docs: http://code.google.com/p/yubikey-ksm/wiki/Installation"
+	@exit 1
 
-$(PACKAGE)-$(VERSION).tgz: $(FILES)
-	mkdir $(PACKAGE)-$(VERSION) $(PACKAGE)-$(VERSION)/doc
-	cp $(CODE) $(PACKAGE)-$(VERSION)/
-	cp $(DOCS) $(PACKAGE)-$(VERSION)/doc/
-	tar cfz $(PACKAGE)-$(VERSION).tgz $(PACKAGE)-$(VERSION)
-	rm -rf $(PACKAGE)-$(VERSION)
-
-clean:
-	rm -f *~
-	rm -rf $(PACKAGE)-$(VERSION)
+# Installation rules.
 
 etcprefix = /etc/ykval
 sbinprefix = /usr/sbin
@@ -75,12 +70,26 @@ symlink:
 	ln -sf 2.0/.htaccess $(wwwprefix)/.htaccess 
 	ln -sf 2.0/verify.php $(wwwprefix)/verify.php
 
+# Maintainer rules.
+
 PROJECT=yubikey-val-server-php
 USER=simon75j
 KEYID=B9156397
 
-release:
-	make
+$(PACKAGE)-$(VERSION).tgz: $(FILES)
+	mkdir $(PACKAGE)-$(VERSION) $(PACKAGE)-$(VERSION)/doc
+	cp $(CODE) $(PACKAGE)-$(VERSION)/
+	cp $(DOCS) $(PACKAGE)-$(VERSION)/doc/
+	tar cfz $(PACKAGE)-$(VERSION).tgz $(PACKAGE)-$(VERSION)
+	rm -rf $(PACKAGE)-$(VERSION)
+
+dist: $(PACKAGE)-$(VERSION).tgz
+
+clean:
+	rm -f *~
+	rm -rf $(PACKAGE)-$(VERSION)
+
+release: dist
 	gpg --detach-sign --default-key $(KEYID) $(PACKAGE)-$(VERSION).tgz
 	gpg --verify $(PACKAGE)-$(VERSION).tgz.sig
 	svn copy https://$(PROJECT).googlecode.com/svn/trunk/ \
