@@ -3,7 +3,7 @@
 require_once 'PHPUnit/Framework.php';
 require_once (dirname(__FILE__) . '/../ykval-synclib.php');
 require_once(dirname(__FILE__) . '/../ykval-config.php');
-require_once(dirname(__FILE__) . '/../lib/Db.php'); 
+require_once(dirname(__FILE__) . '/../ykval-db.php'); 
 
 class SyncLibTest extends PHPUnit_Framework_TestCase
 {

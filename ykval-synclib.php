@@ -2,7 +2,7 @@
 
 require_once 'ykval-config.php';
 require_once 'ykval-common.php';
-require_once 'lib/Db.php';
+require_once 'ykval-db.php';
 
 class SyncLib
 {

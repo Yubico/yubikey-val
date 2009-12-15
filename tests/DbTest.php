@@ -1,7 +1,7 @@
 <?php
 
 require_once(dirname(__FILE__) . '/../ykval-config.php');
-require_once(dirname(__FILE__) . '/../lib/Db.php');
+require_once(dirname(__FILE__) . '/../ykval-db.php');
 require_once 'PHPUnit/Framework.php';
  
 
