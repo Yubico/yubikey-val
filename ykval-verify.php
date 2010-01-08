@@ -23,6 +23,7 @@ $sync = new SyncLib();
 if (! $sync->isConnected()) {
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
+
  }
 
 /* Extract values from HTTP request

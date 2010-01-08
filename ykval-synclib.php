@@ -13,11 +13,12 @@ class SyncLib
   {
     $this->logname=$logname;
     global $baseParams;
-    $this->syncServers = explode(";", $baseParams['__YKVAL_SYNC_POOL__']);
-    $this->db=new Db($baseParams['__YKVAL_DB_HOST__'],
+    $this->syncServers = $baseParams['__YKVAL_SYNC_POOL__'];
+
+    $this->db=new Db($baseParams['__YKVAL_DB_DSN__'],
 		     $baseParams['__YKVAL_DB_USER__'],
 		     $baseParams['__YKVAL_DB_PW__'],
-		     $baseParams['__YKVAL_DB_NAME__']);
+		     $baseParams['__YKVAL_DB_OPTIONS__']);
     $this->isConnected=$this->db->connect();
     $this->random_key=rand(0,1<<16);
     $this->max_url_chunk=$baseParams['__YKVAL_SYNC_MAX_SIMUL__'];
@@ -47,12 +48,9 @@ class SyncLib
   }
   function getClientData($client)
   {
-    $res=$this->db->customQuery('SELECT id, secret FROM clients WHERE active AND id='.mysql_quote($client));
-    if(mysql_num_rows($res)>0) {
-      $row = mysql_fetch_assoc($res);
-      mysql_free_result($res);
-      return $row;
-    } else return false;
+    $res=$this->db->customQuery("SELECT id, secret FROM clients WHERE active AND id='" . $client . "'");
+    if($res->rowCount()>0) return $res->fetch(PDO::FETCH_ASSOC);
+    else return false;
   }
   function getLast() 
   {
@@ -489,6 +487,7 @@ class SyncLib
 
     $ch = array();
     foreach ($urls as $id => $url) {
+      error_log("url is " . $url);
       $handle = curl_init();
       
       curl_setopt($handle, CURLOPT_URL, $url);

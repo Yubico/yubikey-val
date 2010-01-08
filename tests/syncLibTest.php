@@ -11,10 +11,11 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
   public function setup()
   {
     global $baseParams;
-    $db = new Db($baseParams['__YKVAL_DB_HOST__'],
-		 'root',
-		 'lab',
-		 $baseParams['__YKVAL_DB_NAME__']);
+    $db=new Db($baseParams['__YKVAL_DB_DSN__'],
+		     'root',
+		     'lab',
+		     $baseParams['__YKVAL_DB_OPTIONS__']);
+
     $db->connect();
    # $db->truncateTable('queue');
     $db->disconnect();

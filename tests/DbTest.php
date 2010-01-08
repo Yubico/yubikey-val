@@ -11,10 +11,10 @@ class DbTest extends PHPUnit_Framework_TestCase
   public function setup()
   {
     global $baseParams;
-    $this->db=new Db($baseParams['__YKVAL_DB_HOST__'],
+    $this->db=new Db($baseParams['__YKVAL_DB_DSN__'],
 		     'root',
 		     'lab',
-		     $baseParams['__YKVAL_DB_NAME__']);
+		     $baseParams['__YKVAL_DB_OPTIONS__']);
     $this->db->connect();
     $this->db->customQuery("drop table unittest");
     $this->db->customQuery("create table unittest (id int,value1 int, value2 int)");
@@ -65,6 +65,15 @@ class DbTest extends PHPUnit_Framework_TestCase
     
     $res=$this->db->findBy('unittest', 'id', 1, 1);
     $this->assertEquals(1000, $res['value2']);
+  }
+  public function testDeleteByMultiple()
+  {
+    $this->assertTrue($this->db->save('unittest', array('value1'=>100,
+							'value2'=>200, 
+							'id'=>1)));
+    $this->assertTrue($this->db->deleteByMultiple('unittest', array('value1'=>100, 
+								    'value2'=>200)));
+
   }
 }
 ?>

@@ -2,13 +2,15 @@
 
 # For the validation interface.
 $baseParams = array ();
-$baseParams['__YKVAL_DB_HOST__'] = 'localhost';
-$baseParams['__YKVAL_DB_NAME__'] = 'ykval';
+$baseParams['__YKVAL_DB_DSN__'] = "mysql:dbname=ykval;host=127.0.0.1";
 $baseParams['__YKVAL_DB_USER__'] = 'ykval_verifier';
 $baseParams['__YKVAL_DB_PW__'] = 'lab';
+$baseParams['__YKVAL_DB_OPTIONS__'] = array();
 
 # For the validation server sync
-$baseParams['__YKVAL_SYNC_POOL__'] = "http://1.2.3.4/wsapi/2.0/sync;http://2.3.4.5/wsapi/2.0/sync;http://3.4.5.6/wsapi/2.0/sync";
+$baseParams['__YKVAL_SYNC_POOL__'] = array("http://1.2.3.4/wsapi/2.0/sync", 
+					   "http://2.3.4.5/wsapi/2.0/sync", 
+					   "http://3.4.5.6/wsapi/2.0/sync");
 
 # Specify how often the sync daemon awakens
 $baseParams['__YKVAL_SYNC_INTERVAL__'] = 60;

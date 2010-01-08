@@ -53,12 +53,12 @@ class Db
    * @return void 
    *
    */
-  public function __construct($host, $user, $pwd, $db_name)
+  public function __construct($db_dsn, $db_username, $db_password, $dp_options)
   {
-    $this->host=$host;
-    $this->user=$user;
-    $this->pwd=$pwd;
-    $this->db_name=$db_name;
+    $this->db_dsn=$db_dsn;
+    $this->db_username=$db_username;
+    $this->db_password=$db_password;
+    $this->db_options=$db_options;
   }
   /**
    * function to convert Db timestamps to unixtime(s)
@@ -95,10 +95,7 @@ class Db
    */
   public function disconnect()
   {
-    if ($this->db_conn!=NULL) {
-      mysql_close($this->db_conn);
-      $this->db_conn=NULL;
-    }
+    $this->dbh=NULL;
   }
   
   /**
@@ -109,7 +106,7 @@ class Db
    */
   public function isConnected()
   {
-    if ($this->db_conn!=NULL) return True;
+    if ($this->dbh!=NULL) return True;
     else return False;
   }
   /**
@@ -119,22 +116,37 @@ class Db
    *
    */
   public function connect(){
-    if (! $this->db_conn = mysql_connect($this->host, $this->user, $this->pwd)) {
-      error_log('Could not connect: ' . mysql_error());
-      $this->db_conn=Null;
-      return false;
-    }
-    if (! mysql_select_db($this->db_name)) {
-      error_log('Could not select database ' . $this->db_name);
-      $this->disconnect();
+
+    try {
+      $this->dbh = new PDO($this->db_dsn, $this->db_username, $this->db_password, $this->db_options);
+    } catch (PDOException $e) {
+      error_log("hej hopp");
+      error_log("Database error: " . $e->getMessage());
+      $this->dbh=Null;
       return false;
     }
     return true;
   }
 
+  private function query($query, $returnresult=false) {
+    if($this->dbh) {
+      $result = $this->dbh->query($query);
+      if (! $result){
+	error_log('Database error: ' . print_r($this->dbh->errorInfo(), true));
+	error_log('Query was: ' . $query);
+	return false;
+      }
+      if ($returnresult) return $result;
+      else return true;
+    } else {
+      error_log('No database connection');
+      return false;
+    }
+  }
+
   public function truncateTable($name)
   {
-    mysql_query("TRUNCATE TABLE " . $name);
+    $this->query("TRUNCATE TABLE " . $name);
   }
 
   /**
@@ -161,12 +173,8 @@ class Db
     $query = rtrim($query, ",") . " WHERE " . $k . ' = ' . $v;
     // Insert UPDATE statement at beginning
     $query = "UPDATE " . $table . " SET " . $query; 
-    if (! mysql_query($query)){
-      error_log('Query failed: ' . mysql_error());
-      error_log('Query was: ' . $query);
-      return false;
-    }
-    return true;
+    
+    return $this->query($query, false);
   }
 
 
@@ -208,13 +216,9 @@ class Db
     $query = rtrim($query, ",") . " WHERE id = " . $id . " and " . $condition;
     // Insert UPDATE statement at beginning
     $query = "UPDATE " . $table . " SET " . $query; 
+
     error_log("query is " . $query);
-    if (! mysql_query($query)){
-        error_log('Query failed: ' . mysql_error());
-      error_log('Query was: ' . $query);
-      return false;
-    }
-    return true;
+    return $this->query($query, false);
   }
 
   /**
@@ -237,12 +241,7 @@ class Db
     }
     $query = rtrim($query, ",");
     $query = $query . ")";
-    if (! mysql_query($query)){
-      error_log('Query failed: ' . mysql_error());
-      error_log('Query was: ' . $query);
-      return false;
-    }
-    return true;
+    return $this->query($query, false);
   }
   /**
    * helper function to collect last row[s] in database
@@ -308,19 +307,16 @@ or false on failure.
     if ($rev==1) $query.= " ORDER BY id DESC";
     if ($nr!=null) $query.= " LIMIT " . $nr;
     //    error_log('query is ' .$query);
-    $result = mysql_query($query);
-    if (! $result) {
-      error_log('Query failed: ' . mysql_error());
-      error_log('Query was: ' . $query);
-      return false;
-    }
+    $result = $this->query($query, true);
+    if (!$result) return false;
+   
     if ($nr==1) {
-      $row = mysql_fetch_array($result, MYSQL_ASSOC);
+      $row = $result->fetch(PDO::FETCH_ASSOC);
       return $row;
     } 
     else {
       $collection=array();
-      while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
+      while($row = $result->fetch(PDO::FETCH_ASSOC)){
 	$collection[]=$row;
       }
       return $collection;
@@ -336,7 +332,7 @@ or false on failure.
    * @param int $nr Number of rows to collect. NULL=>inifinity. Default=NULL.
    * @param int $rev rev=1 indicates order should be reversed. Default=NULL.
    * @param string distinct Select rows with distinct columns, Default=NULL
-   * @return mixed Array with values from Db row or 2d-array with multiple rows
+   * @return boolean True on success, otherwise false.
    *
    */
   public function deleteByMultiple($table, $where, $nr=null, $rev=null)
@@ -353,20 +349,13 @@ or false on failure.
     }
     if ($rev==1) $query.= " ORDER BY id DESC";
     if ($nr!=null) $query.= " LIMIT " . $nr;
-    $result = mysql_query($query);
-    if (! $result) {
-      error_log('Query failed: ' . mysql_error());
-      error_log('Query was: ' . $query);
-      return false;
-    }
-    return $result;
-
+    return $this->query($query, false);
   }
 
   public function customQuery($query)
   {
     error_log("custom query: " . $query);
-    return mysql_query($query);
+    return $this->query($query, true);
   }
   /**
    * helper function used to get rows from Db table in reversed order. 
