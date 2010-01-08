@@ -27,7 +27,7 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
   {
     $sl = new SyncLib();
     $this->assertGreaterThan(1, $sl->getNumberOfServers());
-    $this->assertEquals($sl->getServer(0), "http://api2.yubico.com/wsapi/sync");
+    $this->assertEquals($sl->getServer(0), "http://1.2.3.4/wsapi/2.0/sync");
   }
 
 
@@ -40,14 +40,14 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
 
     $sl->queue(array('modified'=>1259585588,
 		     'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-		     'yk_identity'=>"cccccccccccc",
+		     'yk_publicname'=>"cccccccccccc",
 		     'yk_counter'=>10,
 		     'yk_use'=>20,
 		     'yk_high'=>100,
 		     'yk_low'=>1000),
 	       array('modified'=>1259585588,
 		     'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-		     'yk_identity'=>"cccccccccccc",
+		     'yk_publicname'=>"cccccccccccc",
 		     'yk_counter'=>10,
 		     'yk_use'=>18,
 		     'yk_high'=>100,
@@ -59,7 +59,7 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
     $lastSync=$sl->getLast();
     $this->assertEquals($lastSync['modified'], 1259585588);
     $this->assertEquals($lastSync['otp'], "ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui");
-    $this->assertEquals($lastSync['yk_identity'], "cccccccccccc");
+    $this->assertEquals($lastSync['yk_publicname'], "cccccccccccc");
     $this->assertEquals($lastSync['yk_counter'], 10);
     $this->assertEquals($lastSync['yk_use'], 20);
     $this->assertEquals($lastSync['yk_high'], 100);
@@ -135,14 +135,14 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(
 		      $sl->queue(array('modified'=>1259585588+1000,
 				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-				       'yk_identity'=>"cccccccccccc",
+				       'yk_publicname'=>"cccccccccccc",
 				       'yk_counter'=>9,
 				       'yk_use'=>3,
 				       'yk_high'=>100,
 				       'yk_low'=>1000),
 				 array('modified'=>1259585588,
 				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-				       'yk_identity'=>"cccccccccccc",
+				       'yk_publicname'=>"cccccccccccc",
 				       'yk_counter'=>10,
 				       'yk_use'=>18,
 				       'yk_high'=>100,
@@ -159,14 +159,14 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(
 		      $sl->queue(array('modified'=>1259585588+1000,
 				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-				       'yk_identity'=>"cccccccccccc",
+				       'yk_publicname'=>"cccccccccccc",
 				       'yk_counter'=>9,
 				       'yk_use'=>3,
 				       'yk_high'=>100,
 				       'yk_low'=>1000),
 				 array('modified'=>1259585588,
 				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-				       'yk_identity'=>"cccccccccccc",
+				       'yk_publicname'=>"cccccccccccc",
 				       'yk_counter'=>10,
 				       'yk_use'=>18,
 				       'yk_high'=>100,
@@ -193,14 +193,14 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(
 		      $sl->queue(array('modified'=>1259585588+1000,
 				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-				       'yk_identity'=>"cccccccccccc",
+				       'yk_publicname'=>"cccccccccccc",
 				       'yk_counter'=>9,
 				       'yk_use'=>3,
 				       'yk_high'=>100,
 				       'yk_low'=>1000),
 				 array('modified'=>1259585588,
 				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-				       'yk_identity'=>"cccccccccccc",
+				       'yk_publicname'=>"cccccccccccc",
 				       'yk_counter'=>10,
 				       'yk_use'=>18,
 				       'yk_high'=>100,
@@ -227,14 +227,14 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
     $this->assertTrue(
 		      $sl->queue(array('modified'=>1259585588+1000,
 				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-				       'yk_identity'=>"cccccccccccc",
+				       'yk_publicname'=>"cccccccccccc",
 				       'yk_counter'=>9,
 				       'yk_use'=>3,
 				       'yk_high'=>100,
 				       'yk_low'=>1000),
 				 array('modified'=>1259585588,
 				       'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
-				       'yk_identity'=>"cccccccccccc",
+				       'yk_publicname'=>"cccccccccccc",
 				       'yk_counter'=>10,
 				       'yk_use'=>18,
 				       'yk_high'=>100,
@@ -250,8 +250,34 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
     
   }
   
-  public function testActivateQueue()
+  public function testNullQueue()
   {
+    $sl = new SyncLib();
+    $sl->syncServers = array("http://localhost/wsapi/syncvalid1", 
+			     "http://doesntexist/wsapi/syncvalid2",
+			     "http://localhost/wsapi/syncvalid3");
+    
+    $start_length=$sl->getQueueLength();
+    $p1=array('modified'=>1259585588+1000,
+	      'otp'=>"ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui",
+	      'yk_publicname'=>"cccccccccccc",
+	      'yk_counter'=>9,
+	      'yk_use'=>3,
+	      'yk_high'=>100,
+	      'yk_low'=>1000);
+  
+    $this->assertTrue($sl->queue($p1, $p1));
+
+    $res=$sl->getLast();
+    $this->assertNotNull($res['queued']);
+    $res=$sl->sync(3);
+
+    $this->assertEquals(1+$start_length, $sl->getQueueLength());
+    $res=$sl->getLast();
+    $this->assertNull($res['queued']);
+
+
   }
+
 }
 ?>

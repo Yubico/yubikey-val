@@ -22,7 +22,7 @@ if (! $sync->isConnected()) {
 $syncParams=array('modified'=>Null,
 		  'otp'=>Null,
 		  'nonce'=>Null,
-		  'yk_identity'=>Null,
+		  'yk_publicname'=>Null,
 		  'yk_counter'=>Null,
 		  'yk_use'=>Null,
 		  'yk_high'=>Null,
@@ -49,16 +49,16 @@ debug($tmp_log);
 # Get local counter data
 #
 
-$yk_identity = $syncParams['yk_identity'];
-$localParams = $sync->getLocalParams($yk_identity);
+$yk_publicname = $syncParams['yk_publicname'];
+$localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
-  debug('Invalid Yubikey ' . $yk_identity);
+  debug('Invalid Yubikey ' . $yk_publicname);
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }
 
 if ($localParams['active'] != 1) {
-  debug('De-activated Yubikey ' . $yk_identity);
+  debug('De-activated Yubikey ' . $yk_publicname);
   sendResp(S_BAD_OTP, $apiKey);
   exit;
  }
@@ -100,7 +100,7 @@ if ($sync->countersEqual($localParams, $syncParams)) {
   
 $extra=array('modified'=>$localParams['modified'],
 	     'nonce'=>$localParams['nonce'],
-	     'yk_identity'=>$yk_identity,
+	     'yk_publicname'=>$yk_publicname,
 	     'yk_counter'=>$localParams['yk_counter'],
 	     'yk_use'=>$localParams['yk_use'],
 	     'yk_high'=>$localParams['yk_high'],

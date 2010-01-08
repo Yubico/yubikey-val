@@ -9,6 +9,7 @@ header("content-type: text/plain");
 
 debug("Request: " . $_SERVER['QUERY_STRING']);
 
+/* Detect protocol version */
 if (preg_match("/\/wsapi\/([0-9]*)\.([0-9]*)\//", $_SERVER['REQUEST_URI'], $out)) {
   $protocol_version=$out[1]+$out[2]*0.1;
  } else {
@@ -123,10 +124,10 @@ debug("Decrypted OTP:", $otpinfo);
 //// Get Yubikey from DB
 //
 $devId = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
-$yk_identity=$devId;
-$localParams = $sync->getLocalParams($yk_identity);
+$yk_publicname=$devId;
+$localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
-  debug('Invalid Yubikey ' . $yk_identity);
+  debug('Invalid Yubikey ' . $yk_publicname);
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }
@@ -143,7 +144,7 @@ if ($localParams['active'] != 1) {
 $otpParams=array('modified'=>time(), 
 		 'otp'=>$otp, 
 		 'nonce'=>$nonce,
-		 'yk_identity'=>$devId, 
+		 'yk_publicname'=>$devId, 
 		 'yk_counter'=>$otpinfo['session_counter'], 
 		 'yk_use'=>$otpinfo['session_use'], 
 		 'yk_high'=>$otpinfo['high'], 

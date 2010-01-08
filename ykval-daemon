@@ -21,15 +21,29 @@ if ($path){
  }
 error_log($appname . " started");
 
-$sl = new SyncLib();
+$servers=explode(";", $baseParams['__YKVAL_SYNC_POOL__']);
+$resources=array();
+$descriptors=array();
+$pipes=array();
+$execstring="php -d error_log='/var/log/apache2/error.log' -f ./app1.php ";
+foreach($servers as $server) {
+  $resources[$server]=proc_open($execstring . $server, $descriptors, $pipes);
+}
 
 # Loop forever and resync
 while (True) {
-  $sl->reSync($baseParams['__YKVAL_SYNC_OLD_LIMIT__']);
-  
-  sleep($baseParams['__YKVAL_SYNC_INTERVAL__']);
+  foreach($resources as $server=>$resource) {
+    $res=proc_get_status($resource);
+    if ($res['running']==True){ 
+      System_Daemon::log(System_Daemon::LOG_INFO, "sync server for " . $server . " status=running");
+    } else {
+      System_Daemon::log(System_Daemon::LOG_INFO, "sync server for " . $server . " not running. Trying to restart.");
+      $resources[$server]=proc_open($execstring . $server, $descriptors, $pipes);
+    }
+  }
+  sleep(60);
  }
-
+  
 System_Daemon::stop();
 ?>
 

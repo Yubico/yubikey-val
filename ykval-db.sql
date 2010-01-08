@@ -1,7 +1,7 @@
 CREATE TABLE clients (
   id INT NOT NULL AUTO_INCREMENT,
   active BOOLEAN DEFAULT TRUE,
-  created DATETIME NOT NULL,
+  created INT NOT NULL,
   secret VARCHAR(60) NOT NULL DEFAULT '',
   email VARCHAR(255),
   notes VARCHAR(100) DEFAULT '',
@@ -12,23 +12,23 @@ CREATE TABLE clients (
 CREATE TABLE yubikeys (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
   active BOOLEAN DEFAULT TRUE,
-  created DATETIME NOT NULL,
-  accessed DATETIME,
-  publicName VARCHAR(16) UNIQUE NOT NULL COLLATE ascii_bin,
-  internalName VARCHAR(12) NOT NULL COLLATE ascii_bin,
-  counter INT,
-  low INT,
-  high INT,
-  sessionUse INT,
-  nonce VARCHAR(64) DEFAULT '',
+  created INT NOT NULL,
+  modified INT NOT NULL,
+  yk_publicname VARCHAR(16) UNIQUE NOT NULL COLLATE ascii_bin,
+  yk_internalname VARCHAR(12) NOT NULL COLLATE ascii_bin,
+  yk_counter INT NOT NULL,
+  yk_use INT NOT NULL,
+  yk_low INT,
+  yk_high INT,
+  nonce VARCHAR(32) DEFAULT '',
   notes VARCHAR(100) DEFAULT '',
   PRIMARY KEY (id)
 );
 
 CREATE TABLE queue (
   id INT NOT NULL UNIQUE AUTO_INCREMENT,
-  queued_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  modified_time TIMESTAMP,
+  queued INT DEFAULT NULL,
+  modified INT DEFAULT NULL,
   random_key INT,
   otp VARCHAR(100) NOT NULL,
   server VARCHAR(100) NOT NULL,

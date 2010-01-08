@@ -138,6 +138,39 @@ class Db
   }
 
   /**
+   * function to update row in database by a where condition
+   *
+   * @param string $table Database table to update row in
+   * @param int $id Id on row to update
+   * @param array $values Array with key=>values to update
+   * @return boolean True on success, otherwise false.
+   *
+   */
+  public function updateBy($table, $k, $v, $values)
+  {
+    
+    foreach ($values as $key=>$value){
+      if ($value != null) $query .= ' ' . $key . "='" . $value . "',";
+      else $query .= ' ' . $key . '=NULL,';
+    }
+    if (! $query) {
+      log("no values to set in query. Not updating DB");
+      return true;
+    }
+
+    $query = rtrim($query, ",") . " WHERE " . $k . ' = ' . $v;
+    // Insert UPDATE statement at beginning
+    $query = "UPDATE " . $table . " SET " . $query; 
+    if (! mysql_query($query)){
+      error_log('Query failed: ' . mysql_error());
+      error_log('Query was: ' . $query);
+      return false;
+    }
+    return true;
+  }
+
+
+  /**
    * function to update row in database
    *
    * @param string $table Database table to update row in
@@ -148,25 +181,9 @@ class Db
    */
   public function update($table, $id, $values)
   {
-    
-    foreach ($values as $key=>$value){
-      if ($value != null) $query = $query . " " . $key . "='" . $value . "',";
-    }
-    if (! $query) {
-      log("no values to set in query. Not updating DB");
-      return true;
-    }
-
-    $query = rtrim($query, ",") . " WHERE id = " . $id;
-    // Insert UPDATE statement at beginning
-    $query = "UPDATE " . $table . " SET " . $query; 
-    if (! mysql_query($query)){
-      error_log('Query failed: ' . mysql_error());
-      error_log('Query was: ' . $query);
-      return false;
-    }
-    return true;
+    return $this->updateBy($table, 'id', $id, $values);
   }
+    
   /**
    * function to update row in database
    *
@@ -254,28 +271,7 @@ or false on failure.
    */
   public function findBy($table, $key, $value, $nr=null, $rev=null)
   {
-    $query="SELECT * FROM " . $table;
-    if ($key!=null) $query.= " WHERE " . $key . " = '" . $value . "'";
-    if ($rev==1) $query.= " ORDER BY id DESC";
-    if ($nr!=null) $query.= " LIMIT " . $nr;
-    $result = mysql_query($query);
-    if (! $result) {
-      error_log('Query failed: ' . mysql_error());
-      error_log('Query was: ' . $query);
-      return false;
-    }
-    if ($nr==1) {
-      $row = mysql_fetch_array($result, MYSQL_ASSOC);
-      return $row;
-    } 
-    else {
-      $collection=array();
-      while($row = mysql_fetch_array($result, MYSQL_ASSOC)){
-	$collection[]=$row;
-      }
-      return $collection;
-    }
-
+    return $this->findByMultiple($table, array($key=>$value), $nr, $rev);
   }
 
   /**
@@ -299,15 +295,19 @@ or false on failure.
     }
     $query.= " FROM " . $table;
     if ($where!=null){ 
-      $query.= " WHERE";
       foreach ($where as $key=>$value) {
-	$query.= " ". $key . " = '" . $value . "' and";
+	if ($key!= Null) {
+	  if ($value != Null) $match.= " ". $key . " = '" . $value . "' and";
+	  else $match.= " ". $key . " is NULL and";
+	}
       }
+      if ($match!=null) $query .= " WHERE" . $match;
       $query=rtrim($query, "and");
       $query=rtrim($query);
     }
     if ($rev==1) $query.= " ORDER BY id DESC";
     if ($nr!=null) $query.= " LIMIT " . $nr;
+    //    error_log('query is ' .$query);
     $result = mysql_query($query);
     if (! $result) {
       error_log('Query failed: ' . mysql_error());
@@ -365,6 +365,7 @@ or false on failure.
 
   public function customQuery($query)
   {
+    error_log("custom query: " . $query);
     return mysql_query($query);
   }
   /**
