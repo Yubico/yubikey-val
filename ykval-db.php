@@ -349,12 +349,12 @@ or false on failure.
     }
     if ($rev==1) $query.= " ORDER BY id DESC";
     if ($nr!=null) $query.= " LIMIT " . $nr;
+    error_log("delete query is " . $query);
     return $this->query($query, false);
   }
 
   public function customQuery($query)
   {
-    error_log("custom query: " . $query);
     return $this->query($query, true);
   }
   /**

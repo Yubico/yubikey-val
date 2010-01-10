@@ -241,95 +241,74 @@ class SyncLib
 
     preg_match('/url=(.*)\?/', $answer, $out);
     $server=$out[1];
-    debug("server=" . $server);
+    debug("deleting server=" . $server);
+    debug("modified=" . $this->otpParams['modified']);
+    debug("random_key=" . $this->random_key);
     $this->db->deleteByMultiple('queue', 
 				array("modified"=>$this->otpParams['modified'],
 				      "random_key"=>$this->random_key, 
 				      'server'=>$server));
   }
 
-  public function reSync($older_than=10, $timeout)
+  public function reSync($older_than=60, $timeout)
   {
+    $this->log('notice', 'starting resync');
     /* Loop over all unique servers in queue */
-    $res=$this->db->customQuery("select distinct server from queue WHERE (queued_time < DATE_SUB(now(), INTERVAL " . $older_than . " MINUTE) or queued_time is null)");
-    error_log("found " . mysql_num_rows($res) . " unique servers");
-    return true;
+    $queued_limit=time()-$older_than;
+    $res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
+    error_log("found " . $res->rowCount() . " unique servers");
 
-    $urls=array();
-    # TODO: move statement to DB class, this looks grotesque
-    $res=$this->db->customQuery("select * from queue WHERE (queued_time < DATE_SUB(now(), INTERVAL " . $older_than . " MINUTE) or queued_time is null) and server='" . $server . "'");
-    $this->log('notice', "found " . mysql_num_rows($res) . " old queue entries");
-    $collection=array();
-    while($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
-      $collection[]=$row;
-    }
-    foreach ($collection as $row) {
-      $this->log('notice', "server=" . $row['server'] . " , info=" . $row['info']);
+    foreach ($res as $my_server) {
+      error_log("Sending queue request to server on server " . $my_server['server']);
+      $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
+      error_log("found " . $res->rowCount() . " queue entries");
 
-      $urls[]=$row['server'] .  
-	"?otp=" . $row['otp'] .
-	"&modified=" . $row['modified'] .
-	"&" . $this->otpPartFromInfoString($row['info']);
-      
-    }
+      while ($entry=$res->fetch(PDO::FETCH_ASSOC)) {
+	$this->log('notice', "server=" . $entry['server'] . " , info=" . $entry['info']);
+	$url=$entry['server'] .  
+	  "?otp=" . $entry['otp'] .
+	  "&modified=" . $entry['modified'] .
+	  "&" . $this->otpPartFromInfoString($entry['info']);
+	
 
-    /* Send out until no URL's left, or a timeout */
-    
-    foreach($urls as $url) {
-      
-      $ch = curl_init($this->url);
-      curl_setopt($ch, CURLOPT_USERAGENT, "YK-VAL");
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-      curl_setopt($ch, CURLOPT_FAILONERROR, true);
-      curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-      $response = curl_exec($ch);
-      curl_close($ch);
+	/* Send out sync request */
+	$this->log('notice', 'url is ' . $url);
+	$ch = curl_init($url);
+	curl_setopt($ch, CURLOPT_USERAGENT, "YK-VAL");
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_setopt($ch, CURLOPT_FAILONERROR, true);
+	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+	$response = curl_exec($ch);
+	curl_close($ch);
 
-      if ($response==False) {
-	$this->log('warning', 'Timeout. Stopping queue resync at the moment');
-	return false;
-      }
+	if ($response==False) {
+	  $this->log('warning', 'Timeout. Stopping queue resync for server ' . $my_server['server']);
+	  break;
+	}
 
-      if (preg_match("/^OK/", $respone)) {
+	if (preg_match("/status=OK/", $response)) {
+	  $resParams=$this->parseParamsFromMultiLineString($response);
+	  $this->log("notice", "response contains ", $resParams);
+	  
+	  /* Update database counters */
+	  $this->updateDbCounters($resParams);
 	
-	$resParams=$this->parseParamsFromMultiLineString($response);
-	$this->log("notice", "response contains ", $resParams);
-	
-	/* Update database counters */
-	$this->updateDbCounters($resParams);
-	
-	/* Warnings and deletion */
-	preg_match("/url=(.*)\?.*otp=([[:alpha:]]*)/", $answer, $out);
-	$server=$out[1];
-	$otp=$out[2];
-	
-	$this->log('notice', 'Searching for entry with' .
-		   ' server=' . $server .
-		   ' otp=' . $otp);
-	
-	$entries=$this->db->findByMultiple('queue', 
-					   array('server'=>$server, 
-						 'otp'=>$otp));
-	$this->log('notice', 'found ' . count($entries) . ' entries');
-	if (count($entries)>1) $this->log('warning', 'Multiple queue entries with the same OTP. We could have an OTP replay attempt in the system');
-	
-	foreach($entries as $entry) {
-	  /* Warnings */
+	  /* Retrieve info from entry info string */
 	  
 	  $localParams=$this->localParamsFromInfoString($entry['info']);
 	  $otpParams=$this->otpParamsFromInfoString($entry['info']);
 	  
 	  /* Check for warnings 
-	   
-	   If received sync response have lower counters than locally saved 
-	   last counters (indicating that remote server wasn't synced) 
+	     
+	     If received sync response have lower counters than locally saved 
+	     last counters (indicating that remote server wasn't synced) 
 	  */
 	  if ($this->countersHigherThan($localParams, $resParams)) {
 	    $this->log("warning", "queued:Remote server out of sync, local counters ", $localParams);
 	    $this->log("warning", "queued:Remote server out of sync, remote counters ", $resParams);
 	  }
-	  
+	    
 	  /* If received sync response have higher counters than locally saved 
 	   last counters (indicating that local server wasn't synced) 
 	  */
@@ -337,7 +316,7 @@ class SyncLib
 	    $this->log("warning", "queued:Local server out of sync, local counters ", $localParams);
 	    $this->log("warning", "queued:Local server out of sync, remote counters ", $resParams);
 	  }
-	  
+	    
 	  if ($this->countersHigherThan($resParams, $otpParams) || 
 	      ($this->countersEqual($resParams, $otpParams) &&
 	       $resParams['nonce']!=$otpParams['nonce'])) {
@@ -354,10 +333,12 @@ class SyncLib
 	  $this->log('notice', 'deleting queue entry with id=' . $entry['id']);
 	  $this->db->deleteByMultiple('queue', array('id'=>$entry['id']));
 	}
-      }
-    }
+	
+      } /* End of loop over each queue entry for a server */
+    } /* End of loop over each distinct server in queue */
     return true;
   }
+  
   public function sync($ans_req, $timeout=1) 
   {
     /*

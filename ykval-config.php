@@ -13,11 +13,11 @@ $baseParams['__YKVAL_SYNC_POOL__'] = array("http://1.2.3.4/wsapi/2.0/sync",
 					   "http://3.4.5.6/wsapi/2.0/sync");
 
 # Specify how often the sync daemon awakens
-$baseParams['__YKVAL_SYNC_INTERVAL__'] = 60;
+$baseParams['__YKVAL_SYNC_INTERVAL__'] = 10;
 # Specify how long the sync daemon will wait for response
 $baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__'] = 30;
 # Specify how old entries in the database should be considered aborted attempts
-$baseParams['__YKVAL_SYNC_OLD_LIMIT__'] = 1;
+$baseParams['__YKVAL_SYNC_OLD_LIMIT__'] = 10;
 
 # These are settings for the validation server.
 $baseParams['__YKVAL_SYNC_FAST_LEVEL__'] = 1;
