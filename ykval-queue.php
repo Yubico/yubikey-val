@@ -25,6 +25,14 @@ if ($argc==2 && strcmp($argv[1], "install")==0) {
   }
  }
 
+if ($argc==2 && strcmp($argv[1], "help")==0) {
+  echo "\nUsage:\n\n";
+  echo $argv[0] . " install  \t- Installs start scripts for daemon\n";
+  echo $argv[0] . "          \t- Starts sync daemon\n";
+  echo "\n";
+  exit();
+ }
+
 System_Daemon::start();                           // Spawn Deamon!
 /* Application start */
 
