@@ -130,13 +130,13 @@ class Db
 
   private function query($query, $returnresult=false) {
     if($this->dbh) {
-      $result = $this->dbh->query($query);
-      if (! $result){
+      $this->result = $this->dbh->query($query);
+      if (! $this->result){
 	error_log('Database error: ' . print_r($this->dbh->errorInfo(), true));
 	error_log('Query was: ' . $query);
 	return false;
       }
-      if ($returnresult) return $result;
+      if ($returnresult) return $this->result;
       else return true;
     } else {
       error_log('No database connection');
@@ -374,7 +374,7 @@ or false on failure.
    */
   public function rowCount()
   {
-    if($this->dbh) return $this->dbh->rowCount();
+    if($this->result) return $this->result->rowCount();
     else return 0;
   }
 

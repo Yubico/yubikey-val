@@ -75,5 +75,13 @@ class DbTest extends PHPUnit_Framework_TestCase
 								    'value2'=>200)));
 
   }
+
+  public function testRowCount()
+  {
+    $this->assertTrue($this->db->save('unittest', array('value1'=>100,
+							'value2'=>200, 
+							'id'=>1)));
+    $this->assertEquals(1, $this->db->rowCount(), "1 row should have been affected by previous statement");
+  }
 }
 ?>
