@@ -210,7 +210,7 @@ class SyncLib
 	  error_log("ykval-synclib:critical: failed to update internal DB with new counters");
 	  return false;
 	} else {
-	if (mysql_affected_rows()>0) $this->log("notice", "updated database ", $params);
+	if ($this->db->rowCount()>0) $this->log("notice", "updated database ", $params);
 	else $this->log('notice', 'database not updated', $params);
 	return true;
       }

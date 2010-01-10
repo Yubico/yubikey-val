@@ -353,10 +353,31 @@ or false on failure.
     return $this->query($query, false);
   }
 
+
+  /**
+   * Function to do a custom query on database connection 
+   *
+   * @param string $query Database query
+   * @return mixed 
+   *
+   */
   public function customQuery($query)
   {
     return $this->query($query, true);
   }
+
+  /**
+   * Function to do a custom query on database connection 
+   *
+   * @return int number of rows affected by last statement or 0 if database connection is not functional.
+   *
+   */
+  public function rowCount()
+  {
+    if($this->dbh) return $this->dbh->rowCount();
+    else return 0;
+  }
+
   /**
    * helper function used to get rows from Db table in reversed order. 
    * defaults to obtaining 1 row. 
