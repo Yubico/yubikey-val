@@ -1,4 +1,4 @@
-#!/usr/bin/php -q
+#!/usr/bin/php
 <?php
 
 if ($argc==2 && strcmp($argv[1], "help")==0) {
@@ -12,9 +12,6 @@ if ($argc==2 && strcmp($argv[1], "install")!=0) {
   set_include_path(get_include_path() . PATH_SEPARATOR . $argv[1]);
  }
 
-require_once 'ykval-synclib.php';
-require_once 'ykval-config.php';
-require_once 'ykval-log.php';
 require_once "System/Daemon.php";                 
 
 $appname="ykval-queue";
@@ -24,20 +21,21 @@ System_Daemon::setOption("appDescription", "Yubico val-server sync daemon");
 System_Daemon::setOption("authorName", "olov@yubico.com");  
 System_Daemon::setOption("authorEmail", "olov@yubico.com"); 
 
-
 if ($argc==2 && strcmp($argv[1], "install")==0) {
   $autostart_path = System_Daemon::writeAutoRun();
   if ($autostart_path!=1){ 
     echo "Successfully created start script at " . $autostart_path . "\n";
     echo "To start daemon use: /etc/init.d/".$appname." start\n";
-    exit();
   } else {
     echo "Start script already created\n";
     echo "To start daemon use: /etc/init.d/".$appname." start\n";
-    exit();
   }
+  exit();
  }
 
+require_once 'ykval-synclib.php';
+require_once 'ykval-config.php';
+require_once 'ykval-log.php';
 
 System_Daemon::start();                           // Spawn Deamon!
 /* Application start */
