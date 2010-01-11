@@ -1,5 +1,5 @@
 CREATE TABLE clients (
-  id INT NOT NULL AUTO_INCREMENT,
+  id INT NOT NULL UNIQUE,
   active BOOLEAN DEFAULT TRUE,
   created INT NOT NULL,
   secret VARCHAR(60) NOT NULL DEFAULT '',
@@ -14,8 +14,8 @@ CREATE TABLE yubikeys (
   active BOOLEAN DEFAULT TRUE,
   created INT NOT NULL,
   modified INT NOT NULL,
-  yk_publicname VARCHAR(16) UNIQUE NOT NULL COLLATE ascii_bin,
-  yk_internalname VARCHAR(12) NOT NULL COLLATE ascii_bin,
+  yk_publicname VARCHAR(16) UNIQUE NOT NULL,
+  yk_internalname VARCHAR(12) NOT NULL,
   yk_counter INT NOT NULL,
   yk_use INT NOT NULL,
   yk_low INT,
