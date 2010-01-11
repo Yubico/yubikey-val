@@ -8,10 +8,12 @@ $baseParams['__YKVAL_DB_PW__'] = 'lab';
 $baseParams['__YKVAL_DB_OPTIONS__'] = array();
 
 # For the validation server sync
+# NOTE: Use IP addresses here to avoid DNS dependency/delays.
 $baseParams['__YKVAL_SYNC_POOL__'] = array("http://1.2.3.4/wsapi/2.0/sync", 
 					   "http://2.3.4.5/wsapi/2.0/sync", 
 					   "http://3.4.5.6/wsapi/2.0/sync");
 # An array of IP addresses allowed to issue sync requests
+# NOTE: Use IP addresses here to avoid DNS dependency/delays.
 $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array("1.2.3.4", 
 						   "2.3.4.5", 
 						   "3.4.5.6");
@@ -28,8 +30,6 @@ $baseParams['__YKVAL_SYNC_FAST_LEVEL__'] = 1;
 $baseParams['__YKVAL_SYNC_SECURE_LEVEL__'] = 50;
 $baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'] = 50;
 $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
-
-$baseParams['__YKVAL_SYNC_MAX_SIMUL__'] = 50;
 
 // otp2ksmurls: Return array of YK-KSM URLs for decrypting OTP for
 // CLIENT.  The URLs must be fully qualified, i.e., contain the OTP
