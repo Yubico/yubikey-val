@@ -33,19 +33,19 @@ $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
 
 // otp2ksmurls: Return array of YK-KSM URLs for decrypting OTP for
 // CLIENT.  The URLs must be fully qualified, i.e., contain the OTP
-// itself.
+// itself.  NOTE: Use IP addresses here to avoid DNS dependency/delays.
 function otp2ksmurls ($otp, $client) {
   if ($client == 42) {
-    return array("http://another-ykkms.example.com/wsapi/decrypt?otp=$otp");
+    return array("http://1.2.3.4/wsapi/decrypt?otp=$otp");
   }
 
   if (preg_match ("/^dteffujehknh/", $otp)) {
-    return array("http://different-ykkms.example.com/wsapi/decrypt?otp=$otp");
+    return array("http://2.3.4.5/wsapi/decrypt?otp=$otp");
   }
 
   return array(
-	       "http://ykkms1.example.com/wsapi/decrypt?otp=$otp",
-	       "http://ykkms2.example.com/wsapi/decrypt?otp=$otp",
+	       "http://3.4.5.6/wsapi/decrypt?otp=$otp",
+	       "http://3.4.5.6/wsapi/decrypt?otp=$otp",
 	       );
 }
 
