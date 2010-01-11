@@ -1,2 +1,0 @@
-RewriteEngine on
-RewriteRule ^([^/\.\?]+)(\?.*)?$ $1.php$2 [L]

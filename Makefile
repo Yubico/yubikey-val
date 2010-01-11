@@ -1,5 +1,5 @@
 # Written by Simon Josefsson <simon@josefsson.org>.
-# Copyright (c) 2009 Yubico AB
+# Copyright (c) 2009, 2010 Yubico AB
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,10 +28,10 @@
 
 VERSION = 1.2
 PACKAGE = yubikey-val
-CODE = .htaccess Makefile NEWS ykval-config.php ykval-db.sql		\
-	ykval-common.php ykval-verify.php test-multi.php		\
-	ykval-ping.php ykval-sync.php ykval-synclib.php ykval-db.php	\
-	ykval-api.html ykval-queue.php ykval-log.php
+CODE = Makefile NEWS ykval-config.php ykval-db.sql ykval-common.php	\
+	ykval-verify.php test-multi.php ykval-ping.php ykval-sync.php	\
+	ykval-synclib.php ykval-db.php ykval-api.html ykval-queue.php	\
+	ykval-log.php
 DOCS = doc/Installation.wiki doc/ClientInfoFormat.wiki			\
 	doc/ServerReplicationProtocol.wiki doc/Troubleshooting.wiki
 
@@ -49,7 +49,6 @@ docprefix = /usr/share/doc/ykval
 wwwgroup = www-data
 
 install:
-	install -D .htaccess $(phpprefix)/.htaccess
 	install -D ykval-verify.php $(phpprefix)/ykval-verify.php
 	install -D ykval-common.php $(phpprefix)/ykval-common.php
 	install -D ykval-synclib.php $(phpprefix)/ykval-synclib.php
@@ -65,10 +64,8 @@ wwwprefix = /var/www/wsapi
 
 symlink:
 	install -d $(wwwprefix)/2.0
-	ln -sf $(phpprefix)/.htaccess $(wwwprefix)/2.0/.htaccess
 	ln -sf $(phpprefix)/ykval-verify.php $(wwwprefix)/2.0/verify.php
 	ln -sf $(phpprefix)/ykval-sync.php $(wwwprefix)/2.0/sync.php
-	ln -sf 2.0/.htaccess $(wwwprefix)/.htaccess 
 	ln -sf 2.0/verify.php $(wwwprefix)/verify.php
 
 # Maintainer rules.
