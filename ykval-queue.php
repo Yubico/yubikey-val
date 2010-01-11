@@ -1,6 +1,17 @@
 #!/usr/bin/php -q
 <?php
 
+if ($argc==2 && strcmp($argv[1], "help")==0) {
+  echo "\nUsage:\n\n";
+  echo $argv[0] . " install  \t- Installs start scripts for daemon\n";
+  echo $argv[0] . " file     \t- Starts sync daemon. file is sourced and can include for example path configuration\n";
+  echo "\n";
+  exit();
+ }
+if ($argc==2 && strcmp($argv[1], "install")!=0) {
+  set_include_path(get_include_path() . PATH_SEPARATOR . $argv[1]);
+ }
+
 require_once 'ykval-synclib.php';
 require_once 'ykval-config.php';
 require_once 'ykval-log.php';
@@ -12,6 +23,7 @@ System_Daemon::setOption("appName", $appname);
 System_Daemon::setOption("appDescription", "Yubico val-server sync daemon"); 
 System_Daemon::setOption("authorName", "olov@yubico.com");  
 System_Daemon::setOption("authorEmail", "olov@yubico.com"); 
+
 
 if ($argc==2 && strcmp($argv[1], "install")==0) {
   $autostart_path = System_Daemon::writeAutoRun();
@@ -26,13 +38,6 @@ if ($argc==2 && strcmp($argv[1], "install")==0) {
   }
  }
 
-if ($argc==2 && strcmp($argv[1], "help")==0) {
-  echo "\nUsage:\n\n";
-  echo $argv[0] . " install  \t- Installs start scripts for daemon\n";
-  echo $argv[0] . "          \t- Starts sync daemon\n";
-  echo "\n";
-  exit();
- }
 
 System_Daemon::start();                           // Spawn Deamon!
 /* Application start */
