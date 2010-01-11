@@ -22,11 +22,7 @@ class SyncLib
 		     $baseParams['__YKVAL_DB_OPTIONS__']);
     $this->isConnected=$this->db->connect();
     $this->random_key=rand(0,1<<16);
-    $this->max_url_chunk=$baseParams['__YKVAL_SYNC_MAX_SIMUL__'];
-    $this->resync_timeout=$baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__'];
-
   }
-  
 
   function isConnected() 
   {
