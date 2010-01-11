@@ -31,7 +31,7 @@ PACKAGE = yubikey-val
 CODE = .htaccess Makefile NEWS ykval-config.php ykval-db.sql		\
 	ykval-common.php ykval-verify.php test-multi.php		\
 	ykval-ping.php ykval-sync.php ykval-synclib.php ykval-db.php	\
-	ykval-api.html ykval-daemon
+	ykval-api.html ykval-queue.php ykval-log.php
 DOCS = doc/Installation.wiki doc/ClientInfoFormat.wiki			\
 	doc/ServerReplicationProtocol.wiki doc/Troubleshooting.wiki
 
@@ -55,7 +55,8 @@ install:
 	install -D ykval-synclib.php $(phpprefix)/ykval-synclib.php
 	install -D ykval-sync.php $(phpprefix)/ykval-sync.php
 	install -D ykval-db.php $(phpprefix)/ykval-db.php
-	install -D ykval-daemon $(sbinprefix)/ykval-daemon
+	install -D ykval-log.php $(phpprefix)/ykval-log.php
+	install -D ykval-queue.php $(sbinprefix)/ykval-queue.php
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(etcprefix)/ykval-config.php
 	install -D ykval-db.sql $(docprefix)/ykval-db.sql
 	install -D $(DOCS) $(docprefix)/
