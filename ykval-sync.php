@@ -24,7 +24,7 @@ $allowed=False;
 foreach ($baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] as $server) {
   $sync->log('notice', 'checking against ip ' . $server);
   if ($_SERVER['REMOTE_ADDR'] == $server) {
-    $sync->log('notice', 'server ' . $server . ' is allower');
+    $sync->log('notice', 'server ' . $server . ' is allowed');
     $allowed=True;
     break;
   }
