@@ -27,8 +27,8 @@ $baseParams['__YKVAL_SYNC_OLD_LIMIT__'] = 10;
 
 # These are settings for the validation server.
 $baseParams['__YKVAL_SYNC_FAST_LEVEL__'] = 1;
-$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'] = 50;
-$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'] = 50;
+$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'] = 40;
+$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'] = 60;
 $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
 
 // otp2ksmurls: Return array of YK-KSM URLs for decrypting OTP for
