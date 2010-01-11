@@ -56,7 +56,7 @@ install:
 	install -D ykval-sync.php $(phpprefix)/ykval-sync.php
 	install -D ykval-db.php $(phpprefix)/ykval-db.php
 	install -D ykval-log.php $(phpprefix)/ykval-log.php
-	install -D ykval-queue.php $(sbinprefix)/ykval-queue.php
+	install -D ykval-queue.php $(sbinprefix)/ykval-queue
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(etcprefix)/ykval-config.php
 	install -D ykval-db.sql $(docprefix)/ykval-db.sql
 	install -D $(DOCS) $(docprefix)/
