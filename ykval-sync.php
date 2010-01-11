@@ -15,6 +15,25 @@ if (! $sync->isConnected()) {
   exit;
  }
 
+# 
+# Verify that request comes from valid server
+#
+
+$sync->log('notice', 'remote request ip is ' . $_SERVER['REMOTE_ADDR']);
+$allowed=False;
+foreach ($baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] as $server) {
+  $sync->log('notice', 'checking against ip ' . $server);
+  if ($_SERVER['REMOTE_ADDR'] == $server) {
+    $sync->log('notice', 'server ' . $server . ' is allower');
+    $allowed=True;
+    break;
+  }
+}
+if (!$allowed) {
+  sendResp(S_OPERATION_NOT_ALLOWED, $apiKey);
+  exit;
+ }
+
 #
 # Define requirements on protocoll
 #

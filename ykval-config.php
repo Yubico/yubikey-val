@@ -11,6 +11,10 @@ $baseParams['__YKVAL_DB_OPTIONS__'] = array();
 $baseParams['__YKVAL_SYNC_POOL__'] = array("http://1.2.3.4/wsapi/2.0/sync", 
 					   "http://2.3.4.5/wsapi/2.0/sync", 
 					   "http://3.4.5.6/wsapi/2.0/sync");
+# An array of IP addresses allowed to issue sync requests
+$baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array("1.2.3.4", 
+						   "2.3.4.5", 
+						   "3.4.5.6");
 
 # Specify how often the sync daemon awakens
 $baseParams['__YKVAL_SYNC_INTERVAL__'] = 10;
