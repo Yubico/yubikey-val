@@ -3,6 +3,7 @@
 require_once 'ykval-config.php';
 require_once 'ykval-common.php';
 require_once 'ykval-db.php';
+require_once 'ykval-log.php';
 
 class SyncLib
 {
@@ -11,7 +12,7 @@ class SyncLib
 
   function __construct($logname='ykval-synclib')
   {
-    $this->logname=$logname;
+    $this->myLog = new Log($logname);
     global $baseParams;
     $this->syncServers = $baseParams['__YKVAL_SYNC_POOL__'];
 
@@ -125,9 +126,9 @@ class SyncLib
     else return 0;
   }
 
-  public function log($level, $msg, $params=NULL)
+  public function log($priority, $msg, $params=NULL)
   {
-    $logMsg=$this->logname . ':' . $level . ':' . $msg;
+    $logMsg=$msg;
     if ($params) $logMsg .= ' modified=' . $params['modified'] .
 		   ' nonce=' . $params['nonce'] .
 		   ' yk_publicname=' . $params['yk_publicname'] .
@@ -135,15 +136,16 @@ class SyncLib
 		   ' yk_use=' . $params['yk_use'] .   
 		   ' yk_high=' . $params['yk_high'] .   
 		   ' yk_low=' . $params['yk_low'];
-    error_log($logMsg);
+    if ($this->myLog) $this->myLog->log($priority, $logMsg);
+    else error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $logMsg);
   }
   function getLocalParams($yk_publicname)
   {
-    $this->log("notice", "searching for " . $yk_publicname . " (" . $yk_publicname . ") in local db");
+    $this->log(LOG_NOTICE, "searching for yk_publicname " . $yk_publicname . " in local db");
     $res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
 
     if (!$res) {
-      $this->log('notice', 'Discovered new identity ' . $yk_publicname);
+      $this->log(LOG_NOTICE, 'Discovered new identity ' . $yk_publicname);
       $this->db->save('yubikeys', array('yk_publicname'=>$yk_publicname, 
 				  'active'=>1, 
 				  'yk_counter'=>0, 
@@ -163,10 +165,10 @@ class SyncLib
 			 'yk_high'=>$res['yk_high'],
 			 'yk_low'=>$res['yk_low']);
       
-      $this->log("notice", "counter found in db ", $localParams);
+      $this->log(LOG_NOTICE, "counter found in db ", $localParams);
       return $localParams;
     } else {
-      $this->log('notice', 'params for identity ' . $yk_publicname . ' not found in database');
+      $this->log(LOG_NOTICE, 'params for identity ' . $yk_publicname . ' not found in database');
       return false;
     }
   }
@@ -207,11 +209,11 @@ class SyncLib
 					       'nonce'=>$params['nonce']), 
 					 $condition))
 	{
-	  error_log("ykval-synclib:critical: failed to update internal DB with new counters");
+	  $this->log(LOG_CRIT, 'failed to update internal DB with new counters');
 	  return false;
 	} else {
-	if ($this->db->rowCount()>0) $this->log("notice", "updated database ", $params);
-	else $this->log('notice', 'database not updated', $params);
+	if ($this->db->rowCount()>0) $this->log(LOG_NOTICE, "updated database ", $params);
+	else $this->log(LOG_NOTICE, 'database not updated', $params);
 	return true;
       }
     } else return false;
@@ -241,9 +243,9 @@ class SyncLib
 
     preg_match('/url=(.*)\?/', $answer, $out);
     $server=$out[1];
-    debug("deleting server=" . $server);
-    debug("modified=" . $this->otpParams['modified']);
-    debug("random_key=" . $this->random_key);
+    $this->log(LOG_DEBUG, "deleting server=" . $server . 
+	       " modified=" . $this->otpParams['modified'] .
+	       " random_key=" . $this->random_key);
     $this->db->deleteByMultiple('queue', 
 				array("modified"=>$this->otpParams['modified'],
 				      "random_key"=>$this->random_key, 
@@ -252,19 +254,19 @@ class SyncLib
 
   public function reSync($older_than=60, $timeout)
   {
-    $this->log('notice', 'starting resync');
+    $this->log(LOG_NOTICE, 'starting resync');
     /* Loop over all unique servers in queue */
     $queued_limit=time()-$older_than;
     $res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
-    error_log("found " . $res->rowCount() . " unique servers");
+    $this->log(LOG_NOTICE, "found " . $res->rowCount() . " unique servers");
 
     foreach ($res as $my_server) {
-      error_log("Sending queue request to server on server " . $my_server['server']);
+      $this->log(LOG_INFO, "Sending queue request to server on server " . $my_server['server']);
       $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
-      error_log("found " . $res->rowCount() . " queue entries");
+      $this->log(LOG_INFO, "found " . $res->rowCount() . " queue entries");
 
       while ($entry=$res->fetch(PDO::FETCH_ASSOC)) {
-	$this->log('notice', "server=" . $entry['server'] . " , info=" . $entry['info']);
+	$this->log(LOG_NOTICE, "server=" . $entry['server'] . " , info=" . $entry['info']);
 	$url=$entry['server'] .  
 	  "?otp=" . $entry['otp'] .
 	  "&modified=" . $entry['modified'] .
@@ -272,7 +274,7 @@ class SyncLib
 	
 
 	/* Send out sync request */
-	$this->log('notice', 'url is ' . $url);
+	$this->log(LOG_NOTICE, 'url is ' . $url);
 	$ch = curl_init($url);
 	curl_setopt($ch, CURLOPT_USERAGENT, "YK-VAL");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -283,13 +285,13 @@ class SyncLib
 	curl_close($ch);
 
 	if ($response==False) {
-	  $this->log('warning', 'Timeout. Stopping queue resync for server ' . $my_server['server']);
+	  $this->log(LOG_WARNING, 'Timeout. Stopping queue resync for server ' . $my_server['server']);
 	  break;
 	}
 
 	if (preg_match("/status=OK/", $response)) {
 	  $resParams=$this->parseParamsFromMultiLineString($response);
-	  $this->log("notice", "response contains ", $resParams);
+	  $this->log(LOG_NOTICE, "response contains ", $resParams);
 	  
 	  /* Update database counters */
 	  $this->updateDbCounters($resParams);
@@ -305,16 +307,16 @@ class SyncLib
 	     last counters (indicating that remote server wasn't synced) 
 	  */
 	  if ($this->countersHigherThan($localParams, $resParams)) {
-	    $this->log("warning", "queued:Remote server out of sync, local counters ", $localParams);
-	    $this->log("warning", "queued:Remote server out of sync, remote counters ", $resParams);
+	    $this->log(LOG_WARNING, "queued:Remote server out of sync, local counters ", $localParams);
+	    $this->log(LOG_WARNING, "queued:Remote server out of sync, remote counters ", $resParams);
 	  }
 	    
 	  /* If received sync response have higher counters than locally saved 
 	   last counters (indicating that local server wasn't synced) 
 	  */
 	  if ($this->countersHigherThan($resParams, $localParams)) {
-	    $this->log("warning", "queued:Local server out of sync, local counters ", $localParams);
-	    $this->log("warning", "queued:Local server out of sync, remote counters ", $resParams);
+	    $this->log(LOG_WARNING, "queued:Local server out of sync, local counters ", $localParams);
+	    $this->log(LOG_WARNING, "queued:Local server out of sync, remote counters ", $resParams);
 	  }
 	    
 	  if ($this->countersHigherThan($resParams, $otpParams) || 
@@ -325,12 +327,12 @@ class SyncLib
 	     (indicating REPLAYED_OTP) 
 	    */
 	    
-	    $this->log("warning", "queued:replayed OTP, remote counters " , $resParams);
-	    $this->log("warning", "queued:replayed OTP, otp counters", $otpParams);
+	    $this->log(LOG_WARNING, "queued:replayed OTP, remote counters " , $resParams);
+	    $this->log(LOG_WARNING, "queued:replayed OTP, otp counters", $otpParams);
 	  }
 	  
 	  /* Deletion */
-	  $this->log('notice', 'deleting queue entry with id=' . $entry['id']);
+	  $this->log(LOG_NOTICE, 'deleting queue entry with id=' . $entry['id']);
 	  $this->db->deleteByMultiple('queue', array('id'=>$entry['id']));
 	}
 	
@@ -360,7 +362,7 @@ class SyncLib
     $ans_arr=$this->retrieveURLasync($urls, $ans_req, $timeout);
 
     if (!is_array($ans_arr)) {
-      $this->log('warning', 'No responses from validation server pool'); 
+      $this->log(LOG_WARNING, 'No responses from validation server pool'); 
       $ans_arr=array();
     }
 
@@ -374,8 +376,8 @@ class SyncLib
     foreach ($ans_arr as $answer){
       /* Parse out parameters from each response */
       $resParams=$this->parseParamsFromMultiLineString($answer);
-      $this->log("notice", "local db contains ", $localParams);
-      $this->log("notice", "response contains ", $resParams);
+      $this->log(LOG_NOTICE, "local db contains ", $localParams);
+      $this->log(LOG_NOTICE, "response contains ", $resParams);
       
       /* Update internal DB (conditional) */
       
@@ -388,16 +390,16 @@ class SyncLib
        (indicating that remote server wasn't synced) 
       */
       if ($this->countersHigherThan($localParams, $resParams)) {
-	$this->log("warning", "Remote server out of sync, local counters ", $localParams);
-	$this->log("warning", "Remote server out of sync, remote counters ", $resParams);
+	$this->log(LOG_WARNING, "Remote server out of sync, local counters ", $localParams);
+	$this->log(LOG_WARNING, "Remote server out of sync, remote counters ", $resParams);
       }
       
       /* If received sync response have higher counters than local db
        (indicating that local server wasn't synced) 
       */
       if ($this->countersHigherThan($resParams, $localParams)) {
-	$this->log("warning", "Local server out of sync, local counters ", $localParams);
-	$this->log("warning", "Local server out of sync, remote counters ", $resParams);
+	$this->log(LOG_WARNING, "Local server out of sync, local counters ", $localParams);
+	$this->log(LOG_WARNING, "Local server out of sync, remote counters ", $resParams);
       }
       
       if ($this->countersHigherThan($resParams, $this->otpParams) || 
@@ -408,8 +410,8 @@ class SyncLib
 	 (indicating REPLAYED_OTP) 
 	*/
 	
-	$this->log("warning", "replayed OTP, remote counters " , $resParams);
-	$this->log("warning", "replayed OTP, otp counters", $this->otpParams);
+	$this->log(LOG_WARNING, "replayed OTP, remote counters " , $resParams);
+	$this->log(LOG_WARNING, "replayed OTP, otp counters", $this->otpParams);
       } else {
 
 	/* The answer is ok since a REPLAY was not indicated */
@@ -468,7 +470,7 @@ class SyncLib
 
     $ch = array();
     foreach ($urls as $id => $url) {
-      error_log("url is " . $url);
+      $this->log(LOG_INFO, "url in retrieveURLasync is " . $url);
       $handle = curl_init();
       
       curl_setopt($handle, CURLOPT_URL, $url);
@@ -494,14 +496,12 @@ class SyncLib
 	debug ("YK-KSM multi", $info);
 	if ($info['result'] == CURL_OK) {
 	  $str = curl_multi_getcontent($info['handle']);
-	  debug($str);
 	  if (preg_match("/status=OK/", $str)) {
 	    $error = curl_error ($info['handle']);
 	    $errno = curl_errno ($info['handle']);
 	    $cinfo = curl_getinfo ($info['handle']);
 	    debug("YK-KSM errno/error: " . $errno . "/" . $error, $cinfo);
 	    $ans_count++;
-	    debug("found entry");
 	    $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
 	  }
 	  

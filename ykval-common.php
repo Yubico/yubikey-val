@@ -1,5 +1,7 @@
 <?php
 
+require_once('ykval-log.php');
+
 define('S_OK', 'OK');
 define('S_BAD_OTP', 'BAD_OTP');
 define('S_REPLAYED_OTP', 'REPLAYED_OTP');
@@ -19,9 +21,15 @@ define('TS_ABS_TOLERANCE', 20);
 
 define('TOKEN_LEN', 32);
 
+
+
+global $ykval_common_log;
+$ykval_common_log = new Log('ykval-common');
+
 function logdie ($str)
 {
-  error_log($str);
+  global $ykval_common_log;
+  $ykval_common_log->log(LOG_EMERG, $str);
   die($str . "\n");
 }
 
@@ -66,7 +74,8 @@ function debug() {
 	$str .= $msg . " ";
       }
     }
-  error_log($str);
+  global $ykval_common_log;
+  $ykval_common_log->log(LOG_DEBUG, $str);
 }
 
 // Return eg. 2008-11-21T06:11:55Z0711

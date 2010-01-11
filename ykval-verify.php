@@ -7,7 +7,8 @@ $apiKey = '';
 
 header("content-type: text/plain");
 
-debug("Request: " . $_SERVER['QUERY_STRING']);
+$myLog = new Log('ykval-verify');
+$myLog->log(LOG_INFO, "Request: " . $_SERVER['QUERY_STRING']);
 
 /* Detect protocol version */
 if (preg_match("/\/wsapi\/([0-9]*)\.([0-9]*)\//", $_SERVER['REQUEST_URI'], $out)) {
@@ -15,7 +16,7 @@ if (preg_match("/\/wsapi\/([0-9]*)\.([0-9]*)\//", $_SERVER['REQUEST_URI'], $out)
  } else {
   $protocol_version=1.0;
  }
-debug("found protocol version " . $protocol_version);
+$myLog->log(LOG_INFO, "found protocol version " . $protocol_version);
 
 /* Initialize the sync library. Strive to use this instead of custom DB requests, 
  custom comparisons etc */ 
@@ -41,7 +42,7 @@ if ($protocol_version>=2.0) {
 
   /* Nonce is required from protocol 2.0 */
   if(!$nonce || strlen($nonce)<16) {
-    debug('Protocol version >= 2.0. Nonce is missing');
+    $myLog->log(LOG_NOTICE, 'Protocol version >= 2.0. Nonce is missing');
     sendResp(S_MISSING_PARAMETER, $apiKey);
     exit;
   }
@@ -50,23 +51,23 @@ if ($protocol_version>=2.0) {
 if ($protocol_version<2.0) {
   /* We need to create a nonce manually here */
   $nonce = md5(uniqid(rand())); 
-  debug('protocol version below 2.0. Created nonce ' . $nonce);
+  $myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
  }
 //// Get Client info from DB
 //
 if ($client <= 0) {
-  debug('Client ID is missing');
+  $myLog->log(LOG_NOTICE, 'Client ID is missing');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
 }
 
 $cd=$sync->getClientData($client);
 if(!$cd) {
-  debug('Invalid client id ' . $client);
+  $myLog->log(LOG_NOTICE, 'Invalid client id ' . $client);
   sendResp(S_NO_SUCH_CLIENT);
   exit;
  }
-debug("Client data:", $cd);
+$myLog->log(LOG_DEBUG,"Client data:", $cd);
 
 //// Check client signature
 //
@@ -86,7 +87,7 @@ if ($h != '') {
   $hmac = sign($a, $apiKey);
   // Compare it
   if ($hmac != $h) {
-    debug('client hmac=' . $h . ', server hmac=' . $hmac);
+    $myLog->log(LOG_DEBUG, 'client hmac=' . $h . ', server hmac=' . $hmac);
     sendResp(S_BAD_SIGNATURE, $apiKey);
     exit;
   }
@@ -95,12 +96,12 @@ if ($h != '') {
 //// Sanity check OTP
 //
 if ($otp == '') {
-  debug('OTP is missing');
+  $myLog->log(LOG_NOTICE, 'OTP is missing');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
 }
 if (strlen($otp) <= TOKEN_LEN) {
-  debug('Too short OTP: ' . $otp);
+  $myLog->log(LOG_NOTICE, 'Too short OTP: ' . $otp);
   sendResp(S_BAD_OTP, $apiKey);
   exit;
 }
@@ -120,7 +121,7 @@ if (!is_array($otpinfo)) {
   sendResp(S_BAD_OTP, $apiKey);
   exit;
 }
-debug("Decrypted OTP:", $otpinfo);
+$myLog->log(LOG_DEBUG, "Decrypted OTP:", $otpinfo);
 
 //// Get Yubikey from DB
 //
@@ -128,14 +129,14 @@ $devId = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
 $yk_publicname=$devId;
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
-  debug('Invalid Yubikey ' . $yk_publicname);
+  $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }
 
-debug("Auth data:", $localParams);
+$myLog->log(LOG_DEBUG, "Auth data:", $localParams);
 if ($localParams['active'] != 1) {
-  debug('De-activated Yubikey ' . $devId);
+  $myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $devId);
   sendResp(S_BAD_OTP, $apiKey);
   exit;
 }
@@ -155,7 +156,7 @@ $otpParams=array('modified'=>time(),
 /* First check if OTP is seen with the same nonce, in such case we have an replayed request */
 if ($sync->countersEqual($localParams, $otpParams) &&
     $localParams['nonce']==$otpParams['nonce']) {
-  debug('Replayed request');
+  $myLog->log(LOG_WARNING, 'Replayed request');
   sendResp(S_REPLAYED_REQUEST, $apikey);
   exit;
  }
@@ -179,7 +180,7 @@ if(!$sync->updateDbCounters($otpParams)) {
 /* Queue sync requests */
 
 if (!$sync->queue($otpParams, $localParams)) {
-  debug("ykval-verify:critical:failed to queue sync requests");
+  $myLog->log(LOG_CRIT, "ykval-verify:critical:failed to queue sync requests");
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }
@@ -203,19 +204,19 @@ if ($req_answers>0) {
   $nr_valid_answers=0;
   $sl_success_rate=0;
  }
-debug("ykval-verify:notice:synclevel=" . $sl .
-      " nr servers=" . $nr_servers .
-      " req answers=" . $req_answers .
-      " answers=" . $nr_answers .
-      " valid answers=" . $nr_valid_answers .
-      " sl success rate=" . $sl_success_rate .
-      " timeout=" . $timeout);
+$myLog->log(LOG_INFO, "ykval-verify:notice:synclevel=" . $sl .
+	    " nr servers=" . $nr_servers .
+	    " req answers=" . $req_answers .
+	    " answers=" . $nr_answers .
+	    " valid answers=" . $nr_valid_answers .
+	    " sl success rate=" . $sl_success_rate .
+	    " timeout=" . $timeout);
 
 if($syncres==False) {
   /* sync returned false, indicating that 
    either at least 1 answer marked OTP as invalid or
    there were not enough answers */
-  debug("ykval-verify:notice:Sync failed");
+  $myLog->log(LOG_WARNING, "ykval-verify:notice:Sync failed");
   if ($nr_valid_answers!=$nr_answers) {
     sendResp(S_REPLAYED_OTP, $apiKey);
     exit;
@@ -259,15 +260,15 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
   } else {
     $percent = 1;
   }
-  debug("Timestamp seen=" . $seenTs . " this=" . $ts .
-	" delta=" . $tsDiff . ' secs=' . $tsDelta .
-	' accessed=' . $lastTime .' (' . $ad['accessed'] . ') now='
-	. $now . ' (' . strftime("%Y-%m-%d %H:%M:%S", $now)
-	. ') elapsed=' . $elapsed .
-	' deviation=' . $deviation . ' secs or '.
-	round(100*$percent) . '%');
+  $myLog->log(LOG_INFO, "Timestamp seen=" . $seenTs . " this=" . $ts .
+	      " delta=" . $tsDiff . ' secs=' . $tsDelta .
+	      ' accessed=' . $lastTime .' (' . $ad['accessed'] . ') now='
+	      . $now . ' (' . strftime("%Y-%m-%d %H:%M:%S", $now)
+	      . ') elapsed=' . $elapsed .
+	      ' deviation=' . $deviation . ' secs or '.
+	      round(100*$percent) . '%');
   if ($deviation > TS_ABS_TOLERANCE && $percent > TS_REL_TOLERANCE) {
-    debug("OTP failed phishing test");
+    $myLog->log(LOG_NOTICE, "OTP failed phishing test");
     if (0) {
       sendResp(S_DELAYED_OTP, $apiKey);
       exit;

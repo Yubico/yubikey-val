@@ -3,6 +3,7 @@
 
 require_once 'ykval-synclib.php';
 require_once 'ykval-config.php';
+require_once 'ykval-log.php';
 require_once "System/Daemon.php";                 
 
 $appname="ykval-queue";
@@ -36,7 +37,7 @@ if ($argc==2 && strcmp($argv[1], "help")==0) {
 System_Daemon::start();                           // Spawn Deamon!
 /* Application start */
 
-$sl = new SyncLib();
+$sl = new SyncLib('queue-synclib');
 
 # Loop forever and resync
 
@@ -47,7 +48,6 @@ while ($res==0) {
   $res=sleep($baseParams['__YKVAL_SYNC_INTERVAL__']);
  }
 
-error_log("Stopping " . $appname);
 System_Daemon::stop();
 
 ?>

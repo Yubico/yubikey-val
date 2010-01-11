@@ -39,6 +39,9 @@
  * @link        http://www.yubico.com/
  * @link        http://code.google.com/p/yubikey-timedelta-server-php/
  */
+
+require_once('ykval-log.php');
+
 class Db
 {
 
@@ -59,6 +62,8 @@ class Db
     $this->db_username=$db_username;
     $this->db_password=$db_password;
     $this->db_options=$db_options;
+
+    $this->myLog=new Log('ykval-db');
   }
   /**
    * function to convert Db timestamps to unixtime(s)
@@ -120,8 +125,7 @@ class Db
     try {
       $this->dbh = new PDO($this->db_dsn, $this->db_username, $this->db_password, $this->db_options);
     } catch (PDOException $e) {
-      error_log("hej hopp");
-      error_log("Database error: " . $e->getMessage());
+      $this->myLog->log(LOG_CRIT, "Database error: " . $e->getMessage());
       $this->dbh=Null;
       return false;
     }
@@ -132,14 +136,14 @@ class Db
     if($this->dbh) {
       $this->result = $this->dbh->query($query);
       if (! $this->result){
-	error_log('Database error: ' . print_r($this->dbh->errorInfo(), true));
-	error_log('Query was: ' . $query);
+	$this->myLog->log(LOG_ERR, 'Database error: ' . print_r($this->dbh->errorInfo(), true));
+	$this->myLog->log(LOG_INFO, 'Query was: ' . $query);
 	return false;
       }
       if ($returnresult) return $this->result;
       else return true;
     } else {
-      error_log('No database connection');
+      $this->myLog->log(LOG_CRIT, 'No database connection');
       return false;
     }
   }
@@ -217,7 +221,7 @@ class Db
     // Insert UPDATE statement at beginning
     $query = "UPDATE " . $table . " SET " . $query; 
 
-    error_log("query is " . $query);
+    $this->myLog->log(LOG_INFO, "query is " . $query);
     return $this->query($query, false);
   }
 
@@ -306,7 +310,7 @@ or false on failure.
     }
     if ($rev==1) $query.= " ORDER BY id DESC";
     if ($nr!=null) $query.= " LIMIT " . $nr;
-    //    error_log('query is ' .$query);
+
     $result = $this->query($query, true);
     if (!$result) return false;
    
@@ -349,7 +353,7 @@ or false on failure.
     }
     if ($rev==1) $query.= " ORDER BY id DESC";
     if ($nr!=null) $query.= " LIMIT " . $nr;
-    error_log("delete query is " . $query);
+    $this->myLog->log(LOG_INFO, "delete query is " . $query);
     return $this->query($query, false);
   }
 
