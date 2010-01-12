@@ -163,9 +163,9 @@ if ($sync->countersEqual($localParams, $otpParams) &&
 
 /* Check the OTP counters against local db */    
 if ($sync->countersHigherThanOrEqual($localParams, $otpParams)) {
-  $sync->log('warning', 'replayed OTP: Local counters higher');
-  $sync->log('warning', 'replayed OTP: Local counters ', $localParams);
-  $sync->log('warning', 'replayed OTP: Otp counters ', $otpParams);
+  $sync->log(LOG_WARNING, 'replayed OTP: Local counters higher');
+  $sync->log(LOG_WARNING, 'replayed OTP: Local counters ', $localParams);
+  $sync->log(LOG_WARNING, 'replayed OTP: Otp counters ', $otpParams);
   sendResp(S_REPLAYED_OTP, $apiKey);
   exit;
  }
