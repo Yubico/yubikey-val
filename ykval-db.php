@@ -166,7 +166,7 @@ class Db
   {
     
     foreach ($values as $key=>$value){
-      if ($value != null) $query .= ' ' . $key . "='" . $value . "',";
+      if (!is_null($value)) $query .= ' ' . $key . "='" . $value . "',";
       else $query .= ' ' . $key . '=NULL,';
     }
     if (! $query) {
@@ -255,11 +255,11 @@ class Db
   {
     $query= 'INSERT INTO ' . $table . " (";
     foreach ($values as $key=>$value){
-      if ($value != null) $query = $query . $key . ",";
+      if (!is_null($value)) $query = $query . $key . ",";
     }
     $query = rtrim($query, ",") . ') VALUES (';
     foreach ($values as $key=>$value){
-      if ($value != null) $query = $query . "'" . $value . "',";
+      if (!is_null($value)) $query = $query . "'" . $value . "',";
     }
     $query = rtrim($query, ",");
     $query = $query . ")";
@@ -317,8 +317,8 @@ or false on failure.
     $query.= " FROM " . $table;
     if ($where!=null){ 
       foreach ($where as $key=>$value) {
-	if ($key!= Null) {
-	  if ($value != Null) $match.= " ". $key . " = '" . $value . "' and";
+	if ($key!=null) {
+	  if ($value!=null) $match.= " ". $key . " = '" . $value . "' and";
 	  else $match.= " ". $key . " is NULL and";
 	}
       }
