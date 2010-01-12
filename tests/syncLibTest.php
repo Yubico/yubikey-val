@@ -57,7 +57,23 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
 
     
     $this->assertEquals($nr_servers + $queue_length, $sl->getQueueLength());
-    $lastSync=$sl->getLast();
+    $res=$sl->db->findByMultiple('queue', 
+				   array("modified"=>1259585588,
+					 "server_nonce"=>$sl->server_nonce));
+    $lastRes=$res[0];
+    $info=$sl->otpParamsFromInfoString($lastRes['info']);
+    $lastSync=array('queued'=>$lastRes['queued'], 
+		    'modified'=>$lastRes['modified'], 
+		    'otp'=>$lastRes['otp'], 
+		    'server'=>$lastRes['server'],
+		    'nonce'=>$info['nonce'],
+		    'yk_publicname'=>$info['yk_publicname'], 
+		    'yk_counter'=>$info['yk_counter'], 
+		    'yk_use'=>$info['yk_use'], 
+		    'yk_high'=>$info['yk_high'], 
+		    'yk_low'=>$info['yk_low']);
+    
+
     $this->assertEquals($lastSync['modified'], 1259585588);
     $this->assertEquals($lastSync['otp'], "ccccccccccccfrhiutjgfnvgdurgliidceuilikvfhui");
     $this->assertEquals($lastSync['yk_publicname'], "cccccccccccc");
@@ -269,12 +285,45 @@ class SyncLibTest extends PHPUnit_Framework_TestCase
   
     $this->assertTrue($sl->queue($p1, $p1));
 
-    $res=$sl->getLast();
+
+    $res=$sl->db->findByMultiple('queue', 
+				 array("modified"=>1259585588+1000,
+				       "server_nonce"=>$sl->server_nonce));
+    $lastRes=$res[0];
+    $info=$sl->otpParamsFromInfoString($lastRes['info']);
+    $res=array('queued'=>$lastRes['queued'], 
+	       'modified'=>$lastRes['modified'], 
+	       'otp'=>$lastRes['otp'], 
+	       'server'=>$lastRes['server'],
+	       'nonce'=>$info['nonce'],
+	       'yk_publicname'=>$info['yk_publicname'], 
+	       'yk_counter'=>$info['yk_counter'], 
+	       'yk_use'=>$info['yk_use'], 
+	       'yk_high'=>$info['yk_high'], 
+	       'yk_low'=>$info['yk_low']);
+    
     $this->assertNotNull($res['queued']);
     $res=$sl->sync(3);
 
     $this->assertEquals(1+$start_length, $sl->getQueueLength());
-    $res=$sl->getLast();
+
+    $res=$sl->db->findByMultiple('queue', 
+				 array("modified"=>1259585588+1000,
+				       "server_nonce"=>$sl->server_nonce));
+    $lastRes=$res[0];
+    $info=$sl->otpParamsFromInfoString($lastRes['info']);
+    $res=array('queued'=>$lastRes['queued'], 
+	       'modified'=>$lastRes['modified'], 
+	       'otp'=>$lastRes['otp'], 
+	       'server'=>$lastRes['server'],
+	       'nonce'=>$info['nonce'],
+	       'yk_publicname'=>$info['yk_publicname'], 
+	       'yk_counter'=>$info['yk_counter'], 
+	       'yk_use'=>$info['yk_use'], 
+	       'yk_high'=>$info['yk_high'], 
+	       'yk_low'=>$info['yk_low']);
+    
+
     $this->assertNull($res['queued']);
 
 

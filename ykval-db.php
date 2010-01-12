@@ -136,7 +136,7 @@ class Db
     if($this->dbh) {
       $this->result = $this->dbh->query($query);
       if (! $this->result){
-	$this->myLog->log(LOG_ERR, 'Database error: ' . print_r($this->dbh->errorInfo(), true));
+	$this->myLog->log(LOG_INFO, 'Database error: ' . print_r($this->dbh->errorInfo(), true));
 	$this->myLog->log(LOG_INFO, 'Query was: ' . $query);
 	return false;
       }
@@ -174,7 +174,7 @@ class Db
       return true;
     }
 
-    $query = rtrim($query, ",") . " WHERE " . $k . ' = ' . $v;
+    $query = rtrim($query, ",") . " WHERE " . $k . " = '" . $v . "'";
     // Insert UPDATE statement at beginning
     $query = "UPDATE " . $table . " SET " . $query; 
     
@@ -195,18 +195,19 @@ class Db
   {
     return $this->updateBy($table, 'id', $id, $values);
   }
-    
+
   /**
-   * function to update row in database
+   * function to update row in database based on a condition
    *
    * @param string $table Database table to update row in
-   * @param int $id Id on row to update
+   * @param string $k Column to select row on
+   * @param string $v Value to select row on
    * @param array $values Array with key=>values to update
    * @param string $condition conditional statement
    * @return boolean True on success, otherwise false.
    *
    */
-  public function conditional_update($table, $id, $values, $condition)
+  public function conditionalUpdateBy($table, $k, $v, $values, $condition)
   {
     
     foreach ($values as $key=>$value){
@@ -217,12 +218,29 @@ class Db
       return true;
     }
 
-    $query = rtrim($query, ",") . " WHERE id = " . $id . " and " . $condition;
+    $query = rtrim($query, ",") . " WHERE " . $k . " = '" . $v . "' and " . $condition;
     // Insert UPDATE statement at beginning
     $query = "UPDATE " . $table . " SET " . $query; 
 
     $this->myLog->log(LOG_INFO, "query is " . $query);
     return $this->query($query, false);
+  }
+    
+
+  /**
+   * Function to update row in database based on a condition.
+   * An ID value is passed to select the appropriate column
+   *
+   * @param string $table Database table to update row in
+   * @param int $id Id on row to update
+   * @param array $values Array with key=>values to update
+   * @param string $condition conditional statement
+   * @return boolean True on success, otherwise false.
+   *
+   */
+  public function conditionalUpdate($table, $id, $values, $condition)
+  {
+    return $this->conditionalUpdateBy($table, 'id', $id, $values, $condition);
   }
 
   /**
@@ -311,6 +329,7 @@ or false on failure.
     if ($rev==1) $query.= " ORDER BY id DESC";
     if ($nr!=null) $query.= " LIMIT " . $nr;
 
+    $this->myLog->log(LOG_NOTICE, 'query is ' . $query);
     $result = $this->query($query, true);
     if (!$result) return false;
    

@@ -173,6 +173,7 @@ if ($sync->countersHigherThanOrEqual($localParams, $otpParams)) {
 /* Valid OTP, update database. */
 
 if(!$sync->updateDbCounters($otpParams)) {
+  $myLog->log(LOG_CRIT, "Failed to update yubikey counters in database");
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }

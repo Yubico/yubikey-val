@@ -21,7 +21,8 @@ class SyncLib
 		     $baseParams['__YKVAL_DB_PW__'],
 		     $baseParams['__YKVAL_DB_OPTIONS__']);
     $this->isConnected=$this->db->connect();
-    $this->random_key=rand(0,1<<16);
+    $this->server_nonce=md5(uniqid(rand())); 
+
   }
 
   function isConnected() 
@@ -49,24 +50,9 @@ class SyncLib
     if($res->rowCount()>0) return $res->fetch(PDO::FETCH_ASSOC);
     else return false;
   }
-  function getLast() 
-  {
-    $res=$this->db->last('queue', 1);
-    $info=$this->otpParamsFromInfoString($res['info']);
-    return array('queued'=>$res['queued'], 
-		 'modified'=>$res['modified'], 
-		 'otp'=>$res['otp'], 
-		 'server'=>$res['server'],
-		 'nonce'=>$info['nonce'],
-		 'yk_publicname'=>$info['yk_publicname'], 
-		 'yk_counter'=>$info['yk_counter'], 
-		 'yk_use'=>$info['yk_use'], 
-		 'yk_high'=>$info['yk_high'], 
-		 'yk_low'=>$info['yk_low']);
-  }
   public function getQueueLength()
   {
-    return count($this->db->last('queue', null));
+    return count($this->db->findBy('queue', null, null, null));
   }
 
   public function createInfoString($otpParams, $localParams)
@@ -111,7 +97,7 @@ class SyncLib
 					  'modified'=>$otpParams['modified'], 
 					  'otp'=>$otpParams['otp'], 
 					  'server'=>$server,
-					  'random_key'=>$this->random_key,
+					  'server_nonce'=>$this->server_nonce,
 					  'info'=>$info))) $res=False;
     }
     return $res;
@@ -147,11 +133,10 @@ class SyncLib
 				  'yk_counter'=>0, 
 				  'yk_use'=>0, 
 				  'nonce'=>0));
-      $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname, 1);
+      $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
     }
     if ($res) {
-      $localParams=array('id'=>$res['id'],
-			 'modified'=>$res['modified'],
+      $localParams=array('modified'=>$res['modified'],
 			 'otp'=>$res['otp'],
 			 'nonce'=>$res['nonce'],
 			 'active'=>$res['active'],
@@ -161,10 +146,10 @@ class SyncLib
 			 'yk_high'=>$res['yk_high'],
 			 'yk_low'=>$res['yk_low']);
       
-      $this->log(LOG_NOTICE, "counter found in db ", $localParams);
+      $this->log(LOG_NOTICE, "yubikey found in db ", $localParams);
       return $localParams;
     } else {
-      $this->log(LOG_NOTICE, 'params for identity ' . $yk_publicname . ' not found in database');
+      $this->log(LOG_NOTICE, 'params for yk_publicname ' . $yk_publicname . ' not found in database');
       return false;
     }
   }
@@ -191,27 +176,28 @@ class SyncLib
 
   public function updateDbCounters($params)
   {
-    $res=$this->db->lastBy('yubikeys', 'yk_publicname', $params['yk_publicname']);
-    if (isset($res['id'])) {
+    $res=$this->db->findBy('yubikeys', 'yk_publicname', $params['yk_publicname'], 1);
+    $this->log(LOG_NOTICE, 'yk_publicname is ' . $res['yk_publicname']);
+    if (isset($res['yk_publicname'])) {
       $condition='('.$params['yk_counter'].'>yk_counter or ('.$params['yk_counter'].'=yk_counter and ' .
 	$params['yk_use'] . '>yk_use))' ;
-      if(! $this->db->conditional_update('yubikeys', 
-					 $res['id'], 
-					 array('modified'=>$params['modified'], 
-					       'yk_counter'=>$params['yk_counter'], 
-					       'yk_use'=>$params['yk_use'],
-					       'yk_low'=>$params['yk_low'],
-					       'yk_high'=>$params['yk_high'], 
-					       'nonce'=>$params['nonce']), 
-					 $condition))
+      if(! $this->db->conditionalUpdateBy('yubikeys', 'yk_publicname', $params['yk_publicname'], 
+					  array('modified'=>$params['modified'], 
+						'yk_counter'=>$params['yk_counter'], 
+						'yk_use'=>$params['yk_use'],
+						'yk_low'=>$params['yk_low'],
+						'yk_high'=>$params['yk_high'], 
+						'nonce'=>$params['nonce']), 
+					  $condition))
 	{
 	  $this->log(LOG_CRIT, 'failed to update internal DB with new counters');
 	  return false;
-	} else {
-	if ($this->db->rowCount()>0) $this->log(LOG_NOTICE, "updated database ", $params);
-	else $this->log(LOG_NOTICE, 'database not updated', $params);
-	return true;
-      }
+	} else 
+	{
+	  if ($this->db->rowCount()>0) $this->log(LOG_NOTICE, "updated database ", $params);
+	  else $this->log(LOG_NOTICE, 'database not updated', $params);
+	  return true;
+	}
     } else return false;
   }
   
@@ -241,10 +227,10 @@ class SyncLib
     $server=$out[1];
     $this->log(LOG_DEBUG, "deleting server=" . $server . 
 	       " modified=" . $this->otpParams['modified'] .
-	       " random_key=" . $this->random_key);
+	       " server_nonce=" . $this->server_nonce);
     $this->db->deleteByMultiple('queue', 
 				array("modified"=>$this->otpParams['modified'],
-				      "random_key"=>$this->random_key, 
+				      "server_nonce"=>$this->server_nonce, 
 				      'server'=>$server));
   }
 
@@ -328,8 +314,13 @@ class SyncLib
 	  }
 	  
 	  /* Deletion */
-	  $this->log(LOG_NOTICE, 'deleting queue entry with id=' . $entry['id']);
-	  $this->db->deleteByMultiple('queue', array('id'=>$entry['id']));
+	  $this->log(LOG_NOTICE, 'deleting queue entry with modified=' . $entry['id'] .
+		     ' server_nonce=' . $entry['server_nonce'] .
+		     ' server=' . $entry['server']);
+	  $this->db->deleteByMultiple('queue', 
+				      array("modified"=>$entry['modified'],
+					    "server_nonce"=>$entry['server_nonce'], 
+					    'server'=>$entry['nonce']));
 	}
 	
       } /* End of loop over each queue entry for a server */
@@ -344,7 +335,7 @@ class SyncLib
     */
     
     $urls=array();
-    $res=$this->db->findByMultiple('queue', array("modified"=>$this->otpParams['modified'], "random_key"=>$this->random_key));
+    $res=$this->db->findByMultiple('queue', array("modified"=>$this->otpParams['modified'], "server_nonce"=>$this->server_nonce));
     foreach ($res as $row) {
       $urls[]=$row['server'] .  
 	"?otp=" . $row['otp'] .
@@ -428,7 +419,7 @@ class SyncLib
      NULL queued_time for remaining entries in queue, to allow
      daemon to take care of them as soon as possible. */
     
-    $this->db->updateBy('queue', 'random_key', $this->random_key, 
+    $this->db->updateBy('queue', 'server_nonce', $this->server_nonce, 
 			array('queued'=>NULL));
     
     

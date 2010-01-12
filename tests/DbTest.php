@@ -18,6 +18,7 @@ class DbTest extends PHPUnit_Framework_TestCase
     $this->db->connect();
     $this->db->customQuery("drop table unittest");
     $this->db->customQuery("create table unittest (id int,value1 int, value2 int)");
+
   }
   public function test_template()
   {
@@ -82,6 +83,41 @@ class DbTest extends PHPUnit_Framework_TestCase
 							'value2'=>200, 
 							'id'=>1)));
     $this->assertEquals(1, $this->db->rowCount(), "1 row should have been affected by previous statement");
+  }
+  public function testConditionalUpdate()
+  {
+    $this->assertTrue($this->db->save('unittest', array('value1'=>100,
+							'value2'=>200, 
+							'id'=>1)));
+    $condition="(100 > value1 or (100=value1 and 200>value2))";
+    $this->assertTrue($this->db->conditionalUpdate('unittest', 1, array('value2'=>201), $condition));
+    $this->assertEquals(0, $this->db->rowCount(), "One row should have been affected");
+    $condition="(100 > value1 or (100=value1 and 201>value2))";
+    $this->assertTrue($this->db->conditionalUpdate('unittest', 1, array('value2'=>201), $condition));
+    $this->assertEquals(1, $this->db->rowCount(), "One row should have been affected");
+  }
+  public function testConditionalUpdateBy()
+  {
+    $this->assertTrue($this->db->save('unittest', array('value1'=>100,
+							'value2'=>200, 
+							'id'=>1)));
+    $condition="(100 > value1 or (100=value1 and 201>value2))";
+    $this->assertTrue($this->db->conditionalUpdateBy('unittest', 'value1', 100, array('value2'=>201), $condition));
+    $this->assertEquals(1, $this->db->rowCount(), "One row should have been affected");
+
+
+    $this->db->customQuery("drop table myunittest");
+    $this->db->customQuery("create table myunittest (id int, string1 varchar(10), value1 int)");
+    
+
+    $this->assertTrue($this->db->save('myunittest', array('value1'=>100,
+							  'string1'=>'hej', 
+							  'id'=>1)));
+    $condition="(101 > value1)";
+    $this->assertTrue($this->db->conditionalUpdateBy('myunittest', 'string1', 'hej', array('value1'=>101), $condition));
+    $this->assertEquals(1, $this->db->rowCount(), "One row should have been affected");
+
+
   }
 }
 ?>

@@ -10,7 +10,6 @@ CREATE TABLE clients (
 );
 
 CREATE TABLE yubikeys (
-  id INT NOT NULL UNIQUE AUTO_INCREMENT,
   active BOOLEAN DEFAULT TRUE,
   created INT NOT NULL,
   modified INT NOT NULL,
@@ -22,16 +21,14 @@ CREATE TABLE yubikeys (
   yk_high INT,
   nonce VARCHAR(32) DEFAULT '',
   notes VARCHAR(100) DEFAULT '',
-  PRIMARY KEY (id)
+  PRIMARY KEY (yk_publicname)
 );
 
 CREATE TABLE queue (
-  id INT NOT NULL UNIQUE AUTO_INCREMENT,
   queued INT DEFAULT NULL,
   modified INT DEFAULT NULL,
-  random_key INT,
+  server_nonce VARCHAR(32) NOT NULL,
   otp VARCHAR(100) NOT NULL,
   server VARCHAR(100) NOT NULL,
-  info VARCHAR(256) NOT NULL,
-  PRIMARY KEY (id)
+  info VARCHAR(256) NOT NULL
 );
