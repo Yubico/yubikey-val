@@ -320,7 +320,7 @@ class SyncLib
 	  }
 	  
 	  /* Deletion */
-	  $this->log(LOG_NOTICE, 'deleting queue entry with modified=' . $entry['id'] .
+	  $this->log(LOG_NOTICE, 'deleting queue entry with modified=' . $entry['modified'] .
 		     ' server_nonce=' . $entry['server_nonce'] .
 		     ' server=' . $entry['server']);
 	  $this->db->deleteByMultiple('queue', 
