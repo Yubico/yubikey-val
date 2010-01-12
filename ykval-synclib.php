@@ -326,7 +326,7 @@ class SyncLib
 	  $this->db->deleteByMultiple('queue', 
 				      array("modified"=>$entry['modified'],
 					    "server_nonce"=>$entry['server_nonce'], 
-					    'server'=>$entry['nonce']));
+					    'server'=>$entry['server']));
 	}
 	
       } /* End of loop over each queue entry for a server */
