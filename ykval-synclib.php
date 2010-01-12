@@ -128,12 +128,17 @@ class SyncLib
 
     if (!$res) {
       $this->log(LOG_NOTICE, 'Discovered new identity ' . $yk_publicname);
-      $this->db->save('yubikeys', array('yk_publicname'=>$yk_publicname,
-					'created'=>time(), 
-					'active'=>1, 
+      $this->db->save('yubikeys', array('active'=>1, 
+					'created'=>time(),
+					'modified'=>0,
+					'yk_publicname'=>$yk_publicname,
+					'yk_internalname'=>'not set',
 					'yk_counter'=>0, 
 					'yk_use'=>0, 
-					'nonce'=>0));
+					'yk_low'=>0,
+					'yk_high'=>0,
+					'nonce'=>'',
+					'notes'=>''));
       $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
     }
     if ($res) {
