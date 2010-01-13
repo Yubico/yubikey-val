@@ -53,6 +53,17 @@ if ($protocol_version<2.0) {
   $nonce = md5(uniqid(rand())); 
   $myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
  }
+
+
+/* Sanity check HTTP parameters */
+/* id, sl, timestamp, timeout, nonce, timestamp */
+
+if (preg_match("/^[0-9]*$/", $client)==0){
+  $myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
+  sendResp(S_MISSING_PARAMETER, $apiKey);
+  exit;
+ }
+
 //// Get Client info from DB
 //
 if ($client <= 0) {

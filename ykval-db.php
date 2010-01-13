@@ -134,6 +134,7 @@ class Db
 
   private function query($query, $returnresult=false) {
     if($this->dbh) {
+      $this->myLog->log(LOG_DEBUG, 'Query is: ' . $query);
       $this->result = $this->dbh->query($query);
       if (! $this->result){
 	$this->myLog->log(LOG_INFO, 'Database error: ' . print_r($this->dbh->errorInfo(), true));
