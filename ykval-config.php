@@ -8,12 +8,11 @@ $baseParams['__YKVAL_DB_PW__'] = 'lab';
 $baseParams['__YKVAL_DB_OPTIONS__'] = array();
 
 # For the validation server sync
-# NOTE: Use IP addresses here to avoid DNS dependency/delays.
-$baseParams['__YKVAL_SYNC_POOL__'] = array("http://1.2.3.4/wsapi/2.0/sync", 
-					   "http://2.3.4.5/wsapi/2.0/sync", 
-					   "http://3.4.5.6/wsapi/2.0/sync");
+$baseParams['__YKVAL_SYNC_POOL__'] = array("http://api2.example.com/wsapi/2.0/sync", 
+					   "http://api3.example.com/wsapi/2.0/sync", 
+					   "http://api4.example.com/wsapi/2.0/sync");
 # An array of IP addresses allowed to issue sync requests
-# NOTE: Use IP addresses here to avoid DNS dependency/delays.
+# NOTE: You must use IP addresses here.
 $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array("1.2.3.4", 
 						   "2.3.4.5", 
 						   "3.4.5.6");
@@ -33,19 +32,19 @@ $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
 
 // otp2ksmurls: Return array of YK-KSM URLs for decrypting OTP for
 // CLIENT.  The URLs must be fully qualified, i.e., contain the OTP
-// itself.  NOTE: Use IP addresses here to avoid DNS dependency/delays.
+// itself.
 function otp2ksmurls ($otp, $client) {
   if ($client == 42) {
-    return array("http://1.2.3.4/wsapi/decrypt?otp=$otp");
+    return array("http://another-ykkms.example.com/wsapi/decrypt?otp=$otp");
   }
 
   if (preg_match ("/^dteffujehknh/", $otp)) {
-    return array("http://2.3.4.5/wsapi/decrypt?otp=$otp");
+    return array("http://different-ykkms.example.com/wsapi/decrypt?otp=$otp");
   }
 
   return array(
-	       "http://3.4.5.6/wsapi/decrypt?otp=$otp",
-	       "http://3.4.5.6/wsapi/decrypt?otp=$otp",
+	       "http://ykkms1.example.com/wsapi/decrypt?otp=$otp",
+	       "http://ykkms2.example.com/wsapi/decrypt?otp=$otp",
 	       );
 }
 
