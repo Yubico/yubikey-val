@@ -95,10 +95,12 @@ if ($localParams['active'] != 1) {
 /* Conditional update local database */
 $sync->updateDbCounters($syncParams); 
 
+$myLog->log(LOG_DEBUG, 'Local params ' , $localParams);
+$myLog->log(LOG_DEBUG, 'Sync request params ' , $syncParams);
+
 if ($sync->countersHigherThan($localParams, $syncParams)) {
   /* sync counters are lower than local counters */
-  $myLog->log(LOG_WARNING, 'Remote server out of sync. Local params ' , $localParams);
-  $myLog->log(LOG_WARNING, 'Remote server out of sync. Sync params ' , $syncParams);
+  $myLog->log(LOG_WARNING, 'Remote server out of sync.');
  }
 
 if ($sync->countersEqual($localParams, $syncParams)) {
@@ -106,16 +108,14 @@ if ($sync->countersEqual($localParams, $syncParams)) {
   if ($syncParams['modified']==$localParams['modified']) {
     /* sync modified is equal to local modified. 
      Sync request is unnessecarily sent, we log a "light" warning */
-    $myLog->log(LOG_WARNING, 'Sync request unnessecarily sent');
+    $myLog->log(LOG_NOTICE, 'Sync request unnessecarily sent');
   } else {
     /* sync modified is not equal to local modified. 
      We have an OTP replay attempt somewhere in the system */
-    $myLog->log(LOG_WARNING, 'Replayed OTP attempt. Modified differs. Local ',  $localParams);
-    $myLog->log(LOG_WARNING, 'Replayed OTP attempt. Modified differs. Sync ',  $syncParams);
+    $myLog->log(LOG_WARNING, 'We might have a replay. 2 events at different times have generated the same counters');
   }
   if ($syncParams['nonce']!=$localParams['nonce']) {
-    $myLog->log(LOG_WARNING, 'Replayed OTP attempt. Nonce differs. Local ', $localParams);
-    $myLog->log(LOG_WARNING, 'Replayed OTP attempt. Nonce differs. Sync ', $syncParams);
+    $myLog->log(LOG_WARNING, 'Remote server has received a request to validate an already validated OTP');
   }
  }
 

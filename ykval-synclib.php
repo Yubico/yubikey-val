@@ -247,12 +247,12 @@ class SyncLib
     $queued_limit=time()-$older_than;
     $res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
     $this->log(LOG_NOTICE, "found " . $res->rowCount() . " unique servers");
-
+    
     foreach ($res as $my_server) {
       $this->log(LOG_INFO, "Sending queue request to server on server " . $my_server['server']);
       $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
       $this->log(LOG_INFO, "found " . $res->rowCount() . " queue entries");
-
+      
       while ($entry=$res->fetch(PDO::FETCH_ASSOC)) {
 	$this->log(LOG_NOTICE, "server=" . $entry['server'] . " , info=" . $entry['info']);
 	$url=$entry['server'] .  
@@ -260,7 +260,7 @@ class SyncLib
 	  "&modified=" . $entry['modified'] .
 	  "&" . $this->otpPartFromInfoString($entry['info']);
 	
-
+	
 	/* Send out sync request */
 	$this->log(LOG_NOTICE, 'url is ' . $url);
 	$ch = curl_init($url);
@@ -271,34 +271,34 @@ class SyncLib
 	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 	$response = curl_exec($ch);
 	curl_close($ch);
-
+	
 	if ($response==False) {
 	  $this->log(LOG_WARNING, 'Timeout. Stopping queue resync for server ' . $my_server['server']);
 	  break;
 	}
-
+	
 	if (preg_match("/status=OK/", $response)) {
 	  $resParams=$this->parseParamsFromMultiLineString($response);
-	  $this->log(LOG_NOTICE, "response contains ", $resParams);
+	  $this->log(LOG_DEBUG, "response contains ", $resParams);
 	  
 	  /* Update database counters */
 	  $this->updateDbCounters($resParams);
-	
+	  
 	  /* Retrieve info from entry info string */
 	  
 	  $localParams=$this->localParamsFromInfoString($entry['info']);
 	  $otpParams=$this->otpParamsFromInfoString($entry['info']);
 	  
 	  /* Check for warnings 
-	     
-	     If received sync response have lower counters than locally saved 
-	     last counters (indicating that remote server wasn't synced) 
+	   
+	   If received sync response have lower counters than locally saved 
+	   last counters (indicating that remote server wasn't synced) 
 	  */
 	  if ($this->countersHigherThan($localParams, $resParams)) {
 	    $this->log(LOG_WARNING, "queued:Remote server out of sync, local counters ", $localParams);
 	    $this->log(LOG_WARNING, "queued:Remote server out of sync, remote counters ", $resParams);
 	  }
-	    
+	  
 	  /* If received sync response have higher counters than locally saved 
 	   last counters (indicating that local server wasn't synced) 
 	  */
@@ -306,7 +306,7 @@ class SyncLib
 	    $this->log(LOG_WARNING, "queued:Local server out of sync, local counters ", $localParams);
 	    $this->log(LOG_WARNING, "queued:Local server out of sync, remote counters ", $resParams);
 	  }
-	    
+	  
 	  if ($this->countersHigherThan($resParams, $otpParams) || 
 	      ($this->countersEqual($resParams, $otpParams) &&
 	       $resParams['nonce']!=$otpParams['nonce'])) {
@@ -315,8 +315,7 @@ class SyncLib
 	     (indicating REPLAYED_OTP) 
 	    */
 	    
-	    $this->log(LOG_WARNING, "queued:replayed OTP, remote counters " , $resParams);
-	    $this->log(LOG_WARNING, "queued:replayed OTP, otp counters", $otpParams);
+	    $this->log(LOG_WARNING, "queued:Remote server has higher or equal counters than OTP. This response would have marked the OTP as invalid. ");
 	  }
 	  
 	  /* Deletion */
@@ -348,30 +347,31 @@ class SyncLib
 	"&modified=" . $row['modified'] .
 	"&" . $this->otpPartFromInfoString($row['info']);
     }
-
+    
     /*
      Send out requests
     */
     $ans_arr=$this->retrieveURLasync($urls, $ans_req, $timeout);
-
+    
     if (!is_array($ans_arr)) {
       $this->log(LOG_WARNING, 'No responses from validation server pool'); 
       $ans_arr=array();
     }
-
+    
     /*
      Parse responses
     */
     $localParams = $this->localParams;
-
+    
     $this->answers = count($ans_arr);
     $this->valid_answers = 0;
     foreach ($ans_arr as $answer){
       /* Parse out parameters from each response */
       $resParams=$this->parseParamsFromMultiLineString($answer);
-      $this->log(LOG_NOTICE, "local db contains ", $localParams);
-      $this->log(LOG_NOTICE, "response contains ", $resParams);
-      
+      $this->log(LOG_DEBUG, "local db contains ", $localParams);
+      $this->log(LOG_DEBUG, "response contains ", $resParams);
+      $this->log(LOG_DEBUG, "OTP contains " , $this->otpParams);
+
       /* Update internal DB (conditional) */
       
       $this->updateDbCounters($resParams);
@@ -383,16 +383,14 @@ class SyncLib
        (indicating that remote server wasn't synced) 
       */
       if ($this->countersHigherThan($localParams, $resParams)) {
-	$this->log(LOG_WARNING, "Remote server out of sync, local counters ", $localParams);
-	$this->log(LOG_WARNING, "Remote server out of sync, remote counters ", $resParams);
+	$this->log(LOG_WARNING, "Remote server out of sync");
       }
       
       /* If received sync response have higher counters than local db
        (indicating that local server wasn't synced) 
       */
       if ($this->countersHigherThan($resParams, $localParams)) {
-	$this->log(LOG_WARNING, "Local server out of sync, local counters ", $localParams);
-	$this->log(LOG_WARNING, "Local server out of sync, remote counters ", $resParams);
+	$this->log(LOG_WARNING, "Local server out of sync");
       }
       
       if ($this->countersHigherThan($resParams, $this->otpParams) || 
@@ -403,21 +401,20 @@ class SyncLib
 	 (indicating REPLAYED_OTP) 
 	*/
 	
-	$this->log(LOG_WARNING, "replayed OTP, remote counters " , $resParams);
-	$this->log(LOG_WARNING, "replayed OTP, otp counters", $this->otpParams);
+	$this->log(LOG_WARNING, "Replayed OTP");
       } else {
 
 	/* The answer is ok since a REPLAY was not indicated */
 	
 	$this->valid_answers++;
       }
-
+      
       
 
       
       /*  Delete entry from table */
       $this->deleteQueueEntry($answer);
-
+      
       
     }
    
