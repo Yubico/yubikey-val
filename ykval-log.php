@@ -17,6 +17,7 @@ class Log
 			      LOG_INFO=>'LOG_INFO', 
 			      LOG_DEBUG=>'LOG_DEBUG');
     
+    openlog("ykval", LOG_PID, LOG_LOCAL0);
   }
   
   function addField($name, $value) 
