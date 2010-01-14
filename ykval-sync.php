@@ -68,6 +68,21 @@ foreach ($syncParams as $param=>$value) {
 $myLog->log(LOG_INFO, $tmp_log);
 
 #
+# Verify correctness of input parameters 
+#
+
+foreach (array('modified', 'yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param) {
+  if (preg_match("/^[0-9]*$/", $syncParams[$param])==0) {
+    $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
+    sendResp(S_MISSING_PARAMETER, $apiKey);
+    exit;
+  }
+}
+
+
+
+
+#
 # Get local counter data
 #
 
@@ -86,38 +101,43 @@ if ($localParams['active'] != 1) {
  }
 
 
-#
-# Compare sync and local counters and generate warnings according to 
-#  
-# http://code.google.com/p/yubikey-val-server-php/wiki/ServerReplicationProtocol
-#
-
 /* Conditional update local database */
 $sync->updateDbCounters($syncParams); 
 
 $myLog->log(LOG_DEBUG, 'Local params ' , $localParams);
 $myLog->log(LOG_DEBUG, 'Sync request params ' , $syncParams);
 
+#
+# Compare sync and local counters and generate warnings according to 
+#  
+# http://code.google.com/p/yubikey-val-server-php/wiki/ServerReplicationProtocol
+#
+
+
+
 if ($sync->countersHigherThan($localParams, $syncParams)) {
-  /* sync counters are lower than local counters */
   $myLog->log(LOG_WARNING, 'Remote server out of sync.');
  }
 
+
 if ($sync->countersEqual($localParams, $syncParams)) {
-  /* sync counters are equal to local counters.  */
-  if ($syncParams['modified']==$localParams['modified']) {
-    /* sync modified is equal to local modified. 
-     Sync request is unnessecarily sent, we log a "light" warning */
+
+  if ($syncParams['modified']==$localParams['modified'] &&
+      $syncParams['nonce']==$localParams['nonce']) {
     $myLog->log(LOG_NOTICE, 'Sync request unnessecarily sent');
-  } else {
-    /* sync modified is not equal to local modified. 
-     We have an OTP replay attempt somewhere in the system */
-    $myLog->log(LOG_WARNING, 'We might have a replay. 2 events at different times have generated the same counters');
   }
+  
+  if ($syncParams['modified']!=$localParams['modified'] &&
+      $syncParams['nonce']==$localParams['nonce']) {
+    $deltaModified = $syncParams['modified'] - $localParams['modified'];
+    $myLog->log(LOG_WARNING, 'We might have a replay. 2 events at different times have generated the same counters. The time difference is ' . $deltaModified . ' seconds');
+  }
+
   if ($syncParams['nonce']!=$localParams['nonce']) {
-    $myLog->log(LOG_WARNING, 'Remote server has received a request to validate an already validated OTP');
+    $myLog->log(LOG_WARNING, 'Remote server has received a request to validate an already validated OTP ');
   }
  }
+
 
   
 $extra=array('modified'=>$localParams['modified'],

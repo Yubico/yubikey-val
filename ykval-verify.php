@@ -41,7 +41,7 @@ if ($protocol_version>=2.0) {
   $nonce = getHttpVal('nonce', '');
 
   /* Nonce is required from protocol 2.0 */
-  if(!$nonce || strlen($nonce)<16) {
+  if(!$nonce || strlen($nonce)<16 || strlen($nonce)>32) {
     $myLog->log(LOG_NOTICE, 'Protocol version >= 2.0. Nonce is missing');
     sendResp(S_MISSING_PARAMETER, $apiKey);
     exit;
@@ -55,14 +55,49 @@ if ($protocol_version<2.0) {
  }
 
 
-/* Sanity check HTTP parameters */
-/* id, sl, timestamp, timeout, nonce, timestamp */
+/* Sanity check HTTP parameters 
+
+ * otp: one-time password 
+ * id: client id 
+ * timeout: timeout in seconds to wait for external answers, optional: if absent the server decides 
+ * nonce: random alphanumeric string, 8 to 32 bytes characters long. Must be non-predictable and changing for each request, but need not be cryptographically strong 
+ * sl: "sync level", percentage of external servers that needs to answer (integer 0 to 100), or "fast" or "secure" to use server-configured values 
+ * h: signature (optional) 
+ * timestamp: requests timestamp/counters in response 
+
+ */
 
 if (preg_match("/^[0-9]*$/", $client)==0){
   $myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
  }
+
+if (preg_match("/^[0-9]*$/", $timeout)==0) {
+  $myLog->log(LOG_NOTICE, 'timeout is provided but not correct');
+  sendResp(S_MISSING_PARAMETER, $apiKey);
+  exit;
+ }
+
+if (preg_match("/^[A-Za-z0-9]*$/", $nonce)==0) {
+  $myLog->log(LOG_NOTICE, 'NONCE is provided but not correct');
+  sendResp(S_MISSING_PARAMETER, $apiKey);
+  exit;
+  
+ }
+  
+if (preg_match("/^[0-9]*$/", $sl)==0 || ($sl<0 || $sl>100)) {
+  $myLog->log(LOG_NOTICE, 'SL is provided but not correct');
+  sendResp(S_MISSING_PARAMETER, $apiKey);
+  exit;
+ }
+
+// NOTE: Timestamp parameter is not checked since current protocol says that 1 means request timestamp
+// and anything else is discarded. 
+
+
+
+
 
 //// Get Client info from DB
 //
