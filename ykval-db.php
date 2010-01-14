@@ -65,6 +65,12 @@ class Db
 
     $this->myLog=new Log('ykval-db');
   }
+
+  function addField($name, $value)
+  {
+    $this->myLog->addField($name, $value);
+  }
+
   /**
    * function to convert Db timestamps to unixtime(s)
    *

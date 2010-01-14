@@ -13,7 +13,7 @@ $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
 $myLog->log(LOG_INFO, "Request: " . $_SERVER['QUERY_STRING']);
 
 $sync = new SyncLib('ykval-sync:synclib');
-$sync->myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
+$sync->addField('ip', $_SERVER['REMOTE_ADDR']);
 
 if (! $sync->isConnected()) {
   sendResp(S_BACKEND_ERROR, $apiKey);
@@ -74,7 +74,7 @@ $myLog->log(LOG_INFO, $tmp_log);
 # At this point we should have to otp so let's add it to the logging module
 #
 $myLog->addField('otp', $syncParams['otp']);
-$sync->myLog->addField('otp', $syncParams['otp']);
+$sync->addField('otp', $syncParams['otp']);
 
 #
 # Verify correctness of input parameters 

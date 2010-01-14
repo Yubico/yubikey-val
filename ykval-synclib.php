@@ -25,6 +25,11 @@ class SyncLib
 
   }
 
+  function addField($name, $value)
+  {
+    $this->myLog->addField($name, $value);
+    $this->db->addField($name, $value);
+  }
   function isConnected() 
   {
     return $this->isConnected;

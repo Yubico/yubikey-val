@@ -22,7 +22,7 @@ $myLog->log(LOG_INFO, "found protocol version " . $protocol_version);
 /* Initialize the sync library. Strive to use this instead of custom DB requests, 
  custom comparisons etc */ 
 $sync = new SyncLib('ykval-verify:synclib');
-$sync->myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
+$sync->addField('ip', $_SERVER['REMOTE_ADDR']);
 
 if (! $sync->isConnected()) {
   sendResp(S_BACKEND_ERROR, $apiKey);
@@ -40,7 +40,7 @@ $timestamp = getHttpVal('timestamp', 0);
 
 /* We have the OTP now, so let's add it to the logging */
 $myLog->addField('otp', $otp);
-$sync->myLog->addField('otp', $otp);
+$sync->addField('otp', $otp);
 
 if ($protocol_version>=2.0) {
   
