@@ -134,11 +134,11 @@ class Db
 
   private function query($query, $returnresult=false) {
     if($this->dbh) {
-      $this->myLog->log(LOG_DEBUG, 'Query is: ' . $query);
+      $this->myLog->log(LOG_DEBUG, 'DB query is: ' . $query);
+      
       $this->result = $this->dbh->query($query);
       if (! $this->result){
 	$this->myLog->log(LOG_INFO, 'Database error: ' . print_r($this->dbh->errorInfo(), true));
-	$this->myLog->log(LOG_INFO, 'Query was: ' . $query);
 	return false;
       }
       if ($returnresult) return $this->result;
@@ -171,7 +171,7 @@ class Db
       else $query .= ' ' . $key . '=NULL,';
     }
     if (! $query) {
-      log("no values to set in query. Not updating DB");
+      $this->myLog->log(LOG_DEBUG, "no values to set in query. Not updating DB");
       return true;
     }
 
@@ -215,7 +215,7 @@ class Db
       $query = $query . " " . $key . "='" . $value . "',";
     }
     if (! $query) {
-      log("no values to set in query. Not updating DB");
+      $this->myLog->log(LOG_DEBUG, "no values to set in query. Not updating DB");
       return true;
     }
 
@@ -223,7 +223,6 @@ class Db
     // Insert UPDATE statement at beginning
     $query = "UPDATE " . $table . " SET " . $query; 
 
-    $this->myLog->log(LOG_INFO, "query is " . $query);
     return $this->query($query, false);
   }
     
@@ -330,7 +329,6 @@ or false on failure.
     if ($rev==1) $query.= " ORDER BY id DESC";
     if ($nr!=null) $query.= " LIMIT " . $nr;
 
-    $this->myLog->log(LOG_NOTICE, 'query is ' . $query);
     $result = $this->query($query, true);
     if (!$result) return false;
    
@@ -373,7 +371,6 @@ or false on failure.
     }
     if ($rev==1) $query.= " ORDER BY id DESC";
     if ($nr!=null) $query.= " LIMIT " . $nr;
-    $this->myLog->log(LOG_INFO, "delete query is " . $query);
     return $this->query($query, false);
   }
 
