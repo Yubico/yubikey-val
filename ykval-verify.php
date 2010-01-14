@@ -11,23 +11,20 @@ $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
 $myLog->log(LOG_INFO, "Request: " . $_SERVER['QUERY_STRING']);
 
-/* Detect protocol version */
-if (preg_match("/\/wsapi\/([0-9]*)\.([0-9]*)\//", $_SERVER['REQUEST_URI'], $out)) {
-  $protocol_version=$out[1]+$out[2]*0.1;
- } else {
-  $protocol_version=1.0;
- }
-$myLog->log(LOG_INFO, "found protocol version " . $protocol_version);
-
-/* Initialize the sync library. Strive to use this instead of custom DB requests, 
- custom comparisons etc */ 
+/* Initialize the sync library. Strive to use this instead of custom
+   DB requests, custom comparisons etc */ 
 $sync = new SyncLib('ykval-verify:synclib');
 $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
-
 if (! $sync->isConnected()) {
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
+ }
 
+/* Detect protocol version */
+if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out)) {
+  $protocol_version=$out[1]+$out[2]*0.1;
+ } else {
+  $protocol_version=1.0;
  }
 
 /* Extract values from HTTP request
@@ -43,7 +40,6 @@ $myLog->addField('otp', $otp);
 $sync->addField('otp', $otp);
 
 if ($protocol_version>=2.0) {
-  
   $sl = getHttpVal('sl', '');
   $timeout = getHttpVal('timeout', '');  
   $nonce = getHttpVal('nonce', '');
@@ -61,7 +57,10 @@ if ($protocol_version<2.0) {
   $nonce = md5(uniqid(rand())); 
   $myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
  }
-
+else
+  {
+    $myLog->log(LOG_INFO, "found protocol version " . $protocol_version);
+  }
 
 /* Sanity check HTTP parameters 
 
@@ -75,26 +74,26 @@ if ($protocol_version<2.0) {
 
  */
 
-if (preg_match("/^[0-9]*$/", $client)==0){
+if (preg_match("/^[0-9]+$/", $client)==0){
   $myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
  }
 
-if (preg_match("/^[0-9]*$/", $timeout)==0) {
+if (preg_match("/^[0-9]+$/", $timeout)==0) {
   $myLog->log(LOG_NOTICE, 'timeout is provided but not correct');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
  }
 
-if (preg_match("/^[A-Za-z0-9]*$/", $nonce)==0) {
+if (preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
   $myLog->log(LOG_NOTICE, 'NONCE is provided but not correct');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
   
  }
   
-if (preg_match("/^[0-9]*$/", $sl)==0 || ($sl<0 || $sl>100)) {
+if (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100)) {
   $myLog->log(LOG_NOTICE, 'SL is provided but not correct');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
@@ -102,10 +101,6 @@ if (preg_match("/^[0-9]*$/", $sl)==0 || ($sl<0 || $sl>100)) {
 
 // NOTE: Timestamp parameter is not checked since current protocol says that 1 means request timestamp
 // and anything else is discarded. 
-
-
-
-
 
 //// Get Client info from DB
 //
