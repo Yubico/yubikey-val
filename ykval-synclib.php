@@ -187,9 +187,8 @@ class SyncLib
 
   public function updateDbCounters($params)
   {
-    $res=$this->db->findBy('yubikeys', 'yk_publicname', $params['yk_publicname'], 1);
-    $this->log(LOG_INFO, 'yk_publicname is ' . $res['yk_publicname']);
-    if (isset($res['yk_publicname'])) {
+
+    if (isset($params['yk_publicname'])) {
       $condition='('.$params['yk_counter'].'>yk_counter or ('.$params['yk_counter'].'=yk_counter and ' .
 	$params['yk_use'] . '>yk_use))' ;
       if(! $this->db->conditionalUpdateBy('yubikeys', 'yk_publicname', $params['yk_publicname'], 
