@@ -40,7 +40,7 @@ require_once 'ykval-log.php';
 System_Daemon::start();                           // Spawn Deamon!
 /* Application start */
 
-$sl = new SyncLib('queue-synclib');
+$sl = new SyncLib('ykval-queue:synclib');
 
 # Loop forever and resync
 

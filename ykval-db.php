@@ -56,14 +56,14 @@ class Db
    * @return void 
    *
    */
-  public function __construct($db_dsn, $db_username, $db_password, $dp_options)
+  public function __construct($db_dsn, $db_username, $db_password, $dp_options, $name='ykval-db')
   {
     $this->db_dsn=$db_dsn;
     $this->db_username=$db_username;
     $this->db_password=$db_password;
     $this->db_options=$db_options;
 
-    $this->myLog=new Log('ykval-db');
+    $this->myLog=new Log($name);
   }
 
   function addField($name, $value)

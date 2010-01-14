@@ -19,7 +19,8 @@ class SyncLib
     $this->db=new Db($baseParams['__YKVAL_DB_DSN__'],
 		     $baseParams['__YKVAL_DB_USER__'],
 		     $baseParams['__YKVAL_DB_PW__'],
-		     $baseParams['__YKVAL_DB_OPTIONS__']);
+		     $baseParams['__YKVAL_DB_OPTIONS__'], 
+		     $logname . ':db');
     $this->isConnected=$this->db->connect();
     $this->server_nonce=md5(uniqid(rand())); 
 
