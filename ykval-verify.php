@@ -80,7 +80,7 @@ if (preg_match("/^[0-9]+$/", $client)==0){
   exit;
  }
 
-if (preg_match("/^[0-9]+$/", $timeout)==0) {
+if ($timeout && preg_match("/^[0-9]+$/", $timeout)==0) {
   $myLog->log(LOG_NOTICE, 'timeout is provided but not correct');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
@@ -93,7 +93,7 @@ if (preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
   
  }
   
-if (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100)) {
+if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100))) {
   $myLog->log(LOG_NOTICE, 'SL is provided but not correct');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
