@@ -7,6 +7,16 @@ class Log
   {
     $this->name=$name;
     $this->fields=array();
+
+    $this->LOG_LEVELS = array(LOG_EMERG=>'LOG_EMERG', 
+			      LOG_ALERT=>'LOG_ALERT', 
+			      LOG_CRIT=>'LOG_CRIT', 
+			      LOG_ERR=>'LOG_ERR', 
+			      LOG_WARNING=>'LOG_WARNING', 
+			      LOG_NOTICE=>'LOG_NOTICE', 
+			      LOG_INFO=>'LOG_INFO', 
+			      LOG_DEBUG=>'LOG_DEBUG');
+    
   }
   
   function addField($name, $value) 
@@ -23,9 +33,13 @@ class Log
     # Add fields
     $msg_fields = "";
     foreach ($this->fields as $field=>$value) {
-      $mes_fields .= "[" . $value . "] ";
+      $msg_fields .= "[" . $value . "] ";
     }
-    syslog($priority, $this->name . ':' . $msg_fields . $message);
+    syslog($priority, 
+	   $this->LOG_LEVELS[$priority] . ':' .
+	   $this->name . ':' . 
+	   $msg_fields . 
+	   $message);
   }
   
 }
