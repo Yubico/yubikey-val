@@ -26,18 +26,18 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-VERSION = 1.2
+VERSION = 2.0
 PACKAGE = yubikey-val
-CODE = Makefile NEWS ykval-config.php ykval-db.sql ykval-common.php	\
-	ykval-verify.php test-multi.php ykval-ping.php ykval-sync.php	\
-	ykval-synclib.php ykval-db.php ykval-api.html ykval-queue.php	\
-	ykval-log.php
+CODE = Makefile NEWS ykval-api.html ykval-common.php ykval-config.php	\
+	ykval-db.php ykval-db.sql ykval-log.php ykval-otpgen.php	\
+	ykval-ping.php ykval-queue.php ykval-synclib.php		\
+	ykval-sync.php ykval-verify.php
 DOCS = doc/Installation.wiki doc/ClientInfoFormat.wiki			\
 	doc/ServerReplicationProtocol.wiki doc/Troubleshooting.wiki
 
 all:
 	@echo "Try 'make install' or 'make symlink'."
-	@echo "Docs: http://code.google.com/p/yubikey-ksm/wiki/Installation"
+	@echo "Docs: http://code.google.com/p/$(PROJECT)/wiki/Installation"
 	@exit 1
 
 # Installation rules.
