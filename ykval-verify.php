@@ -27,6 +27,8 @@ if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out)
   $protocol_version=1.0;
  }
 
+$myLog->log(LOG_INFO, "found protocol version " . $protocol_version);
+
 /* Extract values from HTTP request
  */
 $h = getHttpVal('h', '');
@@ -52,15 +54,6 @@ if ($protocol_version>=2.0) {
   }
  }
 
-if ($protocol_version<2.0) {
-  /* We need to create a nonce manually here */
-  $nonce = md5(uniqid(rand())); 
-  $myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
- }
-else
-  {
-    $myLog->log(LOG_INFO, "found protocol version " . $protocol_version);
-  }
 
 /* Sanity check HTTP parameters 
 
@@ -141,6 +134,14 @@ if ($h != '') {
     exit;
   }
 }
+
+/* We need to add necessary parameters not available at earlier protocols after signature is computed. 
+ */
+if ($protocol_version<2.0) {
+  /* We need to create a nonce manually here */
+  $nonce = md5(uniqid(rand())); 
+  $myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
+ }
 
 //// Sanity check OTP
 //
