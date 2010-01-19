@@ -79,7 +79,7 @@ if ($timeout && preg_match("/^[0-9]+$/", $timeout)==0) {
   exit;
  }
 
-if (preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
+if ($nonce && preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
   $myLog->log(LOG_NOTICE, 'NONCE is provided but not correct');
   sendResp(S_MISSING_PARAMETER, $apiKey);
   exit;
