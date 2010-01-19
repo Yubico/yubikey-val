@@ -40,6 +40,8 @@
  * @link        http://code.google.com/p/yubikey-val-server-php/
  */
 
+require_once('ykval-db.php');
+
 class OtpGen
 {
 
