@@ -1,0 +1,8 @@
+* Version 2.0
+
+  * Major re-design to support a new architecture with replicated
+    servers.
+
+* Version 1.1
+
+  * Stable release of non-replicated server.
