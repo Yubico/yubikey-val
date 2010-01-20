@@ -221,7 +221,7 @@ $otpParams=array('modified'=>time(),
 if ($sync->countersEqual($localParams, $otpParams) &&
     $localParams['nonce']==$otpParams['nonce']) {
   $myLog->log(LOG_WARNING, 'Replayed request');
-  sendResp(S_REPLAYED_REQUEST, $apikey, $extra);
+  sendResp(S_REPLAYED_REQUEST, $apiKey, $extra);
   exit;
  }
 
