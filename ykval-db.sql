@@ -17,8 +17,8 @@ CREATE TABLE yubikeys (
   yk_internalname VARCHAR(12) NOT NULL,
   yk_counter INT NOT NULL,
   yk_use INT NOT NULL,
-  yk_low INT,
-  yk_high INT,
+  yk_low INT NOT NULL,
+  yk_high INT NOT NULL,
   nonce VARCHAR(32) DEFAULT '',
   notes VARCHAR(100) DEFAULT '',
   PRIMARY KEY (yk_publicname)
