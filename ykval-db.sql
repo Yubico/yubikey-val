@@ -14,7 +14,6 @@ CREATE TABLE yubikeys (
   created INT NOT NULL,
   modified INT NOT NULL,
   yk_publicname VARCHAR(16) UNIQUE NOT NULL,
-  yk_internalname VARCHAR(12) NOT NULL,
   yk_counter INT NOT NULL,
   yk_use INT NOT NULL,
   yk_low INT NOT NULL,
