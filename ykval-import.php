@@ -51,18 +51,19 @@ while ($res=fscanf(STDIN, "%d\t%d\t%d\t%s\t%d\t%d\t%d\t%d\t%s\t%s\t")) {
 
   if(!$db->customQuery($query)) {
     // We didn't have the yk_publicname in database so we need to do insert instead
-    $query="INSERT INTO yubikeys SET " .
-      "active='" . $params["active"] . "' " .
-      ",created='" . $params["created"] . "' " .
-      ",modified='" . $params["modified"] . "' " .
-      ",yk_publicname='" . $params['yk_publicname'] . "' " .
-      ",yk_counter='" . $params["yk_counter"] . "' " .
-      ",yk_use='" . $params["yk_use"] . "' " .
-      ",yk_low='" . $params["yk_low"] . "' " .
-      ",yk_high='" . $params["yk_high"] . "' " .
-      ",nonce='" . $params["nonce"] . "' " .
-      ",notes='" . $params["notes"] . "' ";
-    
+    $query="INSERT INTO yubikeys " .
+      "(active,created,modified,yk_publicname,yk_counter,yk_use,yk_low,yk_high,nonce,notes) VALUES " .
+      "('" . $params["active"] . "', " .
+      "'" . $params['created'] . "'," .
+      "'" . $params['modified'] . "'," .
+      "'" . $params['yk_publicname'] . "'," .
+      "'" . $params['yk_counter'] . "'," .
+      "'" . $params['yk_use'] . "'," .
+      "'" . $params['yk_low'] . "'," .
+      "'" . $params['yk_high'] . "'," .
+      "'" . $params['nonce'] . "'," .
+      "'" . $params['notes'] . "')";
+      
     if(!$db->customQuery($query)){
       $myLog->log(LOG_ERR, "Failed to insert new yk_publicname with query " . $query);
       error_log("Failed to insert new yk_publicname with query " . $query);
