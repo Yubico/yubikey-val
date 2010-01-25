@@ -21,7 +21,7 @@ if (!$db->connect()) {
   exit(1);
  }  
 
-$result=$db->customQuery("SELECT active, created, modified, yk_publicname, yk_counter, yk_use, yk_low, yk_high, nonce, notes FROM yubikeys");
+$result=$db->customQuery("SELECT active, created, modified, yk_publicname, yk_counter, yk_use, yk_low, yk_high, nonce, notes FROM yubikeys ORDER BY yk_publicname");
 while($row = $result->fetch(PDO::FETCH_ASSOC)){
   echo $row['active'] .
     "\t" . $row['created'] .
