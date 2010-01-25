@@ -45,7 +45,7 @@ while ($res=fscanf(STDIN, "%d\t%d\t%d\t%s\t%d\t%d\t%d\t%d\t%s\t%s\t")) {
     ",yk_high='" . $params["yk_high"] . "' " .
     ",nonce='" . $params["nonce"] . "' " .
     ",notes='" . $params["notes"] . "' " .
-    "WHERE yk_publicname=" . $params['yk_publicname'] . " AND " .
+    "WHERE yk_publicname='" . $params['yk_publicname'] . "' AND " .
     "(".$params['yk_counter'].">yk_counter or (".$params['yk_counter']."=yk_counter and " .
     $params['yk_use'] . ">yk_use))";
 
