@@ -70,3 +70,7 @@ while ($res=fscanf(STDIN, "%d\t%d\t%d\t%s\t%d\t%d\t%d\t%d\t%s\t%s\t")) {
     }
   }
  }
+
+
+$myLog->log(LOG_NOTICE, "Successfully imported yubikeys to database");
+echo "Successfully imported yubikeys to database\n";
