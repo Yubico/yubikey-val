@@ -3,7 +3,6 @@
 
 set_include_path(get_include_path() . PATH_SEPARATOR . "/usr/share/ykval:/etc/ykval");
 
-
 require_once 'ykval-db.php';
 require_once 'ykval-config.php';
 
@@ -37,7 +36,7 @@ while($row = $result->fetch(PDO::FETCH_ASSOC)){
     "\n";
  }
 
-
+$db=null;
 
 
 ?>
