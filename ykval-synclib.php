@@ -139,10 +139,10 @@ class SyncLib
 					'modified'=>0,
 					'yk_publicname'=>$yk_publicname,
 					'yk_internalname'=>'not set',
-					'yk_counter'=>-1, 
-					'yk_use'=>-1, 
-					'yk_low'=>0,
-					'yk_high'=>0,
+					'yk_counter'=>-1,
+					'yk_use'=>-1,
+					'yk_low'=>-1,
+					'yk_high'=>-1,
 					'nonce'=>'',
 					'notes'=>''));
       $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
@@ -168,19 +168,46 @@ class SyncLib
 
   private function parseParamsFromMultiLineString($str)
   {
-      preg_match("/^modified=([0-9]*)/m", $str, $out);
+      $i = preg_match("/^modified=([0-9]+)/m", $str, $out);
+      if ($i != 1) {
+	$this->log(LOG_ALERT, "cannot parse modified value: $str");
+      }
       $resParams['modified']=$out[1];
-      preg_match("/^yk_publicname=([[:alpha:]]*)/m", $str, $out);
+
+      $i = preg_match("/^yk_publicname=([cbdefghijklnrtuv]+)/m", $str, $out);
+      if ($i != 1) {
+	$this->log(LOG_ALERT, "cannot parse publicname value: $str");
+      }
       $resParams['yk_publicname']=$out[1];
-      preg_match("/^yk_counter=([0-9]*)/m", $str, $out);
+
+      $i = preg_match("/^yk_counter=(-1|[0-9]+)/m", $str, $out);
+      if ($i != 1) {
+	$this->log(LOG_ALERT, "cannot parse counter value: $str");
+      }
       $resParams['yk_counter']=$out[1];
-      preg_match("/^yk_use=([0-9]*)/m", $str, $out);
+
+      $i = preg_match("/^yk_use=(-1|[0-9]+)/m", $str, $out);
+      if ($i != 1) {
+	$this->log(LOG_ALERT, "cannot parse use value: $str");
+      }
       $resParams['yk_use']=$out[1];
-      preg_match("/^yk_high=([0-9]*)/m", $str, $out);
+
+      preg_match("/^yk_high=(-1|[0-9]+)/m", $str, $out);
+      if ($i != 1) {
+	$this->log(LOG_ALERT, "cannot parse high value: $str");
+      }
       $resParams['yk_high']=$out[1];
-      preg_match("/^yk_low=([0-9]*)/m", $str, $out);
+
+      preg_match("/^yk_low=(-1|[0-9]+)/m", $str, $out);
+      if ($i != 1) {
+	$this->log(LOG_ALERT, "cannot parse low value: $str");
+      }
       $resParams['yk_low']=$out[1];
-      preg_match("/^nonce=([[:alnum:]]*)/m", $str, $out);
+
+      preg_match("/^nonce=([[:alnum:]]+)/m", $str, $out);
+      if ($i != 1) {
+	$this->log(LOG_ALERT, "cannot parse counter value: $str");
+      }
       $resParams['nonce']=$out[1];
 
       return $resParams;
