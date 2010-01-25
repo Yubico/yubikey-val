@@ -36,6 +36,7 @@ while($row = $result->fetch(PDO::FETCH_ASSOC)){
     "\n";
  }
 
+$result=null;
 $db=null;
 
 
