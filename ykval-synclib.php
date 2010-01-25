@@ -136,14 +136,14 @@ class SyncLib
       $this->log(LOG_NOTICE, 'Discovered new identity ' . $yk_publicname);
       $this->db->save('yubikeys', array('active'=>1, 
 					'created'=>time(),
-					'modified'=>0,
+					'modified'=>-1,
 					'yk_publicname'=>$yk_publicname,
 					'yk_internalname'=>'not set',
 					'yk_counter'=>-1,
 					'yk_use'=>-1,
 					'yk_low'=>-1,
 					'yk_high'=>-1,
-					'nonce'=>'',
+					'nonce'=> md5(uniqid(rand())),
 					'notes'=>''));
       $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
     }
@@ -168,7 +168,7 @@ class SyncLib
 
   private function parseParamsFromMultiLineString($str)
   {
-      $i = preg_match("/^modified=([0-9]+)/m", $str, $out);
+      $i = preg_match("/^modified=(-1|[0-9]+)/m", $str, $out);
       if ($i != 1) {
 	$this->log(LOG_ALERT, "cannot parse modified value: $str");
       }
