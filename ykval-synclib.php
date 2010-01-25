@@ -138,12 +138,11 @@ class SyncLib
 					'created'=>time(),
 					'modified'=>-1,
 					'yk_publicname'=>$yk_publicname,
-					'yk_internalname'=>'not set',
 					'yk_counter'=>-1,
 					'yk_use'=>-1,
 					'yk_low'=>-1,
 					'yk_high'=>-1,
-					'nonce'=> md5(uniqid(rand())),
+					'nonce'=> '0000000000000000',
 					'notes'=>''));
       $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
     }
