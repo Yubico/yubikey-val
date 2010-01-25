@@ -57,6 +57,7 @@ install:
 	install -D ykval-log.php $(phpprefix)/ykval-log.php
 	install -D ykval-queue.php $(sbinprefix)/ykval-queue
 	install -D ykval-export.php $(sbinprefix)/ykval-export
+	install -D ykval-import.php $(sbinprefix)/ykval-import
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(etcprefix)/ykval-config.php
 	install -D ykval-db.sql $(docprefix)/ykval-db.sql
 	install -D $(DOCS) $(docprefix)/
