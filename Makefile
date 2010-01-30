@@ -29,8 +29,8 @@
 VERSION = 2.1
 PACKAGE = yubikey-val
 CODE = Makefile NEWS ykval-api.html ykval-common.php ykval-config.php	\
-	ykval-db.php ykval-db.sql ykval-log.php ykval-otpgen.php	\
-	ykval-ping.php ykval-queue.php ykval-synclib.php		\
+	ykval-db.php ykval-db.sql ykval-export.php ykval-import.php	\
+	ykval-log.php ykval-ping.php ykval-queue.php ykval-synclib.php	\
 	ykval-sync.php ykval-verify.php
 DOCS = doc/Installation.wiki doc/ClientInfoFormat.wiki			\
 	doc/ServerReplicationProtocol.wiki doc/Troubleshooting.wiki
