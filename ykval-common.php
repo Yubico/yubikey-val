@@ -21,8 +21,6 @@ define('TS_ABS_TOLERANCE', 20);
 
 define('TOKEN_LEN', 32);
 
-
-
 global $ykval_common_log;
 $ykval_common_log = new Log('ykval-common');
 
@@ -46,20 +44,6 @@ function getHttpVal($key, $defaultVal) {
   	}
   	$v = unescape(trim($val));
   	return $v;
-}
-
-function query($conn, $q) {
-  debug('SQL query: ' . $q);
-  $result = mysql_query($q, $conn);
-  if (!$result) {
-    debug("SQL query error: " . mysql_error());
-    return;
-  }
-  return $result;
-}
-
-function mysql_quote($value) {
-	return "'" . mysql_real_escape_string($value) . "'";	
 }
 
 function debug() {
@@ -133,84 +117,6 @@ function modhex2b64 ($modhex_str) {
   return hex2b64($hex_str);
 }
 
-// This function takes a list of URLs.  It will return the content of
-// the first successfully retrieved URL, whose content matches ^OK.
-// The request are sent asynchronously.  Some of the URLs can fail
-// with unknown host, connection errors, or network timeout, but as
-// long as one of the URLs given work, data will be returned.  If all
-// URLs fail, data from some URL that did not match parameter $match 
-// (defaults to ^OK) is returned, or if all URLs failed, false.
-function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
-  $mh = curl_multi_init();
-
-  $ch = array();
-  foreach ($urls as $id => $url) {
-    $handle = curl_init();
-    debug("url is: " . $url);
-    curl_setopt($handle, CURLOPT_URL, $url);
-    curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
-    curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($handle, CURLOPT_FAILONERROR, true);
-    curl_setopt($handle, CURLOPT_TIMEOUT, 10);
-
-    curl_multi_add_handle($mh, $handle);
-
-    $ch[$handle] = $handle;
-  }
-
-  $str = false;
-  $ans_count = 0;
-  $ans_arr = array();
-
-  do {
-    while (($mrc = curl_multi_exec($mh, $active)) == CURLM_CALL_MULTI_PERFORM)
-      ;
-
-    while ($info = curl_multi_info_read($mh)) {
-      debug ("YK-KSM multi", $info);
-      if ($info['result'] == CURL_OK) {
-	$str = curl_multi_getcontent($info['handle']);
-	debug($str);
-	if (preg_match("/".$match."/", $str)) {
-	  $error = curl_error ($info['handle']);
-	  $errno = curl_errno ($info['handle']);
-	  $cinfo = curl_getinfo ($info['handle']);
-	  debug("YK-KSM errno/error: " . $errno . "/" . $error, $cinfo);
-	  $ans_count++;
-	  debug("found entry");
-	  if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
-	  else $ans_arr[]=$str;
-	}
-
-	if ($ans_count >= $ans_req) {
-	  foreach ($ch as $h) {
-	    curl_multi_remove_handle ($mh, $h);
-	    curl_close ($h);
-	  }
-	  curl_multi_close ($mh);
-	  
-	  if ($ans_count==1) return $ans_arr[0];
-	  else return $ans_arr;
-	}
-	
-	curl_multi_remove_handle ($mh, $info['handle']);
-	curl_close ($info['handle']);
-	unset ($ch[$info['handle']]);
-      }
-
-      curl_multi_select ($mh);
-    }
-  } while($active);
-
-  foreach ($ch as $h) {
-    curl_multi_remove_handle ($mh, $h);
-    curl_close ($h);
-  }
-  curl_multi_close ($mh);
-
-  return $str;
-}
-
 // $otp: A yubikey OTP
 function KSMdecryptOTP($urls) {
   $ret = array();
@@ -226,44 +132,6 @@ function KSMdecryptOTP($urls) {
   }
   return $ret;
 } // End decryptOTP
-
-// $devId: The first 12 chars from the OTP
-function getAuthData($conn, $devId) {
-	$publicName = modhex2b64($devId);
-	$stmt =
-	  'SELECT id, active, counter, sessionUse, low, high, accessed '.
-	  'FROM yubikeys '.
-	  'WHERE publicName='.mysql_quote($publicName);
-	$r = query($conn, $stmt);
-	if (mysql_num_rows($r) > 0) {
-		$row = mysql_fetch_assoc($r);
-		mysql_free_result($r);
-		return $row;
-	}
-	return null;
-} // End getAuthData
-
-function addNewKey($conn, $devId) {
-	$publicName = modhex2b64($devId);
-	$stmt = 'INSERT INTO yubikeys (active, created, publicName, counter) '.
-	  'VALUES (true, NOW(), ' . mysql_quote($publicName) . ', 0)';
-	$r = query($conn, $stmt);
-}
-
-// $clientId: The decimal client identity
-function getClientData($conn, $clientId) {
-	$stmt =
-	  'SELECT id, secret '.
-	  'FROM clients '.
-	  'WHERE active AND id='.mysql_quote($clientId);
-	$r = query($conn, $stmt);
-	if (mysql_num_rows($r) > 0) {
-		$row = mysql_fetch_assoc($r);
-		mysql_free_result($r);
-		return $row;
-	}
-	return null;
-} // End getClientData
 
 function sendResp($status, $apiKey = '', $extra = null) {
   if ($status == null) {
