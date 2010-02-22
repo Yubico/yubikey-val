@@ -1,3 +1,9 @@
+* Version 2.2
+
+  * Minor cleanups and fixes.
+
+  * Add ykval-revoke.php service, see doc/RevocationService.wiki.
+
 * Version 2.1
 
   * Minor cleanups and fixes.
