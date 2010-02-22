@@ -27,7 +27,7 @@ $ykval_common_log = new Log('ykval-common');
 function logdie ($str)
 {
   global $ykval_common_log;
-  $ykval_common_log->log(LOG_EMERG, $str);
+  $ykval_common_log->log(LOG_INFO, $str);
   die($str . "\n");
 }
 
