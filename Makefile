@@ -30,8 +30,8 @@ VERSION = 2.1
 PACKAGE = yubikey-val
 CODE = Makefile NEWS ykval-api.html ykval-common.php ykval-config.php	\
 	ykval-db.php ykval-db.sql ykval-export.php ykval-import.php	\
-	ykval-log.php ykval-ping.php ykval-queue.php ykval-synclib.php	\
-	ykval-sync.php ykval-verify.php
+	ykval-log.php ykval-ping.php ykval-queue.php ykval-revoke.php	\
+	ykval-synclib.php ykval-sync.php ykval-verify.php
 DOCS = doc/Installation.wiki doc/ClientInfoFormat.wiki			\
 	doc/ServerReplicationProtocol.wiki doc/Troubleshooting.wiki
 
@@ -69,6 +69,10 @@ symlink:
 	ln -sf $(phpprefix)/ykval-verify.php $(wwwprefix)/2.0/verify.php
 	ln -sf $(phpprefix)/ykval-sync.php $(wwwprefix)/2.0/sync.php
 	ln -sf 2.0/verify.php $(wwwprefix)/verify.php
+
+revoke:
+	install -D ykval-revoke.php $(phpprefix)/ykval-revoke.php
+	ln -sf $(phpprefix)/ykval-revoke.php $(wwwprefix)/revoke.php
 
 # Maintainer rules.
 
