@@ -23,10 +23,10 @@ if ($do != "enable" && $do != "disable") {
 }
 
 # Connect to db
-$db = new Db($baseParams['__YKREVOKE_DB_DSN__'],
-	     $baseParams['__YKREVOKE_DB_USER__'],
-	     $baseParams['__YKREVOKE_DB_PW__'],
-	     $baseParams['__YKREVOKE_DB_OPTIONS__'], 
+$db = new Db($baseParams['__YKVAL_DB_DSN__'],
+	     $baseParams['__YKVAL_DB_USER__'],
+	     $baseParams['__YKVAL_DB_PW__'],
+	     $baseParams['__YKVAL_DB_OPTIONS__'], 
 	     'ykval-revoke:db');
 $db->connect();
 
