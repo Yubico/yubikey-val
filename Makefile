@@ -26,7 +26,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-VERSION = 2.1
+VERSION = 2.2
 PACKAGE = yubikey-val
 CODE = Makefile NEWS ykval-api.html ykval-common.php ykval-config.php	\
 	ykval-db.php ykval-db.sql ykval-export.php ykval-import.php	\
