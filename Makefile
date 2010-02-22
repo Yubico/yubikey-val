@@ -32,8 +32,9 @@ CODE = Makefile NEWS ykval-api.html ykval-common.php ykval-config.php	\
 	ykval-db.php ykval-db.sql ykval-export.php ykval-import.php	\
 	ykval-log.php ykval-ping.php ykval-queue.php ykval-revoke.php	\
 	ykval-synclib.php ykval-sync.php ykval-verify.php
-DOCS = doc/Installation.wiki doc/ClientInfoFormat.wiki			\
-	doc/ServerReplicationProtocol.wiki doc/Troubleshooting.wiki
+DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
+	doc/RevocationService.wiki doc/ServerReplicationProtocol.wiki	\
+	doc/Troubleshooting.wiki
 
 all:
 	@echo "Try 'make install' or 'make symlink'."
