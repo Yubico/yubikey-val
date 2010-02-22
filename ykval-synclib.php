@@ -31,10 +31,12 @@ class SyncLib
     $this->myLog->addField($name, $value);
     $this->db->addField($name, $value);
   }
+
   function isConnected() 
   {
     return $this->isConnected;
   }
+
   function DbTimeToUnix($db_time)
   {
     $unix=strptime($db_time, '%F %H:%M:%S');
@@ -45,17 +47,20 @@ class SyncLib
   {
     return date('Y-m-d H:i:s', $unix);
   }  
+
   function getServer($index)
   {
     if (isset($this->syncServers[$index])) return $this->syncServers[$index];
     else return "";
   }
+
   function getClientData($client)
   {
     $res=$this->db->customQuery("SELECT id, secret FROM clients WHERE active AND id='" . $client . "'");
     if($res->rowCount()>0) return $res->fetch(PDO::FETCH_ASSOC);
     else return false;
   }
+
   public function getQueueLength()
   {
     return count($this->db->findBy('queue', null, null, null));
@@ -72,15 +77,18 @@ class SyncLib
       ',local_counter=' . $localParams['yk_counter'] .
       '&local_use=' . $localParams['yk_use'];
   }
+
   public function otpParamsFromInfoString($info) {
     $out=explode(",", $info);
     parse_str($out[0], $params);
     return $params;
   }
+
   public function otpPartFromInfoString($info) {
     $out=explode(",", $info);
     return $out[0];
   }
+
   public function localParamsFromInfoString($info) 
   {
     $out=explode(",", $info);
@@ -88,6 +96,7 @@ class SyncLib
     return array('yk_counter'=>$params['local_counter'], 
 		 'yk_use'=>$params['local_use']);
   }
+
   public function queue($otpParams, $localParams)
   {
 
@@ -108,6 +117,7 @@ class SyncLib
     }
     return $res;
   }
+
   public function getNumberOfServers()
   {
     if (is_array($this->syncServers)) return count($this->syncServers);
@@ -127,6 +137,7 @@ class SyncLib
     if ($this->myLog) $this->myLog->log($priority, $logMsg);
     else error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $logMsg);
   }
+
   function getLocalParams($yk_publicname)
   {
     $this->log(LOG_INFO, "searching for yk_publicname " . $yk_publicname . " in local db");
@@ -253,6 +264,7 @@ class SyncLib
 	 $p1['yk_use'] >= $p2['yk_use'])) return true;
     else return false;
   }
+
   public function countersEqual($p1, $p2) {
     return ($p1['yk_counter']==$p2['yk_counter']) && ($p1['yk_use']==$p2['yk_use']);
   }
@@ -474,11 +486,13 @@ class SyncLib
     if ($this->valid_answers==$ans_req) return True;
     else return False;
   }
+
   public function getNumberOfValidAnswers()
   {
     if (isset($this->valid_answers)) return $this->valid_answers;
     else return 0;
   }
+
   public function getNumberOfAnswers()
   {
     if (isset($this->answers)) return $this->answers;
