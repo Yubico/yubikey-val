@@ -28,7 +28,9 @@ $db = new Db($baseParams['__YKVAL_DB_DSN__'],
 	     $baseParams['__YKVAL_DB_PW__'],
 	     $baseParams['__YKVAL_DB_OPTIONS__'], 
 	     'ykval-revoke:db');
-$db->connect();
+if (!$db->connect()) {
+  logdie("ERROR Database connect error");
+}
 
 # Check if key exists
 $r = $db->findBy('yubikeys', 'yk_publicname', $yk, 1);
