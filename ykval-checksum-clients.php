@@ -39,7 +39,7 @@ $result=$db->customQuery("SELECT id, active, secret ".
 			 "FROM clients ".
 			 "ORDER BY id");
 while($row = $result->fetch(PDO::FETCH_ASSOC)) {
-  if ($row['active'] = "") {
+  if ($row['active'] == "") {
     # For some reason PostgreSQL returns empty strings for false values?!
     $row['active'] = "0";
   }
