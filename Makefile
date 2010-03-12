@@ -61,7 +61,7 @@ install:
 	install -D ykval-export.php $(sbinprefix)/ykval-export
 	install -D ykval-import.php $(sbinprefix)/ykval-import
 	install -D ykval-checksum-clients.php $(sbinprefix)/ykval-checksum-clients
-	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(etcprefix)/ykval-config.php
+	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(etcprefix)/ykval-config.php-template
 	install -D ykval-db.sql $(docprefix)/ykval-db.sql
 	install -D $(DOCS) $(docprefix)/
 
