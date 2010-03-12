@@ -1,3 +1,7 @@
+* Version 2.4
+
+  * Fix bug in ykval-checksum-clients.php when used with PostgreSQL.
+
 * Version 2.3
 
   * Add ykval-checksum-clients.php, see doc/SyncMonitor.wiki.
