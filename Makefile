@@ -28,13 +28,14 @@
 
 VERSION = 2.2
 PACKAGE = yubikey-val
-CODE = Makefile NEWS ykval-api.html ykval-common.php ykval-config.php	\
-	ykval-db.php ykval-db.sql ykval-export.php ykval-import.php	\
-	ykval-log.php ykval-ping.php ykval-queue.php ykval-revoke.php	\
-	ykval-synclib.php ykval-sync.php ykval-verify.php
+CODE = Makefile NEWS ykval-api.html ykval-checksum-clients.php		\
+	ykval-common.php ykval-config.php ykval-db.php ykval-db.sql	\
+	ykval-export.php ykval-import.php ykval-log.php ykval-ping.php	\
+	ykval-queue.php ykval-revoke.php ykval-synclib.php		\
+	ykval-sync.php ykval-verify.php
 DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
 	doc/RevocationService.wiki doc/ServerReplicationProtocol.wiki	\
-	doc/Troubleshooting.wiki
+	doc/SyncMonitor.wiki doc/Troubleshooting.wiki
 
 all:
 	@echo "Try 'make install' or 'make symlink'."
@@ -59,6 +60,7 @@ install:
 	install -D ykval-queue.php $(sbinprefix)/ykval-queue
 	install -D ykval-export.php $(sbinprefix)/ykval-export
 	install -D ykval-import.php $(sbinprefix)/ykval-import
+	install -D ykval-checksum-clients.php $(sbinprefix)/ykval-checksum-clients
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(etcprefix)/ykval-config.php
 	install -D ykval-db.sql $(docprefix)/ykval-db.sql
 	install -D $(DOCS) $(docprefix)/

@@ -1,3 +1,7 @@
+* Version 2.3
+
+  * Add ykval-checksum-clients.php, see doc/SyncMonitor.wiki.
+
 * Version 2.2
 
   * Minor cleanups and fixes.
