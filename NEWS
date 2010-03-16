@@ -1,26 +1,26 @@
-* Version 2.4
+* Version 2.4 released 2010-03-16
 
   * Fix bug in ykval-checksum-clients.php when used with PostgreSQL.
 
-* Version 2.3
+* Version 2.3 released 2010-03-12
 
   * Add ykval-checksum-clients.php, see doc/SyncMonitor.wiki.
 
-* Version 2.2
+* Version 2.2 released 2010-02-22
 
   * Minor cleanups and fixes.
 
   * Add ykval-revoke.php service, see doc/RevocationService.wiki.
 
-* Version 2.1
+* Version 2.1 released 2010-01-29
 
   * Minor cleanups and fixes.
 
-* Version 2.0
+* Version 2.0 released 2010-01-18
 
   * Major re-design to support a new architecture with replicated
     servers.
 
-* Version 1.1
+* Version 1.1 released 2009-11-19
 
   * Stable release of non-replicated server.
