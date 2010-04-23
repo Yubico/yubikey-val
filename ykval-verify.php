@@ -86,7 +86,7 @@ if ($nonce && preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
   exit;
  }
 
-if (strlen($nonce) < 16 || strlen($nonce) > 32) {
+if (strlen($nonce) < 16 || strlen($nonce) > 40) {
   $myLog->log(LOG_NOTICE, 'Nonce too short or too long');
   sendResp(S_MISSING_PARAMETER, $apiKey, $extra);
   exit;
