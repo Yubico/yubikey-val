@@ -48,8 +48,8 @@ if ($protocol_version>=2.0) {
   $extra['nonce']= $nonce;
   
   /* Nonce is required from protocol 2.0 */
-  if(!$nonce || strlen($nonce)<16 || strlen($nonce)>32) {
-    $myLog->log(LOG_NOTICE, 'Protocol version >= 2.0. Nonce is missing');
+  if(!$nonce) {
+    $myLog->log(LOG_NOTICE, 'Nonce is missing and protocol version >= 2.0');
     sendResp(S_MISSING_PARAMETER, $apiKey, $extra);
     exit;
   }
@@ -84,9 +84,14 @@ if ($nonce && preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
   $myLog->log(LOG_NOTICE, 'NONCE is provided but not correct');
   sendResp(S_MISSING_PARAMETER, $apiKey, $extra);
   exit;
-  
  }
-  
+
+if (strlen($nonce) < 16 || strlen($nonce) > 32) {
+  $myLog->log(LOG_NOTICE, 'Nonce too short or too long');
+  sendResp(S_MISSING_PARAMETER, $apiKey, $extra);
+  exit;
+}
+   
 if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100))) {
   $myLog->log(LOG_NOTICE, 'SL is provided but not correct');
   sendResp(S_MISSING_PARAMETER, $apiKey, $extra);
