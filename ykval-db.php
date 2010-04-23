@@ -6,7 +6,7 @@
  *
  * LICENSE:
  *
- * Copyright (c) 2009  Yubico.  All rights reserved.
+ * Copyright (c) 2009, 2010  Yubico.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -56,7 +56,7 @@ class Db
    * @return void 
    *
    */
-  public function __construct($db_dsn, $db_username, $db_password, $dp_options, $name='ykval-db')
+  public function __construct($db_dsn, $db_username, $db_password, $db_options, $name='ykval-db')
   {
     $this->db_dsn=$db_dsn;
     $this->db_username=$db_username;

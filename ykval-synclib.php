@@ -159,7 +159,6 @@ class SyncLib
     }
     if ($res) {
       $localParams=array('modified'=>$res['modified'],
-			 'otp'=>$res['otp'],
 			 'nonce'=>$res['nonce'],
 			 'active'=>$res['active'],
 			 'yk_publicname'=>$yk_publicname,

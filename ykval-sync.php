@@ -66,7 +66,7 @@ foreach ($syncParams as $param=>$value) {
     exit;
   }
   $syncParams[$param]=$value;
-  $local_log .= "$param=$value ";
+  $tmp_log .= "$param=$value ";
 }
 $myLog->log(LOG_INFO, $tmp_log);
 
