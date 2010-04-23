@@ -2,6 +2,8 @@
 
   * Fix undefined warnings, issue #8.
 
+  * Add files COPYING and AUTHORS.
+
 * Version 2.4 released 2010-03-16
 
   * Fix bug in ykval-checksum-clients.php when used with PostgreSQL.
