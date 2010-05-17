@@ -195,10 +195,25 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
   return $str;
 }
 
+function retrieveURLsimple ($url, $match="^OK") {
+  foreach (file($url) as $line) {
+    if (preg_match("/".$match."/", $line)) {
+      return $line;
+    }
+  }
+  return false;
+}
+
 // $otp: A yubikey OTP
 function KSMdecryptOTP($urls) {
   $ret = array();
-  $response = retrieveURLasync ($urls);
+  if (!is_array($urls)) {
+    $response = retrieveURLsimple ($urls);
+  } elseif (count($urls) == 1) {
+    $response = retrieveURLsimple ($urls[0]);
+  } else {
+    $response = retrieveURLasync ($urls);
+  }
   if ($response) {
     debug("YK-KSM response: " . $response);
   }
