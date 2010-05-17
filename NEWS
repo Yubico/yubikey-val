@@ -2,6 +2,9 @@
 
   * Fix undefined warnings, issue #8.
 
+  * When number of sync servers equals zero, set sync result to success.
+    Patch from arte42.ripe in issue #7.
+
   * Add files COPYING and AUTHORS.
 
 * Version 2.4 released 2010-03-16

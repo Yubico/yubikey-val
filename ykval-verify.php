@@ -270,6 +270,7 @@ if ($req_answers>0) {
   $sl_success_rate=floor(100.0 * $nr_valid_answers / $nr_servers);
   
  } else {
+  $syncres=true;
   $nr_answers=0;
   $nr_valid_answers=0;
   $sl_success_rate=0;
