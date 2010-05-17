@@ -57,7 +57,9 @@ class SyncLib
   function getClientData($client)
   {
     $res=$this->db->customQuery("SELECT id, secret FROM clients WHERE active AND id='" . $client . "'");
-    if($res->rowCount()>0) return $res->fetch(PDO::FETCH_ASSOC);
+    $r = $res->fetch(PDO::FETCH_ASSOC);
+    $res->closeCursor();
+    if ($r) return $r;
     else return false;
   }
 
@@ -372,6 +374,7 @@ class SyncLib
 	}
 	
       } /* End of loop over each queue entry for a server */
+    $res->closeCursor();
     } /* End of loop over each distinct server in queue */
     return true;
   }

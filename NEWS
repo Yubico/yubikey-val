@@ -2,6 +2,10 @@
 
   * Fix undefined warnings, issue #8.
 
+  * Don't use PDO rowCount function to get number of rows returned
+    because that isn't portable.  Patch from arte42.ripe in issue #7
+    (yubikey-val-2.1-php-rowcount.patch).
+
   * When number of sync servers equals zero, set sync result to success.
     Patch from arte42.ripe in issue #7 (yubikey-val-2.1-syncres.patch).
 

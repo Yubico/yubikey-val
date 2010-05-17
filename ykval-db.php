@@ -96,7 +96,7 @@ class Db
     try {
       $this->dbh = new PDO($this->db_dsn, $this->db_username, $this->db_password, $this->db_options);
     } catch (PDOException $e) {
-      $this->myLog->log(LOG_CRIT, "Database error: " . $e->getMessage());
+      $this->myLog->log(LOG_CRIT, "Database connection error: " . $e->getMessage());
       $this->dbh=Null;
       return false;
     }
@@ -109,7 +109,7 @@ class Db
       
       $this->result = $this->dbh->query($query);
       if (! $this->result){
-	$this->myLog->log(LOG_INFO, 'Database error: ' . print_r($this->dbh->errorInfo(), true));
+	$this->myLog->log(LOG_INFO, 'Database query error: ' . preg_replace('/\n/',' ',print_r($this->dbh->errorInfo(), true)));
 	return false;
       }
       if ($returnresult) return $this->result;
@@ -305,6 +305,7 @@ or false on failure.
    
     if ($nr==1) {
       $row = $result->fetch(PDO::FETCH_ASSOC);
+      $result->closeCursor();
       return $row;
     } 
     else {
@@ -312,6 +313,7 @@ or false on failure.
       while($row = $result->fetch(PDO::FETCH_ASSOC)){
 	$collection[]=$row;
       }
+      $result->closeCursor();
       return $collection;
     }
 
@@ -366,8 +368,13 @@ or false on failure.
    */
   public function rowCount()
   {
-    if($this->result) return $this->result->rowCount();
-    else return 0;
+    if($this->result) { 
+      $count=count($this->result->fetchAll());
+      $this->result->closeCursor();
+      return $count;
+    } else {
+      return 0;
+    }
   }
 
   /**
