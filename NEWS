@@ -3,10 +3,10 @@
   * Fix undefined warnings, issue #8.
 
   * When number of sync servers equals zero, set sync result to success.
-    Patch from arte42.ripe in issue #7.
+    Patch from arte42.ripe in issue #7 (yubikey-val-2.1-syncres.patch).
 
   * When there is only one KSM, use more portable code without async.
-    Patch from arte42.ripe in issue #7.
+    Patch from arte42.ripe in issue #7 (yubikey-val-2.1-php-curl.patch).
 
   * Add files COPYING and AUTHORS.
 
