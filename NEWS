@@ -1,3 +1,8 @@
+* Version 2.6 unreleased
+
+  * Don't use rowCount in ykval-revoke, there seems to be some problem
+    with the rowCount function.
+
 * Version 2.5 released 2010-05-17
 
   * Fix undefined warnings, issue #8.
