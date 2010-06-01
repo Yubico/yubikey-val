@@ -34,7 +34,7 @@ if (!$db->connect()) {
 
 # Check if key exists
 $r = $db->findBy('yubikeys', 'yk_publicname', $yk, 1);
-if ($db->rowCount($r) != 1) {
+if (!$r) {
   logdie("ERROR Unknown yubikey: $yk");
 }
 
