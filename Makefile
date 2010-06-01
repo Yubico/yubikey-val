@@ -1,4 +1,4 @@
-VERSION = 2.5
+VERSION = 2.6rc
 PACKAGE = yubikey-val
 CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
 	ykval-common.php ykval-config.php ykval-db.php ykval-db.sql	\
