@@ -40,7 +40,7 @@ if (!$r) {
 
 # Enable/Disable the yubikey
 if (!$db->updateBy('yubikeys', 'yk_publicname', $yk,
-		   array('active'=>($do == "enable" ? "TRUE" : "FALSE")))) {
+		   array('active'=>($do == "enable" ? "1" : "0")))) {
   logdie("ERROR Could not $do for $yk (rows $rows)");
 }
 
