@@ -20,6 +20,7 @@ etcprefix = /etc/ykval
 sbinprefix = /usr/sbin
 phpprefix = /usr/share/ykval
 docprefix = /usr/share/doc/ykval
+muninprefix = /usr/share/munin/plugins
 wwwgroup = www-data
 
 install:
@@ -33,6 +34,7 @@ install:
 	install -D ykval-export.php $(sbinprefix)/ykval-export
 	install -D ykval-import.php $(sbinprefix)/ykval-import
 	install -D ykval-checksum-clients.php $(sbinprefix)/ykval-checksum-clients
+	install -D ykval-munin-ksmlatency.php $(muninprefix)/ykval-munin-ksmlatency
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(etcprefix)/ykval-config.php-template
 	install -D ykval-db.sql $(docprefix)/ykval-db.sql
 	install -D $(DOCS) $(docprefix)/
