@@ -51,3 +51,5 @@ foreach ($ksms as $ksm) {
 }
 
 ?>
+#%# family=auto
+#%# capabilities=autoconf
