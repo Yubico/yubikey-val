@@ -46,7 +46,7 @@ if ($argc==2 && strcmp($argv[1], "config") == 0) {
 echo "multigraph diskstats_latency\n";
 foreach ($ksms as $ksm) {
   $shortksm = ksmurl2shortname ($ksm);
-  $time = `curl --silent --write-out '%{time_total}' --max-time 42 '$ksm' -o /dev/null`;
+  $time = `curl --silent --write-out '%{time_total}' --max-time 3 '$ksm' -o /dev/null`;
   echo "${shortksm}_avgwait.value $time\n";
 }
 
