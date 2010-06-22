@@ -19,6 +19,11 @@ function ksmurl2shortname ($ksmurl) {
 $ksms = otp2ksmurls ("ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck", 16);
 $shortksms = array_map("ksmurl2shortname", $ksms);
 
+if ($argc==2 && strcmp($argv[1], "autoconf")==0) {
+  print "yes\n";
+  exit 0;
+}
+
 if ($argc==2 && strcmp($argv[1], "config")==0) {
 
   echo "multigraph yk_latency\n";
