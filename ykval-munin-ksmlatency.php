@@ -50,6 +50,6 @@ foreach ($ksms as $ksm) {
   echo "${shortksm}_avgwait.value $time\n";
 }
 
-?>
 #%# family=auto
 #%# capabilities=autoconf
+?>
