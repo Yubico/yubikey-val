@@ -35,6 +35,7 @@ install:
 	install -D ykval-import.php $(sbinprefix)/ykval-import
 	install -D ykval-checksum-clients.php $(sbinprefix)/ykval-checksum-clients
 	install -D ykval-munin-ksmlatency.php $(muninprefix)/ykval_ksmlatency
+	install -D ykval-munin-queuelength.php $(muninprefix)/ykval_queuelength
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(etcprefix)/ykval-config.php-template
 	install -D ykval-db.sql $(docprefix)/ykval-db.sql
 	install -D $(DOCS) $(docprefix)/
