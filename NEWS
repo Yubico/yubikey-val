@@ -3,7 +3,7 @@
   * Don't use rowCount in ykval-revoke, there seems to be some problem
     with the rowCount function.
 
-  * Add Munin plugin to measure KSM latency.
+  * Add Munin plugin to measure KSM latency and queue length.
 
 * Version 2.5 released 2010-05-17
 
