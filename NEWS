@@ -3,6 +3,8 @@
   * Timestamp request and response because syslog doesn't record year
     nor sub-second resolution.
 
+  * Log whether HTTPS is used or not.
+
 * Version 2.6 released 2010-08-02
 
   * Don't use rowCount in ykval-revoke, there seems to be some problem
