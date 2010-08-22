@@ -9,8 +9,8 @@ header("content-type: text/plain");
 
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
-$myLog->log(LOG_INFO, "Request: " . $_SERVER['QUERY_STRING']);
-
+$myLog->log(LOG_INFO, "Request: " . $_SERVER['QUERY_STRING'] .
+	    " (at " . date("c") . " " . microtime() . ")");
 
 /* Detect protocol version */
 if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out)) {
