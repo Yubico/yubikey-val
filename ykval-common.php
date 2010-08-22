@@ -238,14 +238,20 @@ function sendResp($status, $apiKey = '', $extra = null) {
   }
   $h = sign($a, $apiKey);
 
-  echo "h=" . $h . "\r\n";
-  echo "t=" . ($a['t']) . "\r\n";
+  $str = "h=" . $h . "\r\n";
+  $str .= "t=" . ($a['t']) . "\r\n";
   if ($extra){
     foreach ($extra as $param => $value) {
-      echo $param . "=" . $value . "\r\n";
+      $str .= $param . "=" . $value . "\r\n";
     }
   }
-  echo "status=" . ($a['status']) . "\r\n";
-  echo "\r\n";
+  $str .= "status=" . ($a['status']) . "\r\n";
+  $str .= "\r\n";
+
+  global $ykval_common_log;
+  $ykval_common_log->log(LOG_INFO, "Response: " . $str .
+			 " (at " . date("c") . " " . microtime() . ")");
+
+  echo $str;
 }
 ?>
