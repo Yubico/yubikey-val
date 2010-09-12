@@ -1,5 +1,8 @@
 * Version 2.7 unreleased
 
+  * Sanity check input OTP variable to avoid any chance of SQL injections.
+    Reported by Ricky Zhou.
+
   * Timestamp request and response because syslog doesn't record year
     nor sub-second resolution.
 
