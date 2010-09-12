@@ -69,6 +69,24 @@ if ($protocol_version>=2.0) {
 
  */
 
+if ($otp == '') {
+  $myLog->log(LOG_NOTICE, 'OTP is missing');
+  sendResp(S_MISSING_PARAMETER, $apiKey, $extra);
+  exit;
+}
+
+if (strlen($otp) < TOKEN_LEN || strlen ($otp) > TOKEN_MAXLEN) {
+  $myLog->log(LOG_NOTICE, 'Incorrect OTP length: ' . $otp);
+  sendResp(S_BAD_OTP, $apiKey, $extra);
+  exit;
+}
+
+if (preg_match("/^[cbdefghijklnrtuv]+$/", $otp)==0) {
+  $myLog->log(LOG_NOTICE, 'Invalid OTP: ' . $otp);
+  sendResp(S_BAD_OTP, $apiKey, $extra);
+  exit;
+}
+
 if (preg_match("/^[0-9]+$/", $client)==0){
   $myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
   sendResp(S_MISSING_PARAMETER, $apiKey, $extra);
@@ -162,19 +180,6 @@ if ($protocol_version<2.0) {
   $nonce = md5(uniqid(rand())); 
   $myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
  }
-
-//// Sanity check OTP
-//
-if ($otp == '') {
-  $myLog->log(LOG_NOTICE, 'OTP is missing');
-  sendResp(S_MISSING_PARAMETER, $apiKey, $extra);
-  exit;
-}
-if (strlen($otp) <= TOKEN_LEN) {
-  $myLog->log(LOG_NOTICE, 'Too short OTP: ' . $otp);
-  sendResp(S_BAD_OTP, $apiKey, $extra);
-  exit;
-}
 
 //// Which YK-KSM should we talk to?
 //

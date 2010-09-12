@@ -20,6 +20,7 @@ define('TS_REL_TOLERANCE', 0.3);
 define('TS_ABS_TOLERANCE', 20);
 
 define('TOKEN_LEN', 32);
+define('OTP_MAX_LEN', 48); // TOKEN_LEN plus public identity of 0..16
 
 global $ykval_common_log;
 $ykval_common_log = new Log('ykval-common');
