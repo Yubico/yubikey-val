@@ -75,7 +75,7 @@ if ($otp == '') {
   exit;
 }
 
-if (strlen($otp) < TOKEN_LEN || strlen ($otp) > TOKEN_MAXLEN) {
+if (strlen($otp) < TOKEN_LEN || strlen ($otp) > OTP_MAX_LEN) {
   $myLog->log(LOG_NOTICE, 'Incorrect OTP length: ' . $otp);
   sendResp(S_BAD_OTP, $apiKey, $extra);
   exit;
