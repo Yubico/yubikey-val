@@ -28,6 +28,11 @@ $h = getHttpVal('h', '');
 $client = getHttpVal('id', 0);
 $otp = getHttpVal('otp', '');
 $otp = strtolower($otp);
+if (preg_match("/^[jxe.uidchtnbpygk]+$/", $otp)) {
+  $new_otp = strtr($otp, "jxe.uidchtnbpygk", "cbdefghijklnrtuv");
+  $myLog->log(LOG_INFO, 'Dvorak OTP converting ' . $otp . ' to ' . $new_otp);
+  $otp = $new_otp;
+}
 $timestamp = getHttpVal('timestamp', 0);
 
 /* Construct response parameters */
