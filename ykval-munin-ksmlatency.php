@@ -4,9 +4,7 @@
 set_include_path(get_include_path() . PATH_SEPARATOR .
 		 "/etc/ykval:/usr/share/ykval");
 
-require_once 'ykval-synclib.php';
 require_once 'ykval-config.php';
-require_once 'ykval-log.php';
 
 function url2shortname ($url) {
   if (preg_match("/^[^\/]+\/\/([a-z0-9-]+)/", $url, $name)==0){
