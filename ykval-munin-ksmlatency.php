@@ -8,16 +8,17 @@ require_once 'ykval-synclib.php';
 require_once 'ykval-config.php';
 require_once 'ykval-log.php';
 
-function ksmurl2shortname ($ksmurl) {
-  if (preg_match("/^[^\/]+\/\/([a-z0-9-]+)/", $ksmurl, $ksmname)==0){
-    echo "Cannot match ksm name: " . $ksmurl . "\n";
+function url2shortname ($url) {
+  if (preg_match("/^[^\/]+\/\/([a-z0-9-]+)/", $url, $name)==0){
+    echo "Cannot match URL hostname: " . $url . "\n";
     exit (1);
   }
 
-  return $ksmname[1];
+  return $name[1];
 }
+
 $ksms = otp2ksmurls ("ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck", 16);
-$shortksms = array_map("ksmurl2shortname", $ksms);
+$shortksms = array_map("url2shortname", $ksms);
 
 if ($argc==2 && strcmp($argv[1], "autoconf") == 0) {
   print "yes\n";
@@ -43,9 +44,9 @@ if ($argc==2 && strcmp($argv[1], "config") == 0) {
   exit (0);
 }
 
-echo "multigraph diskstats_latency\n";
+echo "multigraph yk_latency\n";
 foreach ($ksms as $ksm) {
-  $shortksm = ksmurl2shortname ($ksm);
+  $shortksm = url2shortname ($ksm);
   $time = `curl --silent --write-out '%{time_total}' --max-time 3 '$ksm' -o /dev/null`;
   echo "${shortksm}_avgwait.value $time\n";
 }
