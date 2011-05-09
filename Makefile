@@ -57,7 +57,7 @@ revoke:
 
 PROJECT=yubikey-val-server-php
 USER=simon@yubico.com
-KEYID=B9156397
+KEYID=2117364A
 
 $(PACKAGE)-$(VERSION).tgz: $(FILES)
 	mkdir $(PACKAGE)-$(VERSION) $(PACKAGE)-$(VERSION)/doc
