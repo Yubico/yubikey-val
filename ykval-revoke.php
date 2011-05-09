@@ -5,8 +5,8 @@ require_once 'ykval-db.php';
 
 header("content-type: text/plain");
 
-if ($baseParams['__YKR_IP__'] != $_SERVER["REMOTE_ADDR"]) {
-  logdie("ERROR Authorization failed");
+if (!in_array ($_SERVER["REMOTE_ADDR"], $baseParams['__YKREV_IPS__'])) {
+  logdie("ERROR Authorization failed (logged ". $_SERVER["REMOTE_ADDR"] .")");
 }
 
 # Parse input
