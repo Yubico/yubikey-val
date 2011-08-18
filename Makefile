@@ -56,7 +56,7 @@ revoke:
 # Maintainer rules.
 
 PROJECT=yubikey-val-server-php
-USER=simon@yubico.com
+USER=simon@josefsson.org
 KEYID=2117364A
 
 $(PACKAGE)-$(VERSION).tgz: $(FILES)
