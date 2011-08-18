@@ -1,4 +1,4 @@
-* Version 2.10 unreleased
+* Version 2.10 released 2011-08-18
 
   * Don't echo (unsanitized) OTP/NONCE values back to client when
     sending error codes.  Reported by Paul van Empelen.
