@@ -1,3 +1,7 @@
+* Version 2.11 unreleased
+
+  * Silence PHP warnings.  Patch from Hiroki Nose.
+
 * Version 2.10 released 2011-08-18
 
   * Don't echo (unsanitized) OTP/NONCE values back to client when
