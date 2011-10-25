@@ -153,7 +153,7 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
 
     while ($info = curl_multi_info_read($mh)) {
       debug ("YK-KSM multi", $info);
-      if ($info['result'] == CURL_OK) {
+      if ($info['result'] == CURLE_OK) {
 	$str = curl_multi_getcontent($info['handle']);
 	debug($str);
 	if (preg_match("/".$match."/", $str)) {

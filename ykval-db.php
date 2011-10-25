@@ -181,7 +181,8 @@ class Db
    */
   public function conditionalUpdateBy($table, $k, $v, $values, $condition)
   {
-    
+    $query = ""; /* quiet the PHP Notice */
+
     foreach ($values as $key=>$value){
       $query = $query . " " . $key . "='" . $value . "',";
     }
@@ -279,6 +280,8 @@ or false on failure.
    */
   public function findByMultiple($table, $where, $nr=null, $rev=null, $distinct=null)
   {
+    $value=""; /* quiet the PHP Notice */
+    $match=null; /* quiet the PHP Notice */
     $query="SELECT";
     if ($distinct!=null) {
       $query.= " DISTINCT " . $distinct;
