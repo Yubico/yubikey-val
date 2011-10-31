@@ -2,11 +2,12 @@
 
   * Silence PHP warnings.  Patch from Hiroki Nose.
 
-  * Include munin scripts in tarball.
+  * Include munin scripts in tarball.  From Fredrik Thulin.
 
-  * Support for DESTDIR in 'make install'.
+  * Support for DESTDIR in 'make install'.  From Fredrik Thulin.
 
-  * Reorder include's to allow for dbi-settings through ykval-config.php.
+  * Reorder include's to allow for dbi-settings through
+    ykval-config.php.  From Fredrik Thulin.
 
 * Version 2.10 released 2011-08-18
 
