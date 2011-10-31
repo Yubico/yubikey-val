@@ -5,6 +5,8 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
 	ykval-export.php ykval-import.php ykval-log.php ykval-ping.php	\
 	ykval-queue.php ykval-revoke.php ykval-synclib.php		\
 	ykval-sync.php ykval-verify.php
+MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
+	ykval-munin-queuelength.php
 DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
 	doc/RevocationService.wiki doc/ServerReplicationProtocol.wiki	\
 	doc/SyncMonitor.wiki doc/Troubleshooting.wiki
@@ -61,7 +63,7 @@ KEYID=2117364A
 
 $(PACKAGE)-$(VERSION).tgz: $(FILES)
 	mkdir $(PACKAGE)-$(VERSION) $(PACKAGE)-$(VERSION)/doc
-	cp $(CODE) $(PACKAGE)-$(VERSION)/
+	cp $(CODE) $(MUNIN) $(PACKAGE)-$(VERSION)/
 	cp $(DOCS) $(PACKAGE)-$(VERSION)/doc/
 	tar cfz $(PACKAGE)-$(VERSION).tgz $(PACKAGE)-$(VERSION)
 	rm -rf $(PACKAGE)-$(VERSION)
