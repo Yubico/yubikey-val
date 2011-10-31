@@ -26,34 +26,34 @@ muninprefix = /usr/share/munin/plugins
 wwwgroup = www-data
 
 install:
-	install -D ykval-verify.php $(phpprefix)/ykval-verify.php
-	install -D ykval-common.php $(phpprefix)/ykval-common.php
-	install -D ykval-synclib.php $(phpprefix)/ykval-synclib.php
-	install -D ykval-sync.php $(phpprefix)/ykval-sync.php
-	install -D ykval-db.php $(phpprefix)/ykval-db.php
-	install -D ykval-log.php $(phpprefix)/ykval-log.php
-	install -D ykval-queue.php $(sbinprefix)/ykval-queue
-	install -D ykval-export.php $(sbinprefix)/ykval-export
-	install -D ykval-import.php $(sbinprefix)/ykval-import
-	install -D ykval-checksum-clients.php $(sbinprefix)/ykval-checksum-clients
-	install -D ykval-munin-ksmlatency.php $(muninprefix)/ykval_ksmlatency
-	install -D ykval-munin-vallatency.php $(muninprefix)/ykval_vallatency
-	install -D ykval-munin-queuelength.php $(muninprefix)/ykval_queuelength
-	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(etcprefix)/ykval-config.php-template
-	install -D ykval-db.sql $(docprefix)/ykval-db.sql
-	install -D $(DOCS) $(docprefix)/
+	install -D ykval-verify.php $(DESTDIR)$(phpprefix)/ykval-verify.php
+	install -D ykval-common.php $(DESTDIR)$(phpprefix)/ykval-common.php
+	install -D ykval-synclib.php $(DESTDIR)$(phpprefix)/ykval-synclib.php
+	install -D ykval-sync.php $(DESTDIR)$(phpprefix)/ykval-sync.php
+	install -D ykval-db.php $(DESTDIR)$(phpprefix)/ykval-db.php
+	install -D ykval-log.php $(DESTDIR)$(phpprefix)/ykval-log.php
+	install -D ykval-queue.php $(DESTDIR)$(sbinprefix)/ykval-queue
+	install -D ykval-export.php $(DESTDIR)$(sbinprefix)/ykval-export
+	install -D ykval-import.php $(DESTDIR)$(sbinprefix)/ykval-import
+	install -D ykval-checksum-clients.php $(DESTDIR)$(sbinprefix)/ykval-checksum-clients
+	install -D ykval-munin-ksmlatency.php $(DESTDIR)$(muninprefix)/ykval_ksmlatency
+	install -D ykval-munin-vallatency.php $(DESTDIR)$(muninprefix)/ykval_vallatency
+	install -D ykval-munin-queuelength.php $(DESTDIR)$(muninprefix)/ykval_queuelength
+	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(DESTDIR)$(etcprefix)/ykval-config.php-template
+	install -D ykval-db.sql $(DESTDIR)$(docprefix)/ykval-db.sql
+	install -D $(DOCS) $(DESTDIR)$(docprefix)/
 
 wwwprefix = /var/www/wsapi
 
 symlink:
-	install -d $(wwwprefix)/2.0
-	ln -sf $(phpprefix)/ykval-verify.php $(wwwprefix)/2.0/verify.php
-	ln -sf $(phpprefix)/ykval-sync.php $(wwwprefix)/2.0/sync.php
-	ln -sf 2.0/verify.php $(wwwprefix)/verify.php
+	install -d $(DESTDIR)$(wwwprefix)/2.0
+	ln -sf $(phpprefix)/ykval-verify.php $(DESTDIR)$(wwwprefix)/2.0/verify.php
+	ln -sf $(phpprefix)/ykval-sync.php $(DESTDIR)$(wwwprefix)/2.0/sync.php
+	ln -sf 2.0/verify.php $(DESTDIR)$(wwwprefix)/verify.php
 
 revoke:
-	install -D ykval-revoke.php $(phpprefix)/ykval-revoke.php
-	ln -sf $(phpprefix)/ykval-revoke.php $(wwwprefix)/revoke.php
+	install -D ykval-revoke.php $(DESTDIR)$(phpprefix)/ykval-revoke.php
+	ln -sf $(phpprefix)/ykval-revoke.php $(DESTDIR)$(wwwprefix)/revoke.php
 
 # Maintainer rules.
 

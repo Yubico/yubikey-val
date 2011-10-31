@@ -4,6 +4,8 @@
 
   * Include munin scripts in tarball.
 
+  * Support for DESTDIR in 'make install'.
+
 * Version 2.10 released 2011-08-18
 
   * Don't echo (unsanitized) OTP/NONCE values back to client when
