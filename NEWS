@@ -6,6 +6,8 @@
 
   * Support for DESTDIR in 'make install'.
 
+  * Reorder include's to allow for dbi-settings through ykval-config.php.
+
 * Version 2.10 released 2011-08-18
 
   * Don't echo (unsanitized) OTP/NONCE values back to client when
