@@ -26,12 +26,12 @@ muninprefix = /usr/share/munin/plugins
 wwwgroup = www-data
 
 install:
-	install -D ykval-verify.php $(DESTDIR)$(phpprefix)/ykval-verify.php
-	install -D ykval-common.php $(DESTDIR)$(phpprefix)/ykval-common.php
-	install -D ykval-synclib.php $(DESTDIR)$(phpprefix)/ykval-synclib.php
-	install -D ykval-sync.php $(DESTDIR)$(phpprefix)/ykval-sync.php
-	install -D ykval-db.php $(DESTDIR)$(phpprefix)/ykval-db.php
-	install -D ykval-log.php $(DESTDIR)$(phpprefix)/ykval-log.php
+	install -D --mode 644 ykval-verify.php $(DESTDIR)$(phpprefix)/ykval-verify.php
+	install -D --mode 644 ykval-common.php $(DESTDIR)$(phpprefix)/ykval-common.php
+	install -D --mode 644 ykval-synclib.php $(DESTDIR)$(phpprefix)/ykval-synclib.php
+	install -D --mode 644 ykval-sync.php $(DESTDIR)$(phpprefix)/ykval-sync.php
+	install -D --mode 644 ykval-db.php $(DESTDIR)$(phpprefix)/ykval-db.php
+	install -D --mode 644 ykval-log.php $(DESTDIR)$(phpprefix)/ykval-log.php
 	install -D ykval-queue.php $(DESTDIR)$(sbinprefix)/ykval-queue
 	install -D ykval-export.php $(DESTDIR)$(sbinprefix)/ykval-export
 	install -D ykval-import.php $(DESTDIR)$(sbinprefix)/ykval-import
@@ -40,8 +40,8 @@ install:
 	install -D ykval-munin-vallatency.php $(DESTDIR)$(muninprefix)/ykval_vallatency
 	install -D ykval-munin-queuelength.php $(DESTDIR)$(muninprefix)/ykval_queuelength
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(DESTDIR)$(etcprefix)/ykval-config.php-template
-	install -D ykval-db.sql $(DESTDIR)$(docprefix)/ykval-db.sql
-	install -D $(DOCS) $(DESTDIR)$(docprefix)/
+	install -D --mode 644 ykval-db.sql $(DESTDIR)$(docprefix)/ykval-db.sql
+	install -D --mode 644 $(DOCS) $(DESTDIR)$(docprefix)/
 
 wwwprefix = /var/www/wsapi
 
@@ -52,7 +52,7 @@ symlink:
 	ln -sf 2.0/verify.php $(DESTDIR)$(wwwprefix)/verify.php
 
 revoke:
-	install -D ykval-revoke.php $(DESTDIR)$(phpprefix)/ykval-revoke.php
+	install -D --mode 644 ykval-revoke.php $(DESTDIR)$(phpprefix)/ykval-revoke.php
 	ln -sf $(phpprefix)/ykval-revoke.php $(DESTDIR)$(wwwprefix)/revoke.php
 
 # Maintainer rules.
