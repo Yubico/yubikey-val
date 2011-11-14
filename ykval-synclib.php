@@ -290,12 +290,12 @@ class SyncLib
     /* Loop over all unique servers in queue */
     $queued_limit=time()-$older_than;
     $res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
-    $this->log(LOG_INFO, "found " . $res->rowCount() . " unique servers");
+    $this->log(LOG_INFO, "found " . $this->db->rowCount() . " unique servers");
     
     foreach ($res as $my_server) {
       $this->log(LOG_INFO, "Sending queue request to server on server " . $my_server['server']);
       $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
-      $this->log(LOG_INFO, "found " . $res->rowCount() . " queue entries");
+      $this->log(LOG_INFO, "found " . $this->db->rowCount() . " queue entries");
       
       while ($entry=$res->fetch(PDO::FETCH_ASSOC)) {
 	$this->log(LOG_INFO, "server=" . $entry['server'] . " , info=" . $entry['info']);

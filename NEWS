@@ -12,6 +12,8 @@
   * Install non-bin PHP files with --mode 644 to avoid executable bit.
     From Fredrik Thulin.
 
+  * Fix two remaining non-portable uses of rowCount.
+
 * Version 2.10 released 2011-08-18
 
   * Don't echo (unsanitized) OTP/NONCE values back to client when
