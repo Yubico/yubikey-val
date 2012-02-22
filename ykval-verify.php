@@ -74,6 +74,12 @@ if ($protocol_version>=2.0) {
 
  */
 
+/* Change default protocol "strings" to numeric values */
+if (strcasecmp($sl, 'fast')==0) $sl=$baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
+if (strcasecmp($sl, 'secure')==0) $sl=$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
+if (!$sl) $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
+if (!$timeout) $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
+
 if ($otp == '') {
   $myLog->log(LOG_NOTICE, 'OTP is missing');
   sendResp(S_MISSING_PARAMETER);
@@ -265,12 +271,6 @@ if (!$sync->queue($otpParams, $localParams)) {
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }
-
-/* Change default protocol "strings" to numeric values */
-if (strcasecmp($sl, 'fast')==0) $sl=$baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
-if (strcasecmp($sl, 'secure')==0) $sl=$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
-if (!$sl) $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
-if (!$timeout) $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
 
 $nr_servers=$sync->getNumberOfServers();
 $req_answers=ceil($nr_servers*$sl/100.0);
