@@ -67,7 +67,7 @@ if ($protocol_version>=2.0) {
  * otp: one-time password 
  * id: client id 
  * timeout: timeout in seconds to wait for external answers, optional: if absent the server decides 
- * nonce: random alphanumeric string, 8 to 32 bytes characters long. Must be non-predictable and changing for each request, but need not be cryptographically strong 
+ * nonce: random alphanumeric string, 16 to 40 characters long. Must be non-predictable and changing for each request, but need not be cryptographically strong 
  * sl: "sync level", percentage of external servers that needs to answer (integer 0 to 100), or "fast" or "secure" to use server-configured values 
  * h: signature (optional) 
  * timestamp: requests timestamp/counters in response 
