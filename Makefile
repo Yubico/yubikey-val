@@ -80,7 +80,7 @@ release: dist
 	gpg --detach-sign --default-key $(KEYID) $(PACKAGE)-$(VERSION).tgz
 	gpg --verify $(PACKAGE)-$(VERSION).tgz.sig
 	git push
-	git tag -u $(KEYID)! -m $(VERSION) v$(VERSION)
+	git tag -u $(KEYID)! -m $(VERSION) yubikey-val-$(VERSION)
 	git push --tags
 	googlecode_upload.py -s "OpenPGP signature for $(PACKAGE) $(VERSION)." \
 	 -p $(PROJECT) -u $(USER) $(PACKAGE)-$(VERSION).tgz.sig
