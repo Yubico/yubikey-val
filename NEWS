@@ -1,3 +1,5 @@
+* Version 2.13 unreleased
+
 * Version 2.12 released 2012-05-09
 
   * Fix using 'fast' or 'secure' as sync level.
