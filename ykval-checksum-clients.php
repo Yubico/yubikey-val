@@ -17,8 +17,8 @@ $verbose = $argv[1] == "-v";
 set_include_path(get_include_path() . PATH_SEPARATOR .
 		 "/usr/share/ykval:/etc/ykval");
 
-require_once 'ykval-db.php';
 require_once 'ykval-config.php';
+require_once 'ykval-db.php';
 
 $logname="ykval-checksum-clients";
 $myLog = new Log($logname);
