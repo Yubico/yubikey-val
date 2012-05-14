@@ -1,18 +1,21 @@
 #!/usr/bin/php
 <?php
 
-if ($argv[1] == "-h" || $argv[1] == "--help") {
-  print "Usage: " . $argv[0] . " [-h|--help] [-v]\n";
-  exit(1);
+$verbose = 0;
+if (isset($argv[1])) {
+  if ($argv[1] == "-h" || $argv[1] == "--help") {
+    print "Usage: " . $argv[0] . " [-h|--help] [-v]\n";
+    exit(1);
+  }
+
+  if ($argv[1] && $argv[1] != "-v") {
+    print $argv[0] . ": invalid option -- '" . $argv[0] . "'\n";
+    print "Try `" . $argv[0] . " --help' for more information.\n";
+    exit(1);
+  }
+
+  $verbose = $argv[1] == "-v";
 }
-
-if ($argv[1] && $argv[1] != "-v") {
-  print $argv[0] . ": invalid option -- '" . $argv[0] . "'\n";
-  print "Try `" . $argv[0] . " --help' for more information.\n";
-  exit(1);
- }
-
-$verbose = $argv[1] == "-v";
 
 set_include_path(get_include_path() . PATH_SEPARATOR .
 		 "/usr/share/ykval:/etc/ykval");
