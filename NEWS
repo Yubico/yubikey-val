@@ -1,4 +1,8 @@
-* Version 2.13 unreleased
+* Version 2.13 released 2012-05-16
+
+  * Fix signature checking broken in 2.12 and for dvorak OTPs.
+
+  * Fixes for ykval-checksum-clients.php
 
 * Version 2.12 released 2012-05-09
 
