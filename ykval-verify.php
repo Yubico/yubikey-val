@@ -166,14 +166,16 @@ $apiKey = base64_decode($cd['secret']);
 
 if ($h != '') {
   // Create the signature using the API key
-  $a = array ();
-  $a['id'] = $client;
-  $a['otp'] = $otp;
-  // include timestamp,sl and timeout in signature if it exists
-  if ($timestamp) $a['timestamp'] = $timestamp;
-  if ($sl) $a['sl'] = $sl;
-  if ($timeout) $a['timeout'] = $timeout;
-  if ($nonce) $a['nonce'] = $nonce;
+  $a;
+  if($_GET) {
+    $a = $_GET;
+  } elseif($_POST) {
+    $a = $_POST;
+  } else {
+    sendRest(S_BACKEND_ERROR);
+    exit;
+  }
+  unset($a['h']);
 
   $hmac = sign($a, $apiKey);
   // Compare it
