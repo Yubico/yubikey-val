@@ -88,15 +88,7 @@ function UnixToDbTime($unix)
 // return b64 encoded hmac hash
 function sign($a, $apiKey) {
 	ksort($a);
-	$qs = '';
-	$n = count($a);
-	$i = 0;
-	foreach (array_keys($a) as $key) {
-		$qs .= trim($key).'='.trim($a[$key]);
-		if (++$i < $n) {
-			$qs .= '&';
-		}
-	}
+	$qs = urldecode(http_build_query($a));
 	
 	// the TRUE at the end states we want the raw value, not hexadecimal form
 	$hmac = hash_hmac('sha1', utf8_encode($qs), $apiKey, true);
