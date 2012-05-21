@@ -39,7 +39,7 @@ $timestamp = getHttpVal('timestamp', 0);
 $extra=array();
 if ($protocol_version>=2.0) {
   $extra['otp']=$otp;
- }
+}
 
 
 /* We have the OTP now, so let's add it to the logging */
@@ -59,7 +59,7 @@ if ($protocol_version>=2.0) {
     sendResp(S_MISSING_PARAMETER);
     exit;
   }
- }
+}
 
 
 /* Sanity check HTTP parameters 
@@ -75,10 +75,18 @@ if ($protocol_version>=2.0) {
  */
 
 /* Change default protocol "strings" to numeric values */
-if (strcasecmp($sl, 'fast')==0) $sl=$baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
-if (strcasecmp($sl, 'secure')==0) $sl=$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
-if (!$sl) $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
-if (!$timeout) $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
+if (isset($sl) && strcasecmp($sl, 'fast')==0) {
+  $sl=$baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
+}
+if (isset($sl) && strcasecmp($sl, 'secure')==0) {
+  $sl=$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
+}
+if (!isset($sl)) {
+  $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
+}
+if (!isset($timeout)) {
+  $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
+}
 
 if ($otp == '') {
   $myLog->log(LOG_NOTICE, 'OTP is missing');
@@ -110,13 +118,13 @@ if ($timeout && preg_match("/^[0-9]+$/", $timeout)==0) {
   exit;
 }
 
-if ($nonce && preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
+if (isset($nonce) && preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
   $myLog->log(LOG_NOTICE, 'NONCE is provided but not correct');
   sendResp(S_MISSING_PARAMETER);
   exit;
 }
 
-if ($nonce && (strlen($nonce) < 16 || strlen($nonce) > 40)) {
+if (isset($nonce) && (strlen($nonce) < 16 || strlen($nonce) > 40)) {
   $myLog->log(LOG_NOTICE, 'Nonce too short or too long');
   sendResp(S_MISSING_PARAMETER);
   exit;
