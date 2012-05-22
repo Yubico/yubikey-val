@@ -538,7 +538,7 @@ class SyncLib
       
       while ($info = curl_multi_info_read($mh)) {
 	debug ("YK-KSM multi", $info);
-	if ($info['result'] == CURL_OK) {
+	if ($info['result'] == CURLE_OK) {
 	  $str = curl_multi_getcontent($info['handle']);
 	  if (preg_match("/status=OK/", $str)) {
 	    $error = curl_error ($info['handle']);

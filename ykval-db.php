@@ -141,7 +141,8 @@ class Db
    */
   public function updateBy($table, $k, $v, $values)
   {
-    
+    $query = "";
+
     foreach ($values as $key=>$value){
       if (!is_null($value)) $query .= ' ' . $key . "='" . $value . "',";
       else $query .= ' ' . $key . '=NULL,';

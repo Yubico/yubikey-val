@@ -26,7 +26,9 @@ if ($argc==2 && strcmp($argv[1], "config") == 0) {
 }
 
 $sync = new SyncLib('ykval-verify:synclib');
-$sync->addField('ip', $_SERVER['REMOTE_ADDR']);
+if (isset($_SERVER['REMOTE_ADDR'])) {
+  $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
+}
 
 $len = $sync->getQueueLength ();
 echo "queuelength.value $len\n";

@@ -46,6 +46,12 @@ echo "multigraph yk_latency\n";
 foreach ($ksms as $ksm) {
   $shortksm = url2shortname ($ksm);
   $time = `curl --silent --write-out '%{time_total}' --max-time 3 '$ksm' -o /dev/null`;
+  if (preg_match("/^3\./", $time)) {
+    $time = "timeout";
+  }
+  if (preg_match("/^0\.000/", $time)) {
+    $time = "error";
+  }
   echo "${shortksm}_avgwait.value $time\n";
 }
 
