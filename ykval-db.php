@@ -104,12 +104,17 @@ class Db
   }
 
   private function query($query, $returnresult=false) {
-    if($this->dbh) {
+    if(!$this->isConnected()) {
+      $this->connect();
+    }
+    if($this->isConnected()) {
       $this->myLog->log(LOG_DEBUG, 'DB query is: ' . $query);
       
-      $this->result = $this->dbh->query($query);
-      if (! $this->result){
+      try {
+	$this->result = $this->dbh->query($query);
+      } catch (PDOException $e) {
 	$this->myLog->log(LOG_INFO, 'Database query error: ' . preg_replace('/\n/',' ',print_r($this->dbh->errorInfo(), true)));
+	$this->dbh = Null;
 	return false;
       }
       if ($returnresult) return $this->result;
