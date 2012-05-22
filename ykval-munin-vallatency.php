@@ -52,10 +52,16 @@ echo "multigraph ykval_latency\n";
 foreach ($urls as $url) {
   $shortname = url2shortname ($url);
   $cmd = "--user-agent ykval-munin-vallatency/1.0 --silent --write-out '%{time_total}' --max-time 3 '$url' -o /dev/null";
-  $ipv4time = `curl --ipv4 $cmd`;
-  echo "ipv4${shortname}_avgwait.value $ipv4time\n";
-  $ipv6time = `curl --ipv6 $cmd`;
-  echo "ipv6${shortname}_avgwait.value $ipv6time\n";
+  foreach (array('ipv4', 'ipv6') as $ipv) {
+    $time = `curl --$ipv $cmd`;
+    if (preg_match("/^3\./", $time)) {
+      $time = "timeout";
+    }
+    if (preg_match("/^0\.000/", $time)) {
+      $time = "error";
+    }
+    echo "$ipv${shortname}_avgwait.value $time\n";
+  }
 }
 
 #%# family=auto
