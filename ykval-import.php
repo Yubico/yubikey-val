@@ -23,7 +23,7 @@ if (!$db->connect()) {
  }  
 
 
-while ($res=fscanf(STDIN, "%d\t%d\t%d\t%s\t%d\t%d\t%d\t%d\t%s\t%s\t")) {
+while ($res=fgetcsv(STDIN, 0, "\t")) {
   $params=array("active"=>$res[0], 
 		"created"=>$res[1], 
 		"modified"=>$res[2], 
