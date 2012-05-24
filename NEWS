@@ -1,4 +1,9 @@
-* Version 2.15 unreleased
+* Version 2.15 released 2012-05-24
+
+  * Add export/import scripts for clients table.
+
+  * Insert default values in $sl and $timeout if they are empty.
+    And they will be empty if the client didn't request them.
 
 * Version 2.14 released 2012-05-22
 
