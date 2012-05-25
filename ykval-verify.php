@@ -81,10 +81,10 @@ if (isset($sl) && strcasecmp($sl, 'fast')==0) {
 if (isset($sl) && strcasecmp($sl, 'secure')==0) {
   $sl=$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
 }
-if (!isset($sl)) {
+if (!isset($sl) || $sl == '') {
   $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
 }
-if (!isset($timeout)) {
+if (!isset($timeout) || $timeout == '') {
   $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
 }
 

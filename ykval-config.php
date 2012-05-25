@@ -5,7 +5,7 @@ $baseParams = array ();
 $baseParams['__YKVAL_DB_DSN__'] = "mysql:dbname=ykval;host=127.0.0.1";
 $baseParams['__YKVAL_DB_USER__'] = 'ykval_verifier';
 $baseParams['__YKVAL_DB_PW__'] = 'lab';
-$baseParams['__YKVAL_DB_OPTIONS__'] = array();
+$baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
 
 # For the validation server sync
 $baseParams['__YKVAL_SYNC_POOL__'] = array("http://api2.example.com/wsapi/2.0/sync", 
