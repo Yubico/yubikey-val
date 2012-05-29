@@ -26,8 +26,8 @@ if (! $sync->isConnected()) {
 
 $myLog->log(LOG_INFO, 'remote request ip is ' . $_SERVER['REMOTE_ADDR']);
 $allowed=False;
+$myLog->log(LOG_DEBUG, 'checking for remote ip in allowed sync pool : ' . implode(", ", $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']));
 foreach ($baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] as $server) {
-  $myLog->log(LOG_DEBUG, 'checking against ip ' . $server);
   if ($_SERVER['REMOTE_ADDR'] == $server) {
     $myLog->log(LOG_DEBUG, 'server ' . $server . ' is allowed');
     $allowed=True;
