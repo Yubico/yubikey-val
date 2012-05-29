@@ -369,6 +369,8 @@ class SyncLib
 				      array("modified"=>$entry['modified'],
 					    "server_nonce"=>$entry['server_nonce'],
 					    'server'=>$entry['server']));
+	} else {
+	  $this->log(LOG_ERR, "Remote server refused our sync request. Check remote server logs.");
 	}
 
       } /* End of loop over each queue entry for a server */
