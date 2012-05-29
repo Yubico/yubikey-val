@@ -13,26 +13,26 @@ $myLog = new Log($logname);
 $db=new Db($baseParams['__YKVAL_DB_DSN__'],
 	   $baseParams['__YKVAL_DB_USER__'],
 	   $baseParams['__YKVAL_DB_PW__'],
-	   $baseParams['__YKVAL_DB_OPTIONS__'], 
+	   $baseParams['__YKVAL_DB_OPTIONS__'],
 	   $logname . ':db');
 
 if (!$db->connect()) {
   $myLog->log(LOG_WARNING, "Could not connect to database");
   error_log("Could not connect to database");
   exit(1);
- }  
+ }
 
 
 while ($res=fgetcsv(STDIN, 0, "\t")) {
-  $params=array("id"=>$res[0], 
-		"active"=>$res[1], 
-		"created"=>$res[2], 
-		"secret"=>$res[3], 
-		"email"=>$res[4], 
-		"notes"=>$res[5], 
+  $params=array("id"=>$res[0],
+		"active"=>$res[1],
+		"created"=>$res[2],
+		"secret"=>$res[3],
+		"email"=>$res[4],
+		"notes"=>$res[5],
 		"otp"=>$res[6]);
-  
-  
+
+
   $query="SELECT * FROM clients WHERE id='" . $params['id'] . "'";
   $result=$db->customQuery($query);
   if(!$result->fetch(PDO::FETCH_ASSOC)) {
@@ -46,7 +46,7 @@ while ($res=fgetcsv(STDIN, 0, "\t")) {
       "'" . $params['email'] . "'," .
       "'" . $params['notes'] . "'," .
       "'" . $params['otp'] . "')";
-    
+
     if(!$db->customQuery($query)){
       $myLog->log(LOG_ERR, "Failed to insert new client with query " . $query);
       error_log("Failed to insert new client with query " . $query);

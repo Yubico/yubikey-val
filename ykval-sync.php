@@ -20,7 +20,7 @@ if (! $sync->isConnected()) {
   exit;
  }
 
-# 
+#
 # Verify that request comes from valid server
 #
 
@@ -77,7 +77,7 @@ $myLog->addField('otp', $syncParams['otp']);
 $sync->addField('otp', $syncParams['otp']);
 
 #
-# Verify correctness of input parameters 
+# Verify correctness of input parameters
 #
 
 foreach (array('modified') as $param) {
@@ -119,14 +119,14 @@ if ($localParams['active'] != 1) {
 
 
 /* Conditional update local database */
-$sync->updateDbCounters($syncParams); 
+$sync->updateDbCounters($syncParams);
 
 $myLog->log(LOG_DEBUG, 'Local params ' , $localParams);
 $myLog->log(LOG_DEBUG, 'Sync request params ' , $syncParams);
 
 #
-# Compare sync and local counters and generate warnings according to 
-#  
+# Compare sync and local counters and generate warnings according to
+#
 # http://code.google.com/p/yubikey-val-server-php/wiki/ServerReplicationProtocol
 #
 
@@ -143,7 +143,7 @@ if ($sync->countersEqual($localParams, $syncParams)) {
       $syncParams['nonce']==$localParams['nonce']) {
     $myLog->log(LOG_NOTICE, 'Sync request unnessecarily sent');
   }
-  
+
   if ($syncParams['modified']!=$localParams['modified'] &&
       $syncParams['nonce']==$localParams['nonce']) {
     $deltaModified = $syncParams['modified'] - $localParams['modified'];
@@ -156,7 +156,7 @@ if ($sync->countersEqual($localParams, $syncParams)) {
  }
 
 
-  
+
 $extra=array('modified'=>$localParams['modified'],
 	     'nonce'=>$localParams['nonce'],
 	     'yk_publicname'=>$yk_publicname,

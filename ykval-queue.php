@@ -12,18 +12,18 @@ if ($argc==2 && strcmp($argv[1], "install")!=0) {
   set_include_path(get_include_path() . PATH_SEPARATOR . $argv[1]);
  }
 
-require_once "System/Daemon.php";                 
+require_once "System/Daemon.php";
 
 $appname="ykval-queue";
 
-System_Daemon::setOption("appName", $appname);  
-System_Daemon::setOption("appDescription", "Yubico val-server sync daemon"); 
-System_Daemon::setOption("authorName", "olov@yubico.com");  
-System_Daemon::setOption("authorEmail", "olov@yubico.com"); 
+System_Daemon::setOption("appName", $appname);
+System_Daemon::setOption("appDescription", "Yubico val-server sync daemon");
+System_Daemon::setOption("authorName", "olov@yubico.com");
+System_Daemon::setOption("authorEmail", "olov@yubico.com");
 
 if ($argc==2 && strcmp($argv[1], "install")==0) {
   $autostart_path = System_Daemon::writeAutoRun();
-  if ($autostart_path!=1){ 
+  if ($autostart_path!=1){
     echo "Successfully created start script at " . $autostart_path . "\n";
     echo "To start daemon use: /etc/init.d/".$appname." start\n";
   } else {
@@ -46,7 +46,7 @@ $sl = new SyncLib('ykval-queue:synclib');
 
 $res==0;
 while ($res==0) {
-  $sl->reSync($baseParams['__YKVAL_SYNC_OLD_LIMIT__'], 
+  $sl->reSync($baseParams['__YKVAL_SYNC_OLD_LIMIT__'],
 	      $baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__']);
   $res=sleep($baseParams['__YKVAL_SYNC_INTERVAL__']);
  }
