@@ -47,12 +47,12 @@ $myLog->addField('otp', $otp);
 
 if ($protocol_version>=2.0) {
   $sl = getHttpVal('sl', '');
-  $timeout = getHttpVal('timeout', '');  
+  $timeout = getHttpVal('timeout', '');
   $nonce = getHttpVal('nonce', '');
 
   /* Add nonce to response parameters */
   $extra['nonce']= $nonce;
-  
+
   /* Nonce is required from protocol 2.0 */
   if(!$nonce) {
     $myLog->log(LOG_NOTICE, 'Nonce is missing and protocol version >= 2.0');
@@ -62,15 +62,15 @@ if ($protocol_version>=2.0) {
 }
 
 
-/* Sanity check HTTP parameters 
+/* Sanity check HTTP parameters
 
- * otp: one-time password 
- * id: client id 
- * timeout: timeout in seconds to wait for external answers, optional: if absent the server decides 
- * nonce: random alphanumeric string, 16 to 40 characters long. Must be non-predictable and changing for each request, but need not be cryptographically strong 
- * sl: "sync level", percentage of external servers that needs to answer (integer 0 to 100), or "fast" or "secure" to use server-configured values 
- * h: signature (optional) 
- * timestamp: requests timestamp/counters in response 
+ * otp: one-time password
+ * id: client id
+ * timeout: timeout in seconds to wait for external answers, optional: if absent the server decides
+ * nonce: random alphanumeric string, 16 to 40 characters long. Must be non-predictable and changing for each request, but need not be cryptographically strong
+ * sl: "sync level", percentage of external servers that needs to answer (integer 0 to 100), or "fast" or "secure" to use server-configured values
+ * h: signature (optional)
+ * timestamp: requests timestamp/counters in response
 
  */
 
@@ -129,7 +129,7 @@ if (isset($nonce) && (strlen($nonce) < 16 || strlen($nonce) > 40)) {
   sendResp(S_MISSING_PARAMETER);
   exit;
 }
-   
+
 if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100))) {
   $myLog->log(LOG_NOTICE, 'SL is provided but not correct');
   sendResp(S_MISSING_PARAMETER);
@@ -137,7 +137,7 @@ if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100))) {
 }
 
 // NOTE: Timestamp parameter is not checked since current protocol says that 1 means request timestamp
-// and anything else is discarded. 
+// and anything else is discarded.
 
 //// Get Client info from DB
 //
@@ -150,7 +150,7 @@ if ($client <= 0) {
 
 
 /* Initialize the sync library. Strive to use this instead of custom
-   DB requests, custom comparisons etc */ 
+   DB requests, custom comparisons etc */
 $sync = new SyncLib('ykval-verify:synclib');
 $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
 $sync->addField('otp', $otp);
@@ -194,11 +194,11 @@ if ($h != '') {
   }
 }
 
-/* We need to add necessary parameters not available at earlier protocols after signature is computed. 
+/* We need to add necessary parameters not available at earlier protocols after signature is computed.
  */
 if ($protocol_version<2.0) {
   /* We need to create a nonce manually here */
-  $nonce = md5(uniqid(rand())); 
+  $nonce = md5(uniqid(rand()));
   $myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
  }
 
@@ -239,13 +239,13 @@ if ($localParams['active'] != 1) {
 
 /* Build OTP params */
 
-$otpParams=array('modified'=>time(), 
-		 'otp'=>$otp, 
+$otpParams=array('modified'=>time(),
+		 'otp'=>$otp,
 		 'nonce'=>$nonce,
-		 'yk_publicname'=>$devId, 
-		 'yk_counter'=>$otpinfo['session_counter'], 
-		 'yk_use'=>$otpinfo['session_use'], 
-		 'yk_high'=>$otpinfo['high'], 
+		 'yk_publicname'=>$devId,
+		 'yk_counter'=>$otpinfo['session_counter'],
+		 'yk_use'=>$otpinfo['session_use'],
+		 'yk_high'=>$otpinfo['high'],
 		 'yk_low'=>$otpinfo['low']);
 
 
@@ -257,7 +257,7 @@ if ($sync->countersEqual($localParams, $otpParams) &&
   exit;
  }
 
-/* Check the OTP counters against local db */    
+/* Check the OTP counters against local db */
 if ($sync->countersHigherThanOrEqual($localParams, $otpParams)) {
   $sync->log(LOG_WARNING, 'replayed OTP: Local counters higher');
   $sync->log(LOG_WARNING, 'replayed OTP: Local counters ', $localParams);
@@ -289,7 +289,7 @@ if ($req_answers>0) {
   $nr_answers=$sync->getNumberOfAnswers();
   $nr_valid_answers=$sync->getNumberOfValidAnswers();
   $sl_success_rate=floor(100.0 * $nr_valid_answers / $nr_servers);
-  
+
  } else {
   $syncres=true;
   $nr_answers=0;
@@ -305,7 +305,7 @@ $myLog->log(LOG_INFO, "ykval-verify:notice:synclevel=" . $sl .
 	    " timeout=" . $timeout);
 
 if($syncres==False) {
-  /* sync returned false, indicating that 
+  /* sync returned false, indicating that
    either at least 1 answer marked OTP as invalid or
    there were not enough answers */
   $myLog->log(LOG_WARNING, "ykval-verify:notice:Sync failed");
@@ -319,7 +319,7 @@ if($syncres==False) {
   }
  }
 
-/* Recreate parameters to make phising test work out 
+/* Recreate parameters to make phising test work out
  TODO: use timefunctionality in deltatime library instead */
 $sessionCounter = $otpParams['yk_counter'];
 $sessionUse = $otpParams['yk_use'];
@@ -345,8 +345,8 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
   $elapsed = $now - $lastTime;
   $deviation = abs($elapsed - $tsDelta);
 
-  // Time delta server might verify multiple OTPS in a row. In such case validation server doesn't 
-  // have time to tick a whole second and we need to avoid division by zero. 
+  // Time delta server might verify multiple OTPS in a row. In such case validation server doesn't
+  // have time to tick a whole second and we need to avoid division by zero.
   if ($elapsed != 0) {
     $percent = $deviation/$elapsed;
   } else {

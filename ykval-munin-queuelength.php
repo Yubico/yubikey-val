@@ -4,8 +4,8 @@
 set_include_path(get_include_path() . PATH_SEPARATOR .
 		 "/etc/ykval:/usr/share/ykval");
 
-require_once 'ykval-synclib.php';
 require_once 'ykval-config.php';
+require_once 'ykval-synclib.php';
 require_once 'ykval-log.php';
 
 if ($argc==2 && strcmp($argv[1], "autoconf") == 0) {

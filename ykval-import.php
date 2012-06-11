@@ -13,29 +13,29 @@ $myLog = new Log($logname);
 $db=new Db($baseParams['__YKVAL_DB_DSN__'],
 	   $baseParams['__YKVAL_DB_USER__'],
 	   $baseParams['__YKVAL_DB_PW__'],
-	   $baseParams['__YKVAL_DB_OPTIONS__'], 
+	   $baseParams['__YKVAL_DB_OPTIONS__'],
 	   $logname . ':db');
 
 if (!$db->connect()) {
   $myLog->log(LOG_WARNING, "Could not connect to database");
   error_log("Could not connect to database");
   exit(1);
- }  
+ }
 
 
 while ($res=fgetcsv(STDIN, 0, "\t")) {
-  $params=array("active"=>$res[0], 
-		"created"=>$res[1], 
-		"modified"=>$res[2], 
-		"yk_publicname"=>$res[3], 
-		"yk_counter"=>$res[4], 
-		"yk_use"=>$res[5], 
-		"yk_low"=>$res[6], 
-		"yk_high"=>$res[7], 
+  $params=array("active"=>$res[0],
+		"created"=>$res[1],
+		"modified"=>$res[2],
+		"yk_publicname"=>$res[3],
+		"yk_counter"=>$res[4],
+		"yk_use"=>$res[5],
+		"yk_low"=>$res[6],
+		"yk_high"=>$res[7],
 		"nonce"=>$res[8],
 		"notes"=>$res[9]);
-  
-  
+
+
   $query="SELECT * FROM yubikeys WHERE yk_publicname='" . $params['yk_publicname'] . "'";
   $result=$db->customQuery($query);
   if($result->fetch(PDO::FETCH_ASSOC)) {
@@ -52,13 +52,13 @@ while ($res=fgetcsv(STDIN, 0, "\t")) {
       "WHERE yk_publicname='" . $params['yk_publicname'] . "' AND " .
       "(".$params['yk_counter'].">yk_counter or (".$params['yk_counter']."=yk_counter and " .
       $params['yk_use'] . ">yk_use))";
-    
+
     if(!$db->customQuery($query)) {
       $myLog->log(LOG_ERR, "Failed to update yk_publicname with query " . $query);
       error_log("Failed to update yk_publicname with query " . $query);
       exit(1);
     }
-    
+
   } else {
     // We didn't have the yk_publicname in database so we need to do insert instead
     $query="INSERT INTO yubikeys " .
@@ -73,7 +73,7 @@ while ($res=fgetcsv(STDIN, 0, "\t")) {
       "'" . $params['yk_high'] . "'," .
       "'" . $params['nonce'] . "'," .
       "'" . $params['notes'] . "')";
-    
+
     if(!$db->customQuery($query)){
       $myLog->log(LOG_ERR, "Failed to insert new yk_publicname with query " . $query);
       error_log("Failed to insert new yk_publicname with query " . $query);

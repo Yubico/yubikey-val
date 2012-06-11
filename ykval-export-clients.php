@@ -13,13 +13,13 @@ $myLog = new Log($logname);
 $db=new Db($baseParams['__YKVAL_DB_DSN__'],
 	   $baseParams['__YKVAL_DB_USER__'],
 	   $baseParams['__YKVAL_DB_PW__'],
-	   $baseParams['__YKVAL_DB_OPTIONS__'], 
+	   $baseParams['__YKVAL_DB_OPTIONS__'],
 	   $logname . ':db');
 
 if (!$db->connect()) {
   $myLog->log(LOG_WARNING, "Could not connect to database");
   exit(1);
- }  
+ }
 
 $result = $db->customQuery("select id, active, created, secret, email, notes, otp from clients order by id");
 while($row = $result->fetch(PDO::FETCH_ASSOC)){

@@ -20,7 +20,7 @@ if (! $sync->isConnected()) {
   exit;
  }
 
-# 
+#
 # Verify that request comes from valid server
 #
 
@@ -77,7 +77,7 @@ $myLog->addField('otp', $syncParams['otp']);
 $sync->addField('otp', $syncParams['otp']);
 
 #
-# Verify correctness of input parameters 
+# Verify correctness of input parameters
 #
 
 foreach (array('modified') as $param) {
@@ -106,27 +106,27 @@ foreach (array('yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param) {
 $yk_publicname = $syncParams['yk_publicname'];
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
-  $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
+  $myLog->log(LOG_NOTICE, 'Refusing sync of invalid Yubikey ' . $yk_publicname);
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }
 
 if ($localParams['active'] != 1) {
-  $myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $yk_publicname);
+  $myLog->log(LOG_NOTICE, 'Refusing sync of de-activated Yubikey ' . $yk_publicname);
   sendResp(S_BAD_OTP, $apiKey);
   exit;
  }
 
 
 /* Conditional update local database */
-$sync->updateDbCounters($syncParams); 
+$sync->updateDbCounters($syncParams);
 
 $myLog->log(LOG_DEBUG, 'Local params ' , $localParams);
 $myLog->log(LOG_DEBUG, 'Sync request params ' , $syncParams);
 
 #
-# Compare sync and local counters and generate warnings according to 
-#  
+# Compare sync and local counters and generate warnings according to
+#
 # http://code.google.com/p/yubikey-val-server-php/wiki/ServerReplicationProtocol
 #
 
@@ -143,7 +143,7 @@ if ($sync->countersEqual($localParams, $syncParams)) {
       $syncParams['nonce']==$localParams['nonce']) {
     $myLog->log(LOG_NOTICE, 'Sync request unnessecarily sent');
   }
-  
+
   if ($syncParams['modified']!=$localParams['modified'] &&
       $syncParams['nonce']==$localParams['nonce']) {
     $deltaModified = $syncParams['modified'] - $localParams['modified'];
@@ -156,7 +156,7 @@ if ($sync->countersEqual($localParams, $syncParams)) {
  }
 
 
-  
+
 $extra=array('modified'=>$localParams['modified'],
 	     'nonce'=>$localParams['nonce'],
 	     'yk_publicname'=>$yk_publicname,

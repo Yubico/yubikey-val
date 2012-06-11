@@ -18,7 +18,7 @@ class Db
    * @param string $user Database user
    * @param string $pwd  Database password
    * @param string $name Database table name
-   * @return void 
+   * @return void
    *
    */
   public function __construct($db_dsn, $db_username, $db_password, $db_options, $name='ykval-db')
@@ -39,7 +39,7 @@ class Db
   /**
    * function to convert Db timestamps to unixtime(s)
    *
-   * @param string $updated Database timestamp 
+   * @param string $updated Database timestamp
    * @return int Timestamp in unixtime format
    *
    */
@@ -53,7 +53,7 @@ class Db
   /**
    * function to compute delta (s) between 2 Db timestamps
    *
-   * @param string $first Database timestamp 1 
+   * @param string $first Database timestamp 1
    * @param string $second Database timestamp 2
    * @return int Deltatime (s)
    *
@@ -73,7 +73,7 @@ class Db
   {
     $this->dbh=NULL;
   }
-  
+
   /**
    * function to check if database is connected
    *
@@ -109,7 +109,7 @@ class Db
     }
     if($this->isConnected()) {
       $this->myLog->log(LOG_DEBUG, 'DB query is: ' . $query);
-      
+
       try {
 	$this->result = $this->dbh->query($query);
       } catch (PDOException $e) {
@@ -154,8 +154,8 @@ class Db
 
     $query = rtrim($query, ",") . " WHERE " . $k . " = '" . $v . "'";
     // Insert UPDATE statement at beginning
-    $query = "UPDATE " . $table . " SET " . $query; 
-    
+    $query = "UPDATE " . $table . " SET " . $query;
+
     return $this->query($query, false);
   }
 
@@ -199,11 +199,11 @@ class Db
 
     $query = rtrim($query, ",") . " WHERE " . $k . " = '" . $v . "' and " . $condition;
     // Insert UPDATE statement at beginning
-    $query = "UPDATE " . $table . " SET " . $query; 
+    $query = "UPDATE " . $table . " SET " . $query;
 
     return $this->query($query, false);
   }
-    
+
 
   /**
    * Function to update row in database based on a condition.
@@ -258,7 +258,7 @@ or false on failure.
   }
 
   /**
-   * main function used to get rows from Db table. 
+   * main function used to get rows from Db table.
    *
    * @param string $table Database table to update row in
    * @param string $key Column to select rows by
@@ -274,7 +274,7 @@ or false on failure.
   }
 
   /**
-   * main function used to get rows by multiple key=>value pairs from Db table. 
+   * main function used to get rows by multiple key=>value pairs from Db table.
    *
    * @param string $table Database table to update row in
    * @param array $where Array with column=>values to select rows by
@@ -295,7 +295,7 @@ or false on failure.
       $query.= " *";
     }
     $query.= " FROM " . $table;
-    if ($where!=null){ 
+    if ($where!=null){
       foreach ($where as $key=>$value) {
 	if ($key!=null) {
 	  if ($value!=null) $match.= " ". $key . " = '" . $value . "' and";
@@ -311,12 +311,12 @@ or false on failure.
 
     $result = $this->query($query, true);
     if (!$result) return false;
-   
+
     if ($nr==1) {
       $row = $result->fetch(PDO::FETCH_ASSOC);
       $result->closeCursor();
       return $row;
-    } 
+    }
     else {
       $collection=array();
       while($row = $result->fetch(PDO::FETCH_ASSOC)){
@@ -329,7 +329,7 @@ or false on failure.
   }
 
   /**
-   * main function used to delete rows by multiple key=>value pairs from Db table. 
+   * main function used to delete rows by multiple key=>value pairs from Db table.
    *
    * @param string $table Database table to delete row in
    * @param array $where Array with column=>values to select rows by
@@ -343,7 +343,7 @@ or false on failure.
   {
     $query="DELETE";
     $query.= " FROM " . $table;
-    if ($where!=null){ 
+    if ($where!=null){
       $query.= " WHERE";
       foreach ($where as $key=>$value) {
 	$query.= " ". $key . " = '" . $value . "' and";
@@ -358,10 +358,10 @@ or false on failure.
 
 
   /**
-   * Function to do a custom query on database connection 
+   * Function to do a custom query on database connection
    *
    * @param string $query Database query
-   * @return mixed 
+   * @return mixed
    *
    */
   public function customQuery($query)
@@ -370,14 +370,14 @@ or false on failure.
   }
 
   /**
-   * Function to do a custom query on database connection 
+   * Function to do a custom query on database connection
    *
    * @return int number of rows affected by last statement or 0 if database connection is not functional.
    *
    */
   public function rowCount()
   {
-    if($this->result) { 
+    if($this->result) {
       $count=count($this->result->fetchAll());
       $this->result->closeCursor();
       return $count;
@@ -387,8 +387,8 @@ or false on failure.
   }
 
   /**
-   * helper function used to get rows from Db table in reversed order. 
-   * defaults to obtaining 1 row. 
+   * helper function used to get rows from Db table in reversed order.
+   * defaults to obtaining 1 row.
    *
    * @param string $table Database table to update row in
    * @param string $key Column to select rows by
@@ -403,8 +403,8 @@ or false on failure.
   }
 
   /**
-   * helper function used to get rows from Db table in standard order. 
-   * defaults to obtaining 1 row. 
+   * helper function used to get rows from Db table in standard order.
+   * defaults to obtaining 1 row.
    *
    * @param string $table Database table to update row in
    * @param string $key Column to select rows by
@@ -417,7 +417,7 @@ or false on failure.
   {
     return Db::findBy($table, $key, $value, $nr);
   }
-  
+
 }
 
 

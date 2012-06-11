@@ -64,7 +64,7 @@ function debug() {
 }
 
 // Return eg. 2008-11-21T06:11:55Z0711
-//            
+//
 function getUTCTimeStamp() {
 	date_default_timezone_set('UTC');
 	$tiny = substr(microtime(false), 2, 3);
@@ -72,7 +72,7 @@ function getUTCTimeStamp() {
 }
 
 # NOTE: When we evolve to using general DB-interface, this functinality
-# should be moved there. 
+# should be moved there.
 function DbTimeToUnix($db_time)
 {
   $unix=strptime($db_time, '%F %H:%M:%S');
@@ -82,14 +82,14 @@ function DbTimeToUnix($db_time)
 function UnixToDbTime($unix)
 {
   return date('Y-m-d H:i:s', $unix);
-}  
+}
 
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
 function sign($a, $apiKey) {
 	ksort($a);
 	$qs = urldecode(http_build_query($a));
-	
+
 	// the TRUE at the end states we want the raw value, not hexadecimal form
 	$hmac = hash_hmac('sha1', utf8_encode($qs), $apiKey, true);
 	$hmac = base64_encode($hmac);
@@ -97,7 +97,7 @@ function sign($a, $apiKey) {
 	debug('SIGN: ' . $qs . ' H=' . $hmac);
 
 	return $hmac;
-		
+
 } // sign an array of query string
 
 function hex2b64 ($hex_str) {
@@ -115,7 +115,7 @@ function modhex2b64 ($modhex_str) {
 // The request are sent asynchronously.  Some of the URLs can fail
 // with unknown host, connection errors, or network timeout, but as
 // long as one of the URLs given work, data will be returned.  If all
-// URLs fail, data from some URL that did not match parameter $match 
+// URLs fail, data from some URL that did not match parameter $match
 // (defaults to ^OK) is returned, or if all URLs failed, false.
 function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
   $mh = curl_multi_init();
@@ -165,11 +165,11 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
 	    curl_close ($h);
 	  }
 	  curl_multi_close ($mh);
-	  
+
 	  if ($ans_count==1) return $ans_arr[0];
 	  else return $ans_arr;
 	}
-	
+
 	curl_multi_remove_handle ($mh, $info['handle']);
 	curl_close ($info['handle']);
 	unset ($ch[$info['handle']]);

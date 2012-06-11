@@ -8,13 +8,13 @@ $baseParams['__YKVAL_DB_PW__'] = 'lab';
 $baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
 
 # For the validation server sync
-$baseParams['__YKVAL_SYNC_POOL__'] = array("http://api2.example.com/wsapi/2.0/sync", 
-					   "http://api3.example.com/wsapi/2.0/sync", 
+$baseParams['__YKVAL_SYNC_POOL__'] = array("http://api2.example.com/wsapi/2.0/sync",
+					   "http://api3.example.com/wsapi/2.0/sync",
 					   "http://api4.example.com/wsapi/2.0/sync");
 # An array of IP addresses allowed to issue sync requests
 # NOTE: You must use IP addresses here.
-$baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array("1.2.3.4", 
-						   "2.3.4.5", 
+$baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array("1.2.3.4",
+						   "2.3.4.5",
 						   "3.4.5.6");
 
 # Specify how often the sync daemon awakens

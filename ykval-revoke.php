@@ -26,7 +26,7 @@ if ($do != "enable" && $do != "disable") {
 $db = new Db($baseParams['__YKVAL_DB_DSN__'],
 	     $baseParams['__YKVAL_DB_USER__'],
 	     $baseParams['__YKVAL_DB_PW__'],
-	     $baseParams['__YKVAL_DB_OPTIONS__'], 
+	     $baseParams['__YKVAL_DB_OPTIONS__'],
 	     'ykval-revoke:db');
 if (!$db->connect()) {
   logdie("ERROR Database connect error");
