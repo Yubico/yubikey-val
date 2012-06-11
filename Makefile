@@ -58,8 +58,6 @@ revoke:
 # Maintainer rules.
 
 PROJECT=yubikey-val-server-php
-USER=simon@josefsson.org
-KEYID=2117364A
 
 $(PACKAGE)-$(VERSION).tgz: $(FILES)
 	git submodule init
@@ -77,6 +75,15 @@ clean:
 	rm -rf $(PACKAGE)-$(VERSION)
 
 release: dist
+	@if test -z "$(USER)" || test -z "$(KEYID)"; then \
+		echo "Try this instead:"; \
+		echo "  make release USER=[GOOGLEUSERNAME] KEYID=[PGPKEYID]"; \
+		echo "For example:"; \
+		echo "  make release USER=simon@josefsson.org KEYID=2117364A"; \
+		exit 1; \
+	fi
+	@head -3 NEWS | grep -q "Version $(VERSION) .released `date -I`" || \
+		(echo 'error: You need to update date/version in NEWS'; exit 1)
 	gpg --detach-sign --default-key $(KEYID) $(PACKAGE)-$(VERSION).tgz
 	gpg --verify $(PACKAGE)-$(VERSION).tgz.sig
 	git push
