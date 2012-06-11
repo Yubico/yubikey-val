@@ -295,6 +295,7 @@ class SyncLib
       $this->log(LOG_INFO, "Sending queue request to server on server " . $my_server['server']);
       $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
       
+      $ch = curl_init();
       while ($entry=$res->fetch(PDO::FETCH_ASSOC)) {
 	$this->log(LOG_INFO, "server=" . $entry['server'] . " , info=" . $entry['info']);
 	$url=$entry['server'] .  
@@ -305,14 +306,13 @@ class SyncLib
 	
 	/* Send out sync request */
 	$this->log(LOG_DEBUG, 'url is ' . $url);
-	$ch = curl_init($url);
+	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_USERAGENT, "YK-VAL");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 	curl_setopt($ch, CURLOPT_FAILONERROR, true);
 	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 	$response = curl_exec($ch);
-	curl_close($ch);
 	
 	if ($response==False) {
 	  $this->log(LOG_NOTICE, 'Timeout. Stopping queue resync for server ' . $my_server['server']);
@@ -372,6 +372,7 @@ class SyncLib
 	}
 	
       } /* End of loop over each queue entry for a server */
+      curl_close($ch);
     $res->closeCursor();
     } /* End of loop over each distinct server in queue */
     return true;
