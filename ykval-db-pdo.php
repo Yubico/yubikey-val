@@ -50,7 +50,7 @@ class DbImpl extends Db
     return true;
   }
 
-  private function query($query, $returnresult=false) {
+  protected function query($query, $returnresult=false) {
     if(!$this->isConnected()) {
       $this->connect();
     }
