@@ -61,7 +61,7 @@ $tmp_log = "Received ";
 foreach ($syncParams as $param=>$value) {
   $value = getHttpVal($param, Null);
   if ($value==Null) {
-    $myLog->log(LOG_NOTICE, "Recevied request with parameter[s] missing");
+    $myLog->log(LOG_NOTICE, "Received request with parameter[s] (" . $param . ") missing value");
     sendResp(S_MISSING_PARAMETER, '');
     exit;
   }
