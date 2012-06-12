@@ -41,16 +41,18 @@ $everything = "";
 $result=$db->customQuery("SELECT id, active, secret ".
 			 "FROM clients ".
 			 "ORDER BY id");
-while($row = $result->fetch(PDO::FETCH_ASSOC)) {
-  if ($row['active'] == "") {
+while($row = $this->db->fetchArray($result)) {
+  $active = $this->db->getRowValue($row, 'active');
+  if ($active == "") {
     # For some reason PostgreSQL returns empty strings for false values?!
-    $row['active'] = "0";
+    $active = "0";
   }
   $everything = $everything .
-    $row['id'] . "\t" . $row['active'] . "\t" . $row['secret'] .
-    "\n";
+    $this->db->getRowValue($row, 'id') . "\t" . $active . "\t" .
+    $this->db->getRowValue($row, 'secret') . "\n";
 }
 
+$this->db->closeCursor($result);
 $hash = sha1 ($everything);
 
 if ($verbose) {

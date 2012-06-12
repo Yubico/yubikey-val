@@ -56,9 +56,9 @@ class SyncLib
 
   function getClientData($client)
   {
-    $res=$this->db->customQuery("SELECT id, secret FROM clients WHERE active AND id='" . $client . "'");
-    $r = $res->fetch(PDO::FETCH_ASSOC);
-    $res->closeCursor();
+    $res = $this->db->customQuery("SELECT id, secret FROM clients WHERE active='1' AND id='" . $client . "'");
+    $r = $this->db->fetchArray($res);
+    $this->db->closeCursor($res);
     if ($r) return $r;
     else return false;
   }
@@ -143,7 +143,7 @@ class SyncLib
   function getLocalParams($yk_publicname)
   {
     $this->log(LOG_INFO, "searching for yk_publicname " . $yk_publicname . " in local db");
-    $res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
+    $res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname, 1);
 
     if (!$res) {
       $this->log(LOG_NOTICE, 'Discovered new identity ' . $yk_publicname);
@@ -160,14 +160,14 @@ class SyncLib
       $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
     }
     if ($res) {
-      $localParams=array('modified'=>$res['modified'],
-			 'nonce'=>$res['nonce'],
-			 'active'=>$res['active'],
-			 'yk_publicname'=>$yk_publicname,
-			 'yk_counter'=>$res['yk_counter'],
-			 'yk_use'=>$res['yk_use'],
-			 'yk_high'=>$res['yk_high'],
-			 'yk_low'=>$res['yk_low']);
+      $localParams=array('modified' => $this->db->getRowValue($res, 'modified'),
+			 'nonce' => $this->db->getRowValue($res, 'nonce'),
+			 'active' => $this->db->getRowValue($res, 'active'),
+			 'yk_publicname' => $yk_publicname,
+			 'yk_counter' => $this->db->getRowValue($res, 'yk_counter'), 
+			 'yk_use' => $this->db->getRowValue($res, 'yk_use'),
+			 'yk_high' => $this->db->getRowValue($res, 'yk_high'),
+			 'yk_low' => $this->db->getRowValue($res, 'yk_low'));
 
       $this->log(LOG_INFO, "yubikey found in db ", $localParams);
       return $localParams;
@@ -289,20 +289,19 @@ class SyncLib
     $this->log(LOG_INFO, 'starting resync');
     /* Loop over all unique servers in queue */
     $queued_limit=time()-$older_than;
-    $res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
+    $server_res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
 
-    foreach ($res as $my_server) {
-      $this->log(LOG_INFO, "Sending queue request to server on server " . $my_server['server']);
-      $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
+
+    while ($my_server=$this->db->fetchArray($server_res)) {
+      $this->log(LOG_INFO, "Sending queue request to server on server " . $this->db->getRowValue($my_server, 'server'));
+      $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $this->db->getRowValue($my_server, 'server') . "'");
       $ch = curl_init();
-
-      while ($entry=$res->fetch(PDO::FETCH_ASSOC)) {
-	$this->log(LOG_INFO, "server=" . $entry['server'] . " , info=" . $entry['info']);
-	$url=$entry['server'] .
-	  "?otp=" . $entry['otp'] .
-	  "&modified=" . $entry['modified'] .
-	  "&" . $this->otpPartFromInfoString($entry['info']);
-
+      while ($entry=$this->db->fetchArray($res)) {
+	$this->log(LOG_INFO, "server=" . $this->db->getRowValue($entry, 'server') . " , info=" . $this->db->getRowValue($entry, 'info'));
+	$url=$this->db->getRowValue($entry, 'server') .  
+	  "?otp=" . $this->db->getRowValue($entry, 'otp') .
+	  "&modified=" . $this->db->getRowValue($entry, 'modified') .
+	  "&" . $this->otpPartFromInfoString($this->db->getRowValue($entry, 'info'));
 
 	/* Send out sync request */
 	$this->log(LOG_DEBUG, 'url is ' . $url);
@@ -315,7 +314,7 @@ class SyncLib
 	$response = curl_exec($ch);
 
 	if ($response==False) {
-	  $this->log(LOG_NOTICE, 'Timeout. Stopping queue resync for server ' . $my_server['server']);
+	  $this->log(LOG_NOTICE, 'Timeout. Stopping queue resync for server ' . $this->db->getRowValue($entry, 'server'));
 	  break;
 	}
 
@@ -328,8 +327,8 @@ class SyncLib
 
 	  /* Retrieve info from entry info string */
 
-	  $validationParams=$this->localParamsFromInfoString($entry['info']);
-	  $otpParams=$this->otpParamsFromInfoString($entry['info']);
+	  $validationParams=$this->localParamsFromInfoString($this->db->getRowValue($entry, 'info'));
+	  $otpParams=$this->otpParamsFromInfoString($this->db->getRowValue($entry, 'info'));
 	  $localParams=$this->getLocalParams($otpParams['yk_publicname']);
 
 	  $this->log(LOG_DEBUG, "validation params: ", $validationParams);
@@ -362,21 +361,22 @@ class SyncLib
 	}
 
 	  /* Deletion */
-	  $this->log(LOG_INFO, 'deleting queue entry with modified=' . $entry['modified'] .
-		     ' server_nonce=' . $entry['server_nonce'] .
-		     ' server=' . $entry['server']);
+	  $this->log(LOG_INFO, 'deleting queue entry with modified=' . $this->db->getRowValue($entry, 'modified') .
+	    ' server_nonce=' . $this->db->getRowValue($entry, 'server_nonce') .
+	    ' server=' . $this->db->getRowValue($entry, 'server'));
 	  $this->db->deleteByMultiple('queue',
-				      array("modified"=>$entry['modified'],
-					    "server_nonce"=>$entry['server_nonce'],
-					    'server'=>$entry['server']));
+	    array("modified"=>$this->db->getRowValue($entry, 'modified'),
+	    "server_nonce"=>$this->db->getRowValue($entry, 'server_nonce'), 
+	    'server'=>$this->db->getRowValue($entry, 'server')));
 	} else {
 	  $this->log(LOG_ERR, "Remote server refused our sync request. Check remote server logs.");
 	}
 
       } /* End of loop over each queue entry for a server */
-    curl_close($ch);
-    $res->closeCursor();
+      curl_close($ch);
+      $this->db->closeCursor($res);
     } /* End of loop over each distinct server in queue */
+    $this->db->closeCursor($server_res);
     return true;
   }
 
@@ -388,11 +388,11 @@ class SyncLib
 
     $urls=array();
     $res=$this->db->findByMultiple('queue', array("modified"=>$this->otpParams['modified'], "server_nonce"=>$this->server_nonce));
-    foreach ($res as $row) {
-      $urls[]=$row['server'] .
-	"?otp=" . $row['otp'] .
-	"&modified=" . $row['modified'] .
-	"&" . $this->otpPartFromInfoString($row['info']);
+    while ($row = $this->db->fetchArray($res)) {
+      $urls[]=$this->db->getRowValue($row, 'server') .  
+	"?otp=" . $this->db->getRowValue($row, 'otp') .
+	"&modified=" . $this->db->getRowValue($row, 'modified') .
+	"&" . $this->otpPartFromInfoString($this->db->getRowValue($row, 'info'));
     }
 
     /*

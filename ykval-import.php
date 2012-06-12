@@ -38,7 +38,7 @@ while ($res=fgetcsv(STDIN, 0, "\t")) {
 
   $query="SELECT * FROM yubikeys WHERE yk_publicname='" . $params['yk_publicname'] . "'";
   $result=$db->customQuery($query);
-  if($result->fetch(PDO::FETCH_ASSOC)) {
+  if($db->rowCount($result)) {
     $query="UPDATE yubikeys SET " .
       "active='" . $params["active"] . "' " .
       ",created='" . $params["created"] . "' " .
