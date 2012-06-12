@@ -8,7 +8,7 @@
 require_once('ykval-log.php');
 require_once('ykval-db.php');
 
-class DbImpl extends DB
+class DbImpl extends Db
 {
   /**
    * Constructor
