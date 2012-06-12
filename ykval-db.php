@@ -15,7 +15,7 @@ abstract class Db
    * */
   public static function GetDatabaseHandle($baseParams, $logname)
   {
-    if(substr($baseParams['__YKVAL_DB_DSN__'], 0, 3) == oci) {
+    if(substr($baseParams['__YKVAL_DB_DSN__'], 0, 3) == 'oci') {
       require_once 'ykval-db-oci.php';
     } else {
       require_once 'ykval-db-pdo.php';
