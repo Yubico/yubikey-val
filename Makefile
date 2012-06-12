@@ -4,7 +4,8 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
 	ykval-common.php ykval-config.php ykval-db.php ykval-db.sql	\
 	ykval-export.php ykval-import.php ykval-log.php ykval-ping.php	\
 	ykval-queue.php ykval-revoke.php ykval-synclib.php		\
-	ykval-sync.php ykval-verify.php
+	ykval-sync.php ykval-verify.php ykval-export-clients.php 	\
+	ykval-import-clients.php
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php
 DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
@@ -35,6 +36,8 @@ install:
 	install -D ykval-queue.php $(DESTDIR)$(sbinprefix)/ykval-queue
 	install -D ykval-export.php $(DESTDIR)$(sbinprefix)/ykval-export
 	install -D ykval-import.php $(DESTDIR)$(sbinprefix)/ykval-import
+	install -D ykval-export-clients.php $(DESTDIR)$(sbinprefix)/ykval-export-clients
+	install -D ykval-import-clients.php $(DESTDIR)$(sbinprefix)/ykval-import-clients
 	install -D ykval-checksum-clients.php $(DESTDIR)$(sbinprefix)/ykval-checksum-clients
 	install -D ykval-munin-ksmlatency.php $(DESTDIR)$(muninprefix)/ykval_ksmlatency
 	install -D ykval-munin-vallatency.php $(DESTDIR)$(muninprefix)/ykval_vallatency
