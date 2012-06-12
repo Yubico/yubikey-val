@@ -440,13 +440,13 @@ class SyncLib
 	$this->log(LOG_NOTICE, "Local server out of sync");
       }
 
-      if ($this->CountersEqual($resParams, $localParams) &&
+      if ($this->countersEqual($resParams, $localParams) &&
 	  $resParams['nonce']!=$localParams['nonce']) {
 	$this->log(LOG_NOTICE, "Servers out of sync. Nonce differs. ");
       }
 
 
-      if ($this->CountersEqual($resParams, $localParams) &&
+      if ($this->countersEqual($resParams, $localParams) &&
 	  $resParams['modified']!=$localParams['modified']) {
 	$this->log(LOG_NOTICE, "Servers out of sync. Modified differs. ");
       }
