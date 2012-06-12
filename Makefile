@@ -4,7 +4,8 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
 	ykval-common.php ykval-config.php ykval-db.php ykval-db.sql	\
 	ykval-export.php ykval-import.php ykval-log.php ykval-ping.php	\
 	ykval-queue.php ykval-revoke.php ykval-synclib.php		\
-	ykval-sync.php ykval-verify.php
+	ykval-sync.php ykval-verify.php ykval-export-clients.php 	\
+	ykval-import-clients.php
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php
 DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
@@ -35,6 +36,8 @@ install:
 	install -D ykval-queue.php $(DESTDIR)$(sbinprefix)/ykval-queue
 	install -D ykval-export.php $(DESTDIR)$(sbinprefix)/ykval-export
 	install -D ykval-import.php $(DESTDIR)$(sbinprefix)/ykval-import
+	install -D ykval-export-clients.php $(DESTDIR)$(sbinprefix)/ykval-export-clients
+	install -D ykval-import-clients.php $(DESTDIR)$(sbinprefix)/ykval-import-clients
 	install -D ykval-checksum-clients.php $(DESTDIR)$(sbinprefix)/ykval-checksum-clients
 	install -D ykval-munin-ksmlatency.php $(DESTDIR)$(muninprefix)/ykval_ksmlatency
 	install -D ykval-munin-vallatency.php $(DESTDIR)$(muninprefix)/ykval_vallatency
@@ -58,8 +61,6 @@ revoke:
 # Maintainer rules.
 
 PROJECT=yubikey-val-server-php
-USER=simon@josefsson.org
-KEYID=2117364A
 
 $(PACKAGE)-$(VERSION).tgz: $(FILES)
 	git submodule init
@@ -77,6 +78,15 @@ clean:
 	rm -rf $(PACKAGE)-$(VERSION)
 
 release: dist
+	@if test -z "$(USER)" || test -z "$(KEYID)"; then \
+		echo "Try this instead:"; \
+		echo "  make release USER=[GOOGLEUSERNAME] KEYID=[PGPKEYID]"; \
+		echo "For example:"; \
+		echo "  make release USER=simon@josefsson.org KEYID=2117364A"; \
+		exit 1; \
+	fi
+	@head -3 NEWS | grep -q "Version $(VERSION) .released `date -I`" || \
+		(echo 'error: You need to update date/version in NEWS'; exit 1)
 	gpg --detach-sign --default-key $(KEYID) $(PACKAGE)-$(VERSION).tgz
 	gpg --verify $(PACKAGE)-$(VERSION).tgz.sig
 	git push
