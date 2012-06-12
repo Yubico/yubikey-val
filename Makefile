@@ -5,7 +5,8 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
 	ykval-export.php ykval-import.php ykval-log.php ykval-ping.php	\
 	ykval-queue.php ykval-revoke.php ykval-synclib.php		\
 	ykval-sync.php ykval-verify.php ykval-export-clients.php 	\
-	ykval-import-clients.php
+	ykval-import-clients.php ykval-db-oci.php ykval-db-pdo.php	\
+	ykval-db.oracle.sql
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php
 DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
@@ -32,6 +33,8 @@ install:
 	install -D --mode 644 ykval-synclib.php $(DESTDIR)$(phpprefix)/ykval-synclib.php
 	install -D --mode 644 ykval-sync.php $(DESTDIR)$(phpprefix)/ykval-sync.php
 	install -D --mode 644 ykval-db.php $(DESTDIR)$(phpprefix)/ykval-db.php
+	install -D --mode 644 ykval-db-pdo.php $(DESTDIR)$(phpprefix)/ykval-db-pdo.php
+	install -D --mode 644 ykval-db-oci.php $(DESTDIR)$(phpprefix)/ykval-db-oci.php
 	install -D --mode 644 ykval-log.php $(DESTDIR)$(phpprefix)/ykval-log.php
 	install -D ykval-queue.php $(DESTDIR)$(sbinprefix)/ykval-queue
 	install -D ykval-export.php $(DESTDIR)$(sbinprefix)/ykval-export
@@ -44,6 +47,7 @@ install:
 	install -D ykval-munin-queuelength.php $(DESTDIR)$(muninprefix)/ykval_queuelength
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(DESTDIR)$(etcprefix)/ykval-config.php-template
 	install -D --mode 644 ykval-db.sql $(DESTDIR)$(docprefix)/ykval-db.sql
+	install -D --mode 644 ykval-db.oracle.sql $(DESTDIR)$(docprefix)/ykval-db.oracle.sql
 	install -D --mode 644 $(DOCS) $(DESTDIR)$(docprefix)/
 
 wwwprefix = /var/www/wsapi
