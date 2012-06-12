@@ -26,8 +26,8 @@ if (! $sync->isConnected()) {
 
 $myLog->log(LOG_INFO, 'remote request ip is ' . $_SERVER['REMOTE_ADDR']);
 $allowed=False;
+$myLog->log(LOG_DEBUG, 'checking for remote ip in allowed sync pool : ' . implode(", ", $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']));
 foreach ($baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] as $server) {
-  $myLog->log(LOG_DEBUG, 'checking against ip ' . $server);
   if ($_SERVER['REMOTE_ADDR'] == $server) {
     $myLog->log(LOG_DEBUG, 'server ' . $server . ' is allowed');
     $allowed=True;
@@ -61,7 +61,7 @@ $tmp_log = "Received ";
 foreach ($syncParams as $param=>$value) {
   $value = getHttpVal($param, Null);
   if ($value==Null) {
-    $myLog->log(LOG_NOTICE, "Recevied request with parameter[s] missing");
+    $myLog->log(LOG_NOTICE, "Received request with parameter[s] (" . $param . ") missing value");
     sendResp(S_MISSING_PARAMETER, '');
     exit;
   }
@@ -106,13 +106,13 @@ foreach (array('yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param) {
 $yk_publicname = $syncParams['yk_publicname'];
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
-  $myLog->log(LOG_NOTICE, 'Refusing sync of invalid Yubikey ' . $yk_publicname);
+  $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }
 
 if ($localParams['active'] != 1) {
-  $myLog->log(LOG_NOTICE, 'Refusing sync of de-activated Yubikey ' . $yk_publicname);
+  $myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $yk_publicname);
   sendResp(S_BAD_OTP, $apiKey);
   exit;
  }
@@ -141,7 +141,7 @@ if ($sync->countersEqual($localParams, $syncParams)) {
 
   if ($syncParams['modified']==$localParams['modified'] &&
       $syncParams['nonce']==$localParams['nonce']) {
-    $myLog->log(LOG_NOTICE, 'Sync request unnessecarily sent');
+    $myLog->log(LOG_NOTICE, 'Sync request unnecessarily sent');
   }
 
   if ($syncParams['modified']!=$localParams['modified'] &&
