@@ -106,13 +106,13 @@ foreach (array('yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param) {
 $yk_publicname = $syncParams['yk_publicname'];
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
-  $myLog->log(LOG_NOTICE, 'Refusing sync of invalid Yubikey ' . $yk_publicname);
+  $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
   sendResp(S_BACKEND_ERROR, $apiKey);
   exit;
  }
 
 if ($localParams['active'] != 1) {
-  $myLog->log(LOG_NOTICE, 'Refusing sync of de-activated Yubikey ' . $yk_publicname);
+  $myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $yk_publicname);
   sendResp(S_BAD_OTP, $apiKey);
   exit;
  }
@@ -141,7 +141,7 @@ if ($sync->countersEqual($localParams, $syncParams)) {
 
   if ($syncParams['modified']==$localParams['modified'] &&
       $syncParams['nonce']==$localParams['nonce']) {
-    $myLog->log(LOG_NOTICE, 'Sync request unnessecarily sent');
+    $myLog->log(LOG_NOTICE, 'Sync request unnecessarily sent');
   }
 
   if ($syncParams['modified']!=$localParams['modified'] &&
