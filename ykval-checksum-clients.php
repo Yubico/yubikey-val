@@ -26,11 +26,7 @@ require_once 'ykval-db.php';
 $logname="ykval-checksum-clients";
 $myLog = new Log($logname);
 
-$db=new Db($baseParams['__YKVAL_DB_DSN__'],
-	   $baseParams['__YKVAL_DB_USER__'],
-	   $baseParams['__YKVAL_DB_PW__'],
-	   $baseParams['__YKVAL_DB_OPTIONS__'],
-	   $logname . ':db');
+$db = Db::GetDatabaseHandle($baseParams, $logname);
 
 if (!$db->connect()) {
   $myLog->log(LOG_WARNING, "Could not connect to database");

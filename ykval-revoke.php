@@ -23,11 +23,7 @@ if ($do != "enable" && $do != "disable") {
 }
 
 # Connect to db
-$db = new Db($baseParams['__YKVAL_DB_DSN__'],
-	     $baseParams['__YKVAL_DB_USER__'],
-	     $baseParams['__YKVAL_DB_PW__'],
-	     $baseParams['__YKVAL_DB_OPTIONS__'],
-	     'ykval-revoke:db');
+$db = Db::GetDatabaseHandle($baseParams, 'ykval-revoke');
 if (!$db->connect()) {
   logdie("ERROR Database connect error");
 }

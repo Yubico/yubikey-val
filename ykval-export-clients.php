@@ -10,11 +10,7 @@ require_once 'ykval-db.php';
 $logname="ykval-export";
 $myLog = new Log($logname);
 
-$db=new Db($baseParams['__YKVAL_DB_DSN__'],
-	   $baseParams['__YKVAL_DB_USER__'],
-	   $baseParams['__YKVAL_DB_PW__'],
-	   $baseParams['__YKVAL_DB_OPTIONS__'],
-	   $logname . ':db');
+$db = Db::GetDatabaseHandle($baseParams, $logname);
 
 if (!$db->connect()) {
   $myLog->log(LOG_WARNING, "Could not connect to database");
@@ -22,16 +18,19 @@ if (!$db->connect()) {
  }
 
 $result = $db->customQuery("select id, active, created, secret, email, notes, otp from clients order by id");
-while($row = $result->fetch(PDO::FETCH_ASSOC)){
-  echo $row['id'] .
-    "\t" . $row['active'] .
-    "\t" . $row['created'] .
-    "\t" . $row['secret'] .
-    "\t" . $row['email'] .
-    "\t" . $row['notes'] .
-    "\t" . $row['otp'] .
+while($row = $db->fetchArray($result)) {
+  echo $db->getRowValue($row, 'id'] .
+    "\t" . $db->getRowValue($row, 'active') .
+    "\t" . $db->getRowValue($row, 'created') .
+    "\t" . $db->getRowValue($row, 'secret') .
+    "\t" . $db->getRowValue($row, 'email') .
+    "\t" . $db->getRowValue($row, 'notes') .
+    "\t" . $db->getRowValue($row, 'otp') .
     "\n";
- }
+}
+
+$db->closeCursor($result);
+$db->disconnect();
 
 $result=null;
 $db=null;

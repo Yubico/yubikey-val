@@ -7,8 +7,26 @@
 
 require_once('ykval-log.php');
 
-class Db
+abstract class Db
 {
+  /**
+   * static function to determine database type and instantiate the correct subclass
+   *
+   * */
+  public static function GetDatabaseHandle($baseParams, $logname)
+  {
+    if(substr($baseParams['__YKVAL_DB_DSN__'], 0, 3) == oci) {
+      require_once 'ykval-db-oci.php';
+    } else {
+      require_once 'ykval-db-pdo.php';
+    }
+    return new DbImpl($baseParams['__YKVAL_DB_DSN__'],
+                          $baseParams['__YKVAL_DB_USER__'],
+                          $baseParams['__YKVAL_DB_PW__'],
+                          $baseParams['__YKVAL_DB_OPTIONS__'],
+                          $logname . ':db');
+  }
+
   function addField($name, $value)
   {
     $this->myLog->addField($name, $value);

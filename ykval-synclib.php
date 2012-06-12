@@ -15,12 +15,7 @@ class SyncLib
     $this->myLog = new Log($logname);
     global $baseParams;
     $this->syncServers = $baseParams['__YKVAL_SYNC_POOL__'];
-
-    $this->db=new Db($baseParams['__YKVAL_DB_DSN__'],
-		     $baseParams['__YKVAL_DB_USER__'],
-		     $baseParams['__YKVAL_DB_PW__'],
-		     $baseParams['__YKVAL_DB_OPTIONS__'],
-		     $logname . ':db');
+    $this->db = Db::GetDatabaseHandle($baseParams, $logname);
     $this->isConnected=$this->db->connect();
     $this->server_nonce=md5(uniqid(rand()));
 
