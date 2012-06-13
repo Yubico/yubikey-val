@@ -328,8 +328,12 @@ class SyncLib
 
 	  /* Retrieve info from entry info string */
 
+	  /* This is the counter values we had in our database *before* processing the current OTP. */
 	  $validationParams=$this->localParamsFromInfoString($entry['info']);
+	  /* This is the data from the current OTP. */
 	  $otpParams=$this->otpParamsFromInfoString($entry['info']);
+
+	  /* Fetch current information from our database */
 	  $localParams=$this->getLocalParams($otpParams['yk_publicname']);
 
 	  $this->log(LOG_DEBUG, "validation params: ", $validationParams);
@@ -342,7 +346,11 @@ class SyncLib
 	  }
 
 	  if ($this->countersHigherThan($resParams, $validationParams)) {
-	    $this->log(LOG_NOTICE, "Local server out of sync compared to counters at validation request time. ");
+	    if ($this->countersEqual($resParams, $otpParams)) {
+	      $this->log(LOG_INFO, "Remote server had received the current counter values already. ");
+	    } else {
+	      $this->log(LOG_NOTICE, "Local server out of sync compared to counters at validation request time. ");
+	    }
 	  }
 
 	  if ($this->countersHigherThan($localParams, $resParams)) {
