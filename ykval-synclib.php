@@ -383,7 +383,7 @@ class SyncLib
 
     $urls=array();
     $res=$this->db->findByMultiple('queue', array("modified"=>$this->otpParams['modified'], "server_nonce"=>$this->server_nonce));
-    while ($row = $this->db->fetchArray($res)) {
+    foreach($res as $row)
       $urls[]=$this->db->getRowValue($row, 'server') .  
 	"?otp=" . $this->db->getRowValue($row, 'otp') .
 	"&modified=" . $this->db->getRowValue($row, 'modified') .
