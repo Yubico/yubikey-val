@@ -292,12 +292,12 @@ class SyncLib
     $res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
 
     foreach ($res as $my_server) {
-      $this->log(LOG_INFO, "Sending queue request to server on server " . $my_server['server']);
+      $this->log(LOG_INFO, "Processing queue for server " . $my_server['server']);
       $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
       $ch = curl_init();
 
       while ($entry=$res->fetch(PDO::FETCH_ASSOC)) {
-	$this->log(LOG_INFO, "server=" . $entry['server'] . " , info=" . $entry['info']);
+	$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
 	$url=$entry['server'] .
 	  "?otp=" . $entry['otp'] .
 	  "&modified=" . $entry['modified'] .
