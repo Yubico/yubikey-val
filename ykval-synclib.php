@@ -159,7 +159,7 @@ class SyncLib
 			 'nonce' => $this->db->getRowValue($res, 'nonce'),
 			 'active' => $this->db->getRowValue($res, 'active'),
 			 'yk_publicname' => $yk_publicname,
-			 'yk_counter' => $this->db->getRowValue($res, 'yk_counter'), 
+			 'yk_counter' => $this->db->getRowValue($res, 'yk_counter'),
 			 'yk_use' => $this->db->getRowValue($res, 'yk_use'),
 			 'yk_high' => $this->db->getRowValue($res, 'yk_high'),
 			 'yk_low' => $this->db->getRowValue($res, 'yk_low'));
@@ -293,7 +293,7 @@ class SyncLib
       $ch = curl_init();
       while ($entry=$this->db->fetchArray($res)) {
 	$this->log(LOG_INFO, "server=" . $this->db->getRowValue($entry, 'server') . " , info=" . $this->db->getRowValue($entry, 'info'));
-	$url=$this->db->getRowValue($entry, 'server') .  
+	$url=$this->db->getRowValue($entry, 'server') .
 	  "?otp=" . $this->db->getRowValue($entry, 'otp') .
 	  "&modified=" . $this->db->getRowValue($entry, 'modified') .
 	  "&" . $this->otpPartFromInfoString($this->db->getRowValue($entry, 'info'));
@@ -361,7 +361,7 @@ class SyncLib
 	    ' server=' . $this->db->getRowValue($entry, 'server'));
 	  $this->db->deleteByMultiple('queue',
 	    array("modified"=>$this->db->getRowValue($entry, 'modified'),
-	    "server_nonce"=>$this->db->getRowValue($entry, 'server_nonce'), 
+	    "server_nonce"=>$this->db->getRowValue($entry, 'server_nonce'),
 	    'server'=>$this->db->getRowValue($entry, 'server')));
 	} else {
 	  $this->log(LOG_ERR, "Remote server refused our sync request. Check remote server logs.");
@@ -384,7 +384,7 @@ class SyncLib
     $urls=array();
     $res=$this->db->findByMultiple('queue', array("modified"=>$this->otpParams['modified'], "server_nonce"=>$this->server_nonce));
     foreach($res as $row) {
-      $urls[]=$this->db->getRowValue($row, 'server') .  
+      $urls[]=$this->db->getRowValue($row, 'server') .
 	"?otp=" . $this->db->getRowValue($row, 'otp') .
 	"&modified=" . $this->db->getRowValue($row, 'modified') .
 	"&" . $this->otpPartFromInfoString($this->db->getRowValue($row, 'info'));
