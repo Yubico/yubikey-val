@@ -19,7 +19,7 @@ if (!$db->connect()) {
 
 $result = $db->customQuery("select id, active, created, secret, email, notes, otp from clients order by id");
 while($row = $db->fetchArray($result)) {
-  echo $db->getRowValue($row, 'id'] .
+  echo $db->getRowValue($row, 'id') .
     "\t" . $db->getRowValue($row, 'active') .
     "\t" . $db->getRowValue($row, 'created') .
     "\t" . $db->getRowValue($row, 'secret') .
