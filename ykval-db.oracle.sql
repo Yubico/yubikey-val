@@ -21,7 +21,7 @@ CREATE TABLE yubikeys (
   yk_use INT NOT NULL,
   yk_low INT NOT NULL,
   yk_high INT NOT NULL,
-  nonce VARCHAR(32) DEFAULT '',
+  nonce VARCHAR(40) DEFAULT '',
   notes VARCHAR(100) DEFAULT '',
   PRIMARY KEY (yk_publicname)
 );
