@@ -37,18 +37,18 @@ $everything = "";
 $result=$db->customQuery("SELECT id, active, secret ".
 			 "FROM clients ".
 			 "ORDER BY id");
-while($row = $this->db->fetchArray($result)) {
-  $active = $this->db->getRowValue($row, 'active');
+while($row = $db->fetchArray($result)) {
+  $active = $db->getRowValue($row, 'active');
   if ($active == "") {
     # For some reason PostgreSQL returns empty strings for false values?!
     $active = "0";
   }
   $everything = $everything .
-    $this->db->getRowValue($row, 'id') . "\t" . $active . "\t" .
-    $this->db->getRowValue($row, 'secret') . "\n";
+    $db->getRowValue($row, 'id') . "\t" . $active . "\t" .
+    $db->getRowValue($row, 'secret') . "\n";
 }
 
-$this->db->closeCursor($result);
+$db->closeCursor($result);
 $hash = sha1 ($everything);
 
 if ($verbose) {
