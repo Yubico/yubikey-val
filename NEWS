@@ -1,4 +1,10 @@
-* Version 2.16 unreleased
+* Version 2.17 unreleased
+
+* Version 2.16 released 2012-06-13
+
+  * Improved logging.
+
+  * Improved performance of large sync queues.
 
 * Version 2.15 released 2012-05-24
 

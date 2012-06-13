@@ -7,6 +7,11 @@ $apiKey = '';
 
 header("content-type: text/plain");
 
+if(empty($_SERVER['QUERY_STRING'])) {
+  sendResp(S_MISSING_PARAMETER, $apiKey);
+  exit;
+}
+
 $myLog = new Log('ykval-sync');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
 

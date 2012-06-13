@@ -1,4 +1,4 @@
-VERSION = 2.16
+VERSION = 2.17
 PACKAGE = yubikey-val
 CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
 	ykval-common.php ykval-config.php ykval-db.php ykval-db.sql	\
@@ -89,7 +89,7 @@ release: dist
 		echo "  make release USER=simon@josefsson.org KEYID=2117364A"; \
 		exit 1; \
 	fi
-	@head -3 NEWS | grep -q "Version $(VERSION) .released `date -I`" || \
+	@head -1 NEWS | grep -q "Version $(VERSION) released `date -I`" || \
 		(echo 'error: You need to update date/version in NEWS'; exit 1)
 	gpg --detach-sign --default-key $(KEYID) $(PACKAGE)-$(VERSION).tgz
 	gpg --verify $(PACKAGE)-$(VERSION).tgz.sig
