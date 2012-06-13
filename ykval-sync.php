@@ -146,7 +146,14 @@ if ($sync->countersEqual($localParams, $syncParams)) {
 
   if ($syncParams['modified']==$localParams['modified'] &&
       $syncParams['nonce']==$localParams['nonce']) {
-    $myLog->log(LOG_NOTICE, 'Sync request unnecessarily sent');
+    /* This is not an error. When the remote server received an OTP to verify, it would
+     * have sent out sync requests immediately. When the required number of responses had
+     * been received, the current implementation discards all additional responses (to
+     * return the result to the client as soon as possible). If our response sent last
+     * time was discarded, we will end up here when the background ykval-queue processes
+     * the sync request again.
+     */
+    $myLog->log(LOG_INFO, 'Sync request unnecessarily sent');
   }
 
   if ($syncParams['modified']!=$localParams['modified'] &&
