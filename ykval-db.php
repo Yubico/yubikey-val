@@ -378,7 +378,7 @@ or false on failure.
   public function rowCount()
   {
     if($this->result) {
-      $count=count($this->result->fetchAll());
+      $count=$this->result->rowCount();
       $this->result->closeCursor();
       return $count;
     } else {
