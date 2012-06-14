@@ -213,7 +213,7 @@ if (!is_array($urls)) {
 
 //// Decode OTP from input
 //
-$otpinfo = KSMdecryptOTP($urls);
+$otpinfo = KSMdecryptOTP($urls, $myLog);
 if (!is_array($otpinfo)) {
   sendResp(S_BAD_OTP, $context, $apiKey);
   exit;

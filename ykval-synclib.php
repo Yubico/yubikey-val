@@ -518,7 +518,7 @@ class SyncLib
 
   function retrieveURLasync_wrap ($urls, $ans_req=1, $timeout=1.0)
   {
-    return retrieveURLasync("YK-VAL sync", $urls, $ans_req, $match="status=OK", $returl=True, $timeout);
+    return retrieveURLasync("YK-VAL sync", $urls, $this->myLog, $ans_req, $match="status=OK", $returl=True, $timeout);
   }
 
   /*
