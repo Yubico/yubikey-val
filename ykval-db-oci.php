@@ -86,7 +86,8 @@ class DbImpl extends Db
     if(!$result) $result = $this->result;
     if(!$result) return null;
 
-    return oci_fetch_array($result, OCI_ASSOC);
+    $res = oci_fetch_array($result, OCI_ASSOC);
+    return array_change_key_case($res, CASE_LOWER);
   }
 
   /**
