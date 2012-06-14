@@ -27,7 +27,7 @@ class DbImpl extends Db
     $this->db_password=$db_password;
     $this->db_options=$db_options;
 
-    if(substr($db_dsn, 0, 3) == 'oci') {
+    if(substr($db_dsn, 0, 4) == 'oci:') {
       # "oci:" prefix needs to be removed before passing db_dsn to OCI
       $this->db_dsn = substr($this->db_dsn, 4);
     }
