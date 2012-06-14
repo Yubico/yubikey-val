@@ -4,17 +4,17 @@ require_once 'ykval-config.php';
 require_once 'ykval-synclib.php';
 
 $apiKey = '';
-$context = 'sync';
 
 header("content-type: text/plain");
 
-if(empty($_SERVER['QUERY_STRING'])) {
-  sendResp(S_MISSING_PARAMETER, $context, $apiKey);
-  exit;
-}
 
 $myLog = new Log('ykval-sync');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
+
+if(empty($_SERVER['QUERY_STRING'])) {
+  sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
+  exit;
+}
 
 $myLog->log(LOG_INFO, "Request: " . $_SERVER['QUERY_STRING']);
 
@@ -22,7 +22,7 @@ $sync = new SyncLib('ykval-sync:synclib');
 $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
 
 if (! $sync->isConnected()) {
-  sendResp(S_BACKEND_ERROR, $context, $apiKey);
+  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
   exit;
  }
 
@@ -42,7 +42,7 @@ foreach ($baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] as $server) {
 }
 if (!$allowed) {
   $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $_SERVER['REMOTE_ADDR']);
-  sendResp(S_OPERATION_NOT_ALLOWED, $context, $apiKey);
+  sendResp(S_OPERATION_NOT_ALLOWED, $myLog, $apiKey);
   exit;
  }
 
@@ -68,7 +68,7 @@ foreach ($syncParams as $param=>$value) {
   $value = getHttpVal($param, Null);
   if ($value==Null) {
     $myLog->log(LOG_NOTICE, "Received request with parameter[s] (" . $param . ") missing value");
-    sendResp(S_MISSING_PARAMETER, $context, $apiKey);
+    sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
     exit;
   }
   $syncParams[$param]=$value;
@@ -89,7 +89,7 @@ $sync->addField('otp', $syncParams['otp']);
 foreach (array('modified') as $param) {
   if (preg_match("/^[0-9]+$/", $syncParams[$param])==0) {
     $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
-    sendResp(S_MISSING_PARAMETER, $context, $apiKey);
+    sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
     exit;
   }
 }
@@ -97,7 +97,7 @@ foreach (array('modified') as $param) {
 foreach (array('yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param) {
   if (preg_match("/^(-1|[0-9]+)$/", $syncParams[$param])==0) {
     $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
-    sendResp(S_MISSING_PARAMETER, $context, $apiKey);
+    sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
     exit;
   }
 }
@@ -113,7 +113,7 @@ $yk_publicname = $syncParams['yk_publicname'];
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
   $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
-  sendResp(S_BACKEND_ERROR, $context, $apiKey);
+  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
   exit;
  }
 
@@ -179,6 +179,6 @@ $extra=array('modified'=>$localParams['modified'],
 	     'yk_high'=>$localParams['yk_high'],
 	     'yk_low'=>$localParams['yk_low']);
 
-sendResp(S_OK, $context, $apiKey, $extra);
+sendResp(S_OK, $myLog, $apiKey, $extra);
 
 ?>
