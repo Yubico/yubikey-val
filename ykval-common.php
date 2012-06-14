@@ -147,9 +147,9 @@ function retrieveURLasync ($ident, $urls, $ans_req=1, $match="^OK", $returl=Fals
       debug ($ident . " curl multi info : ", $info);
       if ($info['result'] == CURLE_OK) {
 	$str = curl_multi_getcontent($info['handle']);
-	debug($str);
+	debug($ident . " curl multi content : " . $str);
 	if (preg_match("/".$match."/", $str)) {
-	  debug($ident . "response matches " . $match);
+	  debug($ident . " response matches " . $match);
 	  $error = curl_error ($info['handle']);
 	  $errno = curl_errno ($info['handle']);
 	  $cinfo = curl_getinfo ($info['handle']);
