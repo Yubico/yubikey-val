@@ -20,7 +20,7 @@ if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out)
   $protocol_version=1.0;
  }
 
-$myLog->log(LOG_INFO, "found protocol version " . $protocol_version);
+$myLog->log(LOG_DEBUG, "found protocol version " . $protocol_version);
 
 /* Extract values from HTTP request
  */
