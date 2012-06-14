@@ -377,6 +377,12 @@ class SyncLib
 				      array("modified"=>$entry['modified'],
 					    "server_nonce"=>$entry['server_nonce'],
 					    'server'=>$entry['server']));
+	} else if (preg_match("/status=BAD_OTP/", $response)) {
+	  $this->log(LOG_WARNING, "Remote server says BAD_OTP, pointless to try again, removing from queue.");
+	  $this->db->deleteByMultiple('queue',
+				      array("modified"=>$entry['modified'],
+					    "server_nonce"=>$entry['server_nonce'],
+					    'server'=>$entry['server']));
 	} else {
 	  $this->log(LOG_ERR, "Remote server refused our sync request. Check remote server logs.");
 	}

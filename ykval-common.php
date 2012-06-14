@@ -222,10 +222,11 @@ function KSMdecryptOTP($urls) {
   return $ret;
 } // End decryptOTP
 
-function sendResp($status, $apiKey = '', $extra = null) {
+function sendResp($status, $context, $apiKey = '', $extra = null) {
   if ($status == null) {
     $status = S_BACKEND_ERROR;
   }
+
 
   $a['status'] = $status;
   $a['t'] = getUTCTimeStamp();
@@ -245,8 +246,8 @@ function sendResp($status, $apiKey = '', $extra = null) {
   $str .= "\r\n";
 
   global $ykval_common_log;
-  $ykval_common_log->log(LOG_INFO, "Response: " . $str .
-			 " (at " . date("c") . " " . microtime() . ")");
+  $ykval_common_log->log(LOG_INFO, "Context=" . $context . " Response: " . $str .
+    " (at " . date("c") . " " . microtime() . ")");
 
   echo $str;
 }
