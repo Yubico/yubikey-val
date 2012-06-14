@@ -117,13 +117,13 @@ function modhex2b64 ($modhex_str) {
 // long as one of the URLs given work, data will be returned.  If all
 // URLs fail, data from some URL that did not match parameter $match
 // (defaults to ^OK) is returned, or if all URLs failed, false.
-function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False, $timeout=10) {
+function retrieveURLasync ($ident, $urls, $ans_req=1, $match="^OK", $returl=False, $timeout=10) {
   $mh = curl_multi_init();
 
   $ch = array();
   foreach ($urls as $id => $url) {
     $handle = curl_init();
-    debug("url is: " . $url);
+    debug($ident . " adding URL : " . $url);
     curl_setopt($handle, CURLOPT_URL, $url);
     curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
     curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
@@ -144,17 +144,17 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False, $time
       ;
 
     while ($info = curl_multi_info_read($mh)) {
-      debug ("YK-KSM multi", $info);
+      debug ($ident . " curl multi info : ", $info);
       if ($info['result'] == CURLE_OK) {
 	$str = curl_multi_getcontent($info['handle']);
 	debug($str);
 	if (preg_match("/".$match."/", $str)) {
+	  debug($ident . "response matches " . $match);
 	  $error = curl_error ($info['handle']);
 	  $errno = curl_errno ($info['handle']);
 	  $cinfo = curl_getinfo ($info['handle']);
-	  debug("YK-KSM errno/error: " . $errno . "/" . $error, $cinfo);
+	  debug($ident . " errno/error: " . $errno . "/" . $error, $cinfo);
 	  $ans_count++;
-	  debug("found entry");
 	  if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
 	  else $ans_arr[]=$str;
 	}
@@ -205,7 +205,7 @@ function KSMdecryptOTP($urls) {
   } elseif (count($urls) == 1) {
     $response = retrieveURLsimple ($urls[0]);
   } else {
-    $response = retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False, $timeout=10);
+    $response = retrieveURLasync ("YK-KSM", $urls, $ans_req=1, $match="^OK", $returl=False, $timeout=10);
     if (is_array($response)) {
       $response = $response[0];
     }
