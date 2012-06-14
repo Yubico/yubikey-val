@@ -117,10 +117,12 @@ if (!$localParams) {
  }
 
 if ($localParams['active'] != 1) {
-  $myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $yk_publicname);
-  sendResp(S_BAD_OTP, $apiKey);
-  exit;
- }
+  /* The remote server has accepted an OTP from a YubiKey which we would not. We update our
+   * counters
+   */
+  $myLog->log(LOG_WARNING, 'Received sync-request for de-activated Yubikey ' . $yk_publicname .
+	      ' - check database synchronization!!!');
+}
 
 
 /* Conditional update local database */
