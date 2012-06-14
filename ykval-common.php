@@ -117,7 +117,7 @@ function modhex2b64 ($modhex_str) {
 // long as one of the URLs given work, data will be returned.  If all
 // URLs fail, data from some URL that did not match parameter $match
 // (defaults to ^OK) is returned, or if all URLs failed, false.
-function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
+function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False, $timeout=10) {
   $mh = curl_multi_init();
 
   $ch = array();
@@ -128,7 +128,7 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
     curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
     curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($handle, CURLOPT_FAILONERROR, true);
-    curl_setopt($handle, CURLOPT_TIMEOUT, 10);
+    curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
 
     curl_multi_add_handle($mh, $handle);
 
@@ -204,7 +204,7 @@ function KSMdecryptOTP($urls) {
   } elseif (count($urls) == 1) {
     $response = retrieveURLsimple ($urls[0]);
   } else {
-    $response = retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False);
+    $response = retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False, $timeout=10);
     if (is_array($response)) {
       $response = $response[0];
     }
