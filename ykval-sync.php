@@ -162,7 +162,9 @@ if ($sync->countersEqual($localParams, $syncParams)) {
   if ($syncParams['modified']!=$localParams['modified'] &&
       $syncParams['nonce']==$localParams['nonce']) {
     $deltaModified = $syncParams['modified'] - $localParams['modified'];
-    $myLog->log(LOG_WARNING, 'We might have a replay. 2 events at different times have generated the same counters. The time difference is ' . $deltaModified . ' seconds');
+    if($deltaModified < -1 || $deltaModified > 1) {
+      $myLog->log(LOG_WARNING, 'We might have a replay. 2 events at different times have generated the same counters. The time difference is ' . $deltaModified . ' seconds');
+    }
   }
 
   if ($syncParams['nonce']!=$localParams['nonce']) {
