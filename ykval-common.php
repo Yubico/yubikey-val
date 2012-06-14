@@ -166,8 +166,7 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
 	  }
 	  curl_multi_close ($mh);
 
-	  if ($ans_count==1) return $ans_arr[0];
-	  else return $ans_arr;
+	  return $ans_arr;
 	}
 
 	curl_multi_remove_handle ($mh, $info['handle']);
@@ -205,7 +204,10 @@ function KSMdecryptOTP($urls) {
   } elseif (count($urls) == 1) {
     $response = retrieveURLsimple ($urls[0]);
   } else {
-    $response = retrieveURLasync ($urls);
+    $response = retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False);
+    if (is_array($response)) {
+      $response = $response[0];
+    }
   }
   if ($response) {
     debug("YK-KSM response: " . $response);
