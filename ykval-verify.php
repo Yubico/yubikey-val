@@ -185,7 +185,7 @@ if ($h != '') {
   }
   unset($a['h']);
 
-  $hmac = sign($a, $apiKey);
+  $hmac = sign($a, $apiKey, $myLog);
   // Compare it
   if ($hmac != $h) {
     $myLog->log(LOG_DEBUG, 'client hmac=' . $h . ', server hmac=' . $hmac);

@@ -47,22 +47,6 @@ function getHttpVal($key, $defaultVal) {
   	return $v;
 }
 
-function debug() {
-  $str = "";
-  foreach (func_get_args() as $msg)
-    {
-      if (is_array($msg)) {
-	foreach($msg as $key => $value){
-	  $str .= "$key=$value ";
-	}
-      } else {
-	$str .= $msg . " ";
-      }
-    }
-  global $ykval_common_log;
-  $ykval_common_log->log(LOG_DEBUG, $str);
-}
-
 function log_format() {
   $str = "";
   foreach (func_get_args() as $msg)
@@ -101,7 +85,7 @@ function UnixToDbTime($unix)
 
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
-function sign($a, $apiKey) {
+function sign($a, $apiKey, $logger) {
 	ksort($a);
 	$qs = urldecode(http_build_query($a));
 
@@ -109,7 +93,7 @@ function sign($a, $apiKey) {
 	$hmac = hash_hmac('sha1', utf8_encode($qs), $apiKey, true);
 	$hmac = base64_encode($hmac);
 
-	debug('SIGN: ' . $qs . ' H=' . $hmac);
+	$logger->log(LOG_DEBUG, 'SIGN: ' . $qs . ' H=' . $hmac);
 
 	return $hmac;
 
@@ -247,7 +231,7 @@ function sendResp($status, $logger, $apiKey = '', $extra = null) {
   if ($extra){
     foreach ($extra as $param => $value) $a[$param] = $value;
   }
-  $h = sign($a, $apiKey);
+  $h = sign($a, $apiKey, $logger);
 
   $str = "h=" . $h . "\r\n";
   $str .= "t=" . ($a['t']) . "\r\n";
