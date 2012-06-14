@@ -1,7 +1,5 @@
 <?php
 
-require_once('ykval-log.php');
-
 define('S_OK', 'OK');
 define('S_BAD_OTP', 'BAD_OTP');
 define('S_REPLAYED_OTP', 'REPLAYED_OTP');
@@ -22,13 +20,9 @@ define('TS_ABS_TOLERANCE', 20);
 define('TOKEN_LEN', 32);
 define('OTP_MAX_LEN', 48); // TOKEN_LEN plus public identity of 0..16
 
-global $ykval_common_log;
-$ykval_common_log = new Log('ykval-common');
-
-function logdie ($str)
+function logdie ($logger, $str)
 {
-  global $ykval_common_log;
-  $ykval_common_log->log(LOG_INFO, $str);
+  $logger->log(LOG_INFO, $str);
   die($str . "\n");
 }
 
