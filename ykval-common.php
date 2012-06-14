@@ -184,6 +184,7 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False, $time
   }
   curl_multi_close ($mh);
 
+  if ($ans_count>0) return $ans_arr;
   return $str;
 }
 
