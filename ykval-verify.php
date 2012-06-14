@@ -20,7 +20,7 @@ if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out)
   $protocol_version=1.0;
  }
 
-$myLog->log(LOG_INFO, "found protocol version " . $protocol_version);
+$myLog->log(LOG_DEBUG, "found protocol version " . $protocol_version);
 
 /* Extract values from HTTP request
  */
@@ -185,7 +185,7 @@ if ($h != '') {
   }
   unset($a['h']);
 
-  $hmac = sign($a, $apiKey);
+  $hmac = sign($a, $apiKey, $myLog);
   // Compare it
   if ($hmac != $h) {
     $myLog->log(LOG_DEBUG, 'client hmac=' . $h . ', server hmac=' . $hmac);
@@ -212,7 +212,7 @@ if (!is_array($urls)) {
 
 //// Decode OTP from input
 //
-$otpinfo = KSMdecryptOTP($urls);
+$otpinfo = KSMdecryptOTP($urls, $myLog);
 if (!is_array($otpinfo)) {
   sendResp(S_BAD_OTP, $myLog, $apiKey);
   exit;

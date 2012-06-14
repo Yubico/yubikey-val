@@ -117,15 +117,6 @@ if (!$localParams) {
   exit;
  }
 
-if ($localParams['active'] != 1) {
-  /* The remote server has accepted an OTP from a YubiKey which we would not. We update our
-   * counters
-   */
-  $myLog->log(LOG_WARNING, 'Received sync-request for de-activated Yubikey ' . $yk_publicname .
-	      ' - check database synchronization!!!');
-}
-
-
 /* Conditional update local database */
 $sync->updateDbCounters($syncParams);
 
@@ -172,7 +163,15 @@ if ($sync->countersEqual($localParams, $syncParams)) {
   }
  }
 
-
+if ($localParams['active'] != 1) {
+  /* The remote server has accepted an OTP from a YubiKey which we would not.
+   * We still needed to update our counters with the counters from the OTP though.
+   */
+  $myLog->log(LOG_WARNING, 'Received sync-request for de-activated Yubikey ' . $yk_publicname .
+	      ' - check database synchronization!!!');
+  sendResp(S_BAD_OTP, $apiKey);
+  exit;
+}
 
 $extra=array('modified'=>$localParams['modified'],
 	     'nonce'=>$localParams['nonce'],
