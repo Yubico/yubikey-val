@@ -17,6 +17,10 @@ $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array("1.2.3.4",
 						   "2.3.4.5",
 						   "3.4.5.6");
 
+# An array of IP addresses allowed to issue YubiKey activation/deactivation
+# requests through ykval-revoke.php. NOTE: You must use IP addresses here.
+$baseParams['__YKREV_IPS__'] = array("127.0.0.1");
+
 # Specify how often the sync daemon awakens
 $baseParams['__YKVAL_SYNC_INTERVAL__'] = 10;
 # Specify how long the sync daemon will wait for response
