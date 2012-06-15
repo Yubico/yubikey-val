@@ -42,6 +42,7 @@ install:
 	install -D ykval-munin-ksmlatency.php $(DESTDIR)$(muninprefix)/ykval_ksmlatency
 	install -D ykval-munin-vallatency.php $(DESTDIR)$(muninprefix)/ykval_vallatency
 	install -D ykval-munin-queuelength.php $(DESTDIR)$(muninprefix)/ykval_queuelength
+	install -D ykval-munin-responses.pl $(DESTDIR)$(muninprefix)/ykval_responses
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(DESTDIR)$(etcprefix)/ykval-config.php-template
 	install -D --mode 644 ykval-db.sql $(DESTDIR)$(docprefix)/ykval-db.sql
 	install -D --mode 644 $(DOCS) $(DESTDIR)$(docprefix)/
