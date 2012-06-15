@@ -169,7 +169,7 @@ if ($localParams['active'] != 1) {
    */
   $myLog->log(LOG_WARNING, 'Received sync-request for de-activated Yubikey ' . $yk_publicname .
 	      ' - check database synchronization!!!');
-  sendResp(S_BAD_OTP, $apiKey);
+  sendResp(S_BAD_OTP, $myLog, $apiKey);
   exit;
 }
 
