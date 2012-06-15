@@ -7,7 +7,7 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
 	ykval-sync.php ykval-verify.php ykval-export-clients.php 	\
 	ykval-import-clients.php
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
-	ykval-munin-queuelength.php
+	ykval-munin-queuelength.php ykval-munin-responses.pl
 DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
 	doc/RevocationService.wiki doc/ServerReplicationProtocol.wiki	\
 	doc/SyncMonitor.wiki doc/Troubleshooting.wiki
