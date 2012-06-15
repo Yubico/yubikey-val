@@ -1,7 +1,5 @@
 <?php
 
-require_once('ykval-log.php');
-
 define('S_OK', 'OK');
 define('S_BAD_OTP', 'BAD_OTP');
 define('S_REPLAYED_OTP', 'REPLAYED_OTP');
@@ -22,13 +20,9 @@ define('TS_ABS_TOLERANCE', 20);
 define('TOKEN_LEN', 32);
 define('OTP_MAX_LEN', 48); // TOKEN_LEN plus public identity of 0..16
 
-global $ykval_common_log;
-$ykval_common_log = new Log('ykval-common');
-
-function logdie ($str)
+function logdie ($logger, $str)
 {
-  global $ykval_common_log;
-  $ykval_common_log->log(LOG_INFO, $str);
+  $logger->log(LOG_INFO, $str);
   die($str . "\n");
 }
 
@@ -122,7 +116,7 @@ function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $re
   $ch = array();
   foreach ($urls as $id => $url) {
     $handle = curl_init();
-    $logger->log($ident . " adding URL : " . $url);
+    $logger->log(LOG_DEBUG, $ident . " adding URL : " . $url);
     curl_setopt($handle, CURLOPT_URL, $url);
     curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
     curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
@@ -143,16 +137,16 @@ function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $re
       ;
 
     while ($info = curl_multi_info_read($mh)) {
-      $logger->log($ident . " curl multi info : ", $info);
+      $logger->log(LOG_DEBUG, $ident . " curl multi info : ", $info);
       if ($info['result'] == CURLE_OK) {
 	$str = curl_multi_getcontent($info['handle']);
-	$logger->log($ident . " curl multi content : " . $str);
+	$logger->log(LOG_DEBUG, $ident . " curl multi content : " . $str);
 	if (preg_match("/".$match."/", $str)) {
-	  $logger->log($ident . " response matches " . $match);
+	  $logger->log(LOG_DEBUG, $ident . " response matches " . $match);
 	  $error = curl_error ($info['handle']);
 	  $errno = curl_errno ($info['handle']);
 	  $cinfo = curl_getinfo ($info['handle']);
-	  $logger->log($ident . " errno/error: " . $errno . "/" . $error, $cinfo);
+	  $logger->log(LOG_DEBUG, $ident . " errno/error: " . $errno . "/" . $error, $cinfo);
 	  $ans_count++;
 	  if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
 	  else $ans_arr[]=$str;
