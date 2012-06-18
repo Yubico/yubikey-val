@@ -30,18 +30,18 @@ if (! $sync->isConnected()) {
 # Verify that request comes from valid server
 #
 
-$myLog->log(LOG_INFO, 'remote request ip is ' . $_SERVER['REMOTE_ADDR']);
+$myLog->log(LOG_INFO, 'Received request from ' . $_SERVER['REMOTE_ADDR']);
 $allowed=False;
-$myLog->log(LOG_DEBUG, 'checking for remote ip in allowed sync pool : ' . implode(", ", $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']));
 foreach ($baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] as $server) {
   if ($_SERVER['REMOTE_ADDR'] == $server) {
-    $myLog->log(LOG_DEBUG, 'server ' . $server . ' is allowed');
     $allowed=True;
     break;
   }
 }
 if (!$allowed) {
   $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $_SERVER['REMOTE_ADDR']);
+  $myLog->log(LOG_DEBUG, 'Remote IP ' . $_SERVER['REMOTE_ADDR'] . ' not listed in allowed sync pool : ' .
+	      implode(', ', $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']));
   sendResp(S_OPERATION_NOT_ALLOWED, $myLog, $apiKey);
   exit;
  }
