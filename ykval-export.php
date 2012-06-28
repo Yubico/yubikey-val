@@ -19,16 +19,16 @@ if (!$db->connect()) {
 
 $result=$db->customQuery("SELECT active, created, modified, yk_publicname, yk_counter, yk_use, yk_low, yk_high, nonce, notes FROM yubikeys ORDER BY yk_publicname");
 while($row = $db->fetchArray($result)){
-  echo     $db->getRowValue($row, 'active') .
-    "\t" . $db->getRowValue($row, 'created') .
-    "\t" . $db->getRowValue($row, 'modified') .
-    "\t" . $db->getRowValue($row, 'yk_publicname') .
-    "\t" . $db->getRowValue($row, 'yk_counter') .
-    "\t" . $db->getRowValue($row, 'yk_use') .
-    "\t" . $db->getRowValue($row, 'yk_low') .
-    "\t" . $db->getRowValue($row, 'yk_high') .
-    "\t" . $db->getRowValue($row, 'nonce') .
-    "\t" . $db->getRowValue($row, 'notes') .
+  echo     $row['active'] .
+    "\t" . $row['created'] .
+    "\t" . $row['modified'] .
+    "\t" . $row['yk_publicname'] .
+    "\t" . $row['yk_counter'] .
+    "\t" . $row['yk_use'] .
+    "\t" . $row['yk_low'] .
+    "\t" . $row['yk_high'] .
+    "\t" . $row['nonce'] .
+    "\t" . $row['notes'] .
     "\n";
  }
 

@@ -38,14 +38,14 @@ $result=$db->customQuery("SELECT id, active, secret ".
 			 "FROM clients ".
 			 "ORDER BY id");
 while($row = $db->fetchArray($result)) {
-  $active = $db->getRowValue($row, 'active');
+  $active = $row['active'];
   if ($active == "") {
     # For some reason PostgreSQL returns empty strings for false values?!
     $active = "0";
   }
   $everything = $everything .
-    $db->getRowValue($row, 'id') . "\t" . $active . "\t" .
-    $db->getRowValue($row, 'secret') . "\n";
+    $row['id'] . "\t" . $active . "\t" .
+    $row['secret'] . "\n";
 }
 
 $db->closeCursor($result);

@@ -205,20 +205,6 @@ class DbImpl extends Db
       return 0;
     }
   }
-
-  /**
-   * Function to return the value corresponding to a given attribute name
-   * PDO requires lower case strings, whereas OCI requires upper case strings
-   *
-   * @param array $row Query result's row
-   * @param string $key Attribute name
-   * @return string Value of the attribute in this row
-   *
-   */
-  public function getRowValue($row, $key)
-  {
-    return $row[$key];
-  }
 }
 
 
