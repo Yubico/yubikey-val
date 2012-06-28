@@ -114,9 +114,13 @@ class DbImpl extends Db
   {
     $value=""; /* quiet the PHP Notice */
     $match=null; /* quiet the PHP Notice */
-    # LIMIT doesn't exist in Oracle, so we encapsulate the query to be
-    # able to filter a given number of rows afterwars (after ordering)
-    $query="SELECT * FROM (SELECT";
+    $query="SELECT";
+
+    if($nr!=null){
+       # LIMIT doesn't exist in Oracle, so we encapsulate the query to be
+       # able to filter a given number of rows afterwars (after ordering)
+       $query.= " * FROM (SELECT";
+    }
 
     if ($distinct!=null) {
       $query.= " DISTINCT " . $distinct;
@@ -206,22 +210,6 @@ class DbImpl extends Db
       return 0;
     }
   }
-
-  /**
-   * Function to return the value corresponding to a given attribute name
-   * PDO requires lower case strings, whereas OCI requires upper case strings
-   *
-   * @param array $row Query result's row
-   * @param string $key Attribute name
-   * @return string Value of the attribute in this row
-   *
-   */
-  public function getRowValue($row, $key)
-  {
-    $attr = strtoupper($key);
-    return $row[$attr];
-  }
-
 }
 
 
