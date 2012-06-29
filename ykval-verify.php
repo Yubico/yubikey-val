@@ -20,7 +20,7 @@ if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out)
   $protocol_version=1.0;
  }
 
-$myLog->log(LOG_INFO, "found protocol version " . $protocol_version);
+$myLog->log(LOG_DEBUG, "found protocol version " . $protocol_version);
 
 /* Extract values from HTTP request
  */
@@ -56,7 +56,7 @@ if ($protocol_version>=2.0) {
   /* Nonce is required from protocol 2.0 */
   if(!$nonce) {
     $myLog->log(LOG_NOTICE, 'Nonce is missing and protocol version >= 2.0');
-    sendResp(S_MISSING_PARAMETER);
+    sendResp(S_MISSING_PARAMETER, $myLog);
     exit;
   }
 }
@@ -90,49 +90,49 @@ if (!isset($timeout) || $timeout == '') {
 
 if ($otp == '') {
   $myLog->log(LOG_NOTICE, 'OTP is missing');
-  sendResp(S_MISSING_PARAMETER);
+  sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
 
 if (strlen($otp) < TOKEN_LEN || strlen ($otp) > OTP_MAX_LEN) {
   $myLog->log(LOG_NOTICE, 'Incorrect OTP length: ' . $otp);
-  sendResp(S_BAD_OTP);
+  sendResp(S_BAD_OTP, $myLog);
   exit;
 }
 
 if (preg_match("/^[cbdefghijklnrtuv]+$/", $otp)==0) {
   $myLog->log(LOG_NOTICE, 'Invalid OTP: ' . $otp);
-  sendResp(S_BAD_OTP);
+  sendResp(S_BAD_OTP, $myLog);
   exit;
 }
 
 if (preg_match("/^[0-9]+$/", $client)==0){
   $myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
-  sendResp(S_MISSING_PARAMETER);
+  sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
 
 if ($timeout && preg_match("/^[0-9]+$/", $timeout)==0) {
   $myLog->log(LOG_NOTICE, 'timeout is provided but not correct');
-  sendResp(S_MISSING_PARAMETER);
+  sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
 
 if (isset($nonce) && preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
   $myLog->log(LOG_NOTICE, 'NONCE is provided but not correct');
-  sendResp(S_MISSING_PARAMETER);
+  sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
 
 if (isset($nonce) && (strlen($nonce) < 16 || strlen($nonce) > 40)) {
   $myLog->log(LOG_NOTICE, 'Nonce too short or too long');
-  sendResp(S_MISSING_PARAMETER);
+  sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
 
 if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100))) {
   $myLog->log(LOG_NOTICE, 'SL is provided but not correct');
-  sendResp(S_MISSING_PARAMETER);
+  sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
 
@@ -143,7 +143,7 @@ if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100))) {
 //
 if ($client <= 0) {
   $myLog->log(LOG_NOTICE, 'Client ID is missing');
-  sendResp(S_MISSING_PARAMETER);
+  sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
 
@@ -156,14 +156,14 @@ $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
 $sync->addField('otp', $otp);
 
 if (! $sync->isConnected()) {
-  sendResp(S_BACKEND_ERROR);
+  sendResp(S_BACKEND_ERROR, $myLog);
   exit;
  }
 
 $cd=$sync->getClientData($client);
 if(!$cd) {
   $myLog->log(LOG_NOTICE, 'Invalid client id ' . $client);
-  sendResp(S_NO_SUCH_CLIENT);
+  sendResp(S_NO_SUCH_CLIENT, $myLog);
   exit;
  }
 $myLog->log(LOG_DEBUG,"Client data:", $cd);
@@ -185,11 +185,11 @@ if ($h != '') {
   }
   unset($a['h']);
 
-  $hmac = sign($a, $apiKey);
+  $hmac = sign($a, $apiKey, $myLog);
   // Compare it
   if ($hmac != $h) {
     $myLog->log(LOG_DEBUG, 'client hmac=' . $h . ', server hmac=' . $hmac);
-    sendResp(S_BAD_SIGNATURE, $apiKey);
+    sendResp(S_BAD_SIGNATURE, $myLog, $apiKey);
     exit;
   }
 }
@@ -206,15 +206,15 @@ if ($protocol_version<2.0) {
 //
 $urls = otp2ksmurls ($otp, $client);
 if (!is_array($urls)) {
-  sendResp(S_BACKEND_ERROR, $apiKey);
+  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
   exit;
 }
 
 //// Decode OTP from input
 //
-$otpinfo = KSMdecryptOTP($urls);
+$otpinfo = KSMdecryptOTP($urls, $myLog);
 if (!is_array($otpinfo)) {
-  sendResp(S_BAD_OTP, $apiKey);
+  sendResp(S_BAD_OTP, $myLog, $apiKey);
   exit;
 }
 $myLog->log(LOG_DEBUG, "Decrypted OTP:", $otpinfo);
@@ -226,14 +226,14 @@ $yk_publicname=$devId;
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
   $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
-  sendResp(S_BACKEND_ERROR, $apiKey);
+  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
   exit;
  }
 
 $myLog->log(LOG_DEBUG, "Auth data:", $localParams);
 if ($localParams['active'] != 1) {
   $myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $devId);
-  sendResp(S_BAD_OTP, $apiKey);
+  sendResp(S_BAD_OTP, $myLog, $apiKey);
   exit;
 }
 
@@ -253,7 +253,7 @@ $otpParams=array('modified'=>time(),
 if ($sync->countersEqual($localParams, $otpParams) &&
     $localParams['nonce']==$otpParams['nonce']) {
   $myLog->log(LOG_WARNING, 'Replayed request');
-  sendResp(S_REPLAYED_REQUEST, $apiKey, $extra);
+  sendResp(S_REPLAYED_REQUEST, $myLog, $apiKey, $extra);
   exit;
  }
 
@@ -262,7 +262,7 @@ if ($sync->countersHigherThanOrEqual($localParams, $otpParams)) {
   $sync->log(LOG_WARNING, 'replayed OTP: Local counters higher');
   $sync->log(LOG_WARNING, 'replayed OTP: Local counters ', $localParams);
   $sync->log(LOG_WARNING, 'replayed OTP: Otp counters ', $otpParams);
-  sendResp(S_REPLAYED_OTP, $apiKey, $extra);
+  sendResp(S_REPLAYED_OTP, $myLog, $apiKey, $extra);
   exit;
  }
 
@@ -270,7 +270,7 @@ if ($sync->countersHigherThanOrEqual($localParams, $otpParams)) {
 
 if(!$sync->updateDbCounters($otpParams)) {
   $myLog->log(LOG_CRIT, "Failed to update yubikey counters in database");
-  sendResp(S_BACKEND_ERROR, $apiKey);
+  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
   exit;
  }
 
@@ -278,7 +278,7 @@ if(!$sync->updateDbCounters($otpParams)) {
 
 if (!$sync->queue($otpParams, $localParams)) {
   $myLog->log(LOG_CRIT, "ykval-verify:critical:failed to queue sync requests");
-  sendResp(S_BACKEND_ERROR, $apiKey);
+  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
   exit;
  }
 
@@ -310,11 +310,11 @@ if($syncres==False) {
    there were not enough answers */
   $myLog->log(LOG_WARNING, "ykval-verify:notice:Sync failed");
   if ($nr_valid_answers!=$nr_answers) {
-    sendResp(S_REPLAYED_OTP, $apiKey, $extra);
+    sendResp(S_REPLAYED_OTP, $myLog, $apiKey, $extra);
     exit;
   } else {
     $extra['sl']=$sl_success_rate;
-    sendResp(S_NOT_ENOUGH_ANSWERS, $apiKey, $extra);
+    sendResp(S_NOT_ENOUGH_ANSWERS, $myLog, $apiKey, $extra);
     exit;
   }
  }
@@ -362,7 +362,7 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
   if ($deviation > TS_ABS_TOLERANCE && $percent > TS_REL_TOLERANCE) {
     $myLog->log(LOG_NOTICE, "OTP failed phishing test");
     if (0) {
-      sendResp(S_DELAYED_OTP, $apiKey, $extra);
+      sendResp(S_DELAYED_OTP, $myLog, $apiKey, $extra);
       exit;
     }
   }
@@ -378,6 +378,6 @@ if ($timestamp==1){
   $extra['sessionuse'] = $sessionUse;
  }
 
-sendResp(S_OK, $apiKey, $extra);
+sendResp(S_OK, $myLog, $apiKey, $extra);
 
 ?>

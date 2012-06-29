@@ -286,13 +286,13 @@ class SyncLib
     $queued_limit=time()-$older_than;
     $server_res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
 
-
     while ($my_server=$this->db->fetchArray($server_res)) {
-      $this->log(LOG_INFO, "Sending queue request to server on server " . $my_server['server']);
+      $this->log(LOG_INFO, "Processing queue for server " . $my_server['server']);
       $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
       $ch = curl_init();
+
       while ($entry=$this->db->fetchArray($res)) {
-	$this->log(LOG_INFO, "server=" . $entry['server'] . " , info=" . $entry['info']);
+	$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
 	$url=$entry['server'] .
 	  "?otp=" . $entry['otp'] .
 	  "&modified=" . $entry['modified'] .
@@ -322,8 +322,12 @@ class SyncLib
 
 	  /* Retrieve info from entry info string */
 
+	  /* This is the counter values we had in our database *before* processing the current OTP. */
 	  $validationParams=$this->localParamsFromInfoString($entry['info']);
+	  /* This is the data from the current OTP. */
 	  $otpParams=$this->otpParamsFromInfoString($entry['info']);
+
+	  /* Fetch current information from our database */
 	  $localParams=$this->getLocalParams($otpParams['yk_publicname']);
 
 	  $this->log(LOG_DEBUG, "validation params: ", $validationParams);
@@ -336,7 +340,11 @@ class SyncLib
 	  }
 
 	  if ($this->countersHigherThan($resParams, $validationParams)) {
-	    $this->log(LOG_NOTICE, "Local server out of sync compared to counters at validation request time. ");
+	    if ($this->countersEqual($resParams, $otpParams)) {
+	      $this->log(LOG_INFO, "Remote server had received the current counter values already. ");
+	    } else {
+	      $this->log(LOG_NOTICE, "Local server out of sync compared to counters at validation request time. ");
+	    }
 	  }
 
 	  if ($this->countersHigherThan($localParams, $resParams)) {
@@ -360,9 +368,15 @@ class SyncLib
 	    ' server_nonce=' . $entry['server_nonce'] .
 	    ' server=' . $entry['server']);
 	  $this->db->deleteByMultiple('queue',
-	    array("modified"=>$entry['modified'],
-	    "server_nonce"=>$entry['server_nonce'],
-	    'server'=>$entry['server']));
+				      array("modified"=>$entry['modified'],
+					    "server_nonce"=>$entry['server_nonce'],
+					    'server'=>$entry['server']));
+	} else if (preg_match("/status=BAD_OTP/", $response)) {
+	  $this->log(LOG_WARNING, "Remote server says BAD_OTP, pointless to try again, removing from queue.");
+	  $this->db->deleteByMultiple('queue',
+				      array("modified"=>$entry['modified'],
+					    "server_nonce"=>$entry['server_nonce'],
+					    'server'=>$entry['server']));
 	} else {
 	  $this->log(LOG_ERR, "Remote server refused our sync request. Check remote server logs.");
 	}
@@ -393,7 +407,7 @@ class SyncLib
     /*
      Send out requests
     */
-    $ans_arr=$this->retrieveURLasync($urls, $ans_req, $timeout);
+    $ans_arr=$this->retrieveURLasync_wrap($urls, $ans_req, $timeout);
 
     if (!is_array($ans_arr)) {
       $this->log(LOG_WARNING, 'No responses from validation server pool');
@@ -497,84 +511,9 @@ class SyncLib
     else return 0;
   }
 
-
-  /*
-   This function takes a list of URLs.  It will return the content of
-   the first successfully retrieved URL, whose content matches ^OK.
-   The request are sent asynchronously.  Some of the URLs can fail
-   with unknown host, connection errors, or network timeout, but as
-   long as one of the URLs given work, data will be returned.  If all
-   URLs fail, data from some URL that did not match parameter $match
-   (defaults to ^OK) is returned, or if all URLs failed, false.
-  */
-  function retrieveURLasync ($urls, $ans_req=1, $timeout=1.0) {
-    $mh = curl_multi_init();
-
-    $ch = array();
-    foreach ($urls as $id => $url) {
-      $this->log(LOG_DEBUG, "url in retrieveURLasync is " . $url);
-      $handle = curl_init();
-
-      curl_setopt($handle, CURLOPT_URL, $url);
-      curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
-      curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
-      curl_setopt($handle, CURLOPT_FAILONERROR, true);
-      curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
-
-      curl_multi_add_handle($mh, $handle);
-
-      $ch[$handle] = $handle;
-    }
-
-    $str = false;
-    $ans_count = 0;
-    $ans_arr = array();
-
-    do {
-      while (($mrc = curl_multi_exec($mh, $active)) == CURLM_CALL_MULTI_PERFORM)
-	;
-
-      while ($info = curl_multi_info_read($mh)) {
-	debug ("YK-KSM multi", $info);
-	if ($info['result'] == CURLE_OK) {
-	  $str = curl_multi_getcontent($info['handle']);
-	  if (preg_match("/status=OK/", $str)) {
-	    $error = curl_error ($info['handle']);
-	    $errno = curl_errno ($info['handle']);
-	    $cinfo = curl_getinfo ($info['handle']);
-	    debug("YK-KSM errno/error: " . $errno . "/" . $error, $cinfo);
-	    $ans_count++;
-	    $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
-	  }
-
-	  if ($ans_count >= $ans_req) {
-	    foreach ($ch as $h) {
-	      curl_multi_remove_handle ($mh, $h);
-	      curl_close ($h);
-	    }
-	    curl_multi_close ($mh);
-
-	    return $ans_arr;
-	  }
-
-	  curl_multi_remove_handle ($mh, $info['handle']);
-	  curl_close ($info['handle']);
-	  unset ($ch[$info['handle']]);
-	}
-
-	curl_multi_select ($mh);
-      }
-    } while($active);
-
-
-    foreach ($ch as $h) {
-      curl_multi_remove_handle ($mh, $h);
-      curl_close ($h);
-    }
-    curl_multi_close ($mh);
-
-    if ($ans_count>0) return $ans_arr;
-    else return $str;
+  function retrieveURLasync_wrap ($urls, $ans_req=1, $timeout=1.0)
+  {
+    return retrieveURLasync("YK-VAL sync", $urls, $this->myLog, $ans_req, $match="status=OK", $returl=True, $timeout);
   }
 
 }

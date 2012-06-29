@@ -1,7 +1,5 @@
 <?php
 
-require_once('ykval-log.php');
-
 define('S_OK', 'OK');
 define('S_BAD_OTP', 'BAD_OTP');
 define('S_REPLAYED_OTP', 'REPLAYED_OTP');
@@ -22,13 +20,9 @@ define('TS_ABS_TOLERANCE', 20);
 define('TOKEN_LEN', 32);
 define('OTP_MAX_LEN', 48); // TOKEN_LEN plus public identity of 0..16
 
-global $ykval_common_log;
-$ykval_common_log = new Log('ykval-common');
-
-function logdie ($str)
+function logdie ($logger, $str)
 {
-  global $ykval_common_log;
-  $ykval_common_log->log(LOG_INFO, $str);
+  $logger->log(LOG_INFO, $str);
   die($str . "\n");
 }
 
@@ -47,7 +41,7 @@ function getHttpVal($key, $defaultVal) {
   	return $v;
 }
 
-function debug() {
+function log_format() {
   $str = "";
   foreach (func_get_args() as $msg)
     {
@@ -59,8 +53,7 @@ function debug() {
 	$str .= $msg . " ";
       }
     }
-  global $ykval_common_log;
-  $ykval_common_log->log(LOG_DEBUG, $str);
+  return $str;
 }
 
 // Return eg. 2008-11-21T06:11:55Z0711
@@ -86,7 +79,7 @@ function UnixToDbTime($unix)
 
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
-function sign($a, $apiKey) {
+function sign($a, $apiKey, $logger) {
 	ksort($a);
 	$qs = urldecode(http_build_query($a));
 
@@ -94,7 +87,7 @@ function sign($a, $apiKey) {
 	$hmac = hash_hmac('sha1', utf8_encode($qs), $apiKey, true);
 	$hmac = base64_encode($hmac);
 
-	debug('SIGN: ' . $qs . ' H=' . $hmac);
+	$logger->log(LOG_DEBUG, 'SIGN: ' . $qs . ' H=' . $hmac);
 
 	return $hmac;
 
@@ -117,18 +110,18 @@ function modhex2b64 ($modhex_str) {
 // long as one of the URLs given work, data will be returned.  If all
 // URLs fail, data from some URL that did not match parameter $match
 // (defaults to ^OK) is returned, or if all URLs failed, false.
-function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
+function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10) {
   $mh = curl_multi_init();
 
   $ch = array();
   foreach ($urls as $id => $url) {
     $handle = curl_init();
-    debug("url is: " . $url);
+    $logger->log(LOG_DEBUG, $ident . " adding URL : " . $url);
     curl_setopt($handle, CURLOPT_URL, $url);
     curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
     curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($handle, CURLOPT_FAILONERROR, true);
-    curl_setopt($handle, CURLOPT_TIMEOUT, 10);
+    curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
 
     curl_multi_add_handle($mh, $handle);
 
@@ -144,17 +137,17 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
       ;
 
     while ($info = curl_multi_info_read($mh)) {
-      debug ("YK-KSM multi", $info);
+      $logger->log(LOG_DEBUG, $ident . " curl multi info : ", $info);
       if ($info['result'] == CURLE_OK) {
 	$str = curl_multi_getcontent($info['handle']);
-	debug($str);
+	$logger->log(LOG_DEBUG, $ident . " curl multi content : " . $str);
 	if (preg_match("/".$match."/", $str)) {
+	  $logger->log(LOG_DEBUG, $ident . " response matches " . $match);
 	  $error = curl_error ($info['handle']);
 	  $errno = curl_errno ($info['handle']);
 	  $cinfo = curl_getinfo ($info['handle']);
-	  debug("YK-KSM errno/error: " . $errno . "/" . $error, $cinfo);
+	  $logger->log(LOG_DEBUG, $ident . " errno/error: " . $errno . "/" . $error, $cinfo);
 	  $ans_count++;
-	  debug("found entry");
 	  if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
 	  else $ans_arr[]=$str;
 	}
@@ -166,8 +159,7 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
 	  }
 	  curl_multi_close ($mh);
 
-	  if ($ans_count==1) return $ans_arr[0];
-	  else return $ans_arr;
+	  return $ans_arr;
 	}
 
 	curl_multi_remove_handle ($mh, $info['handle']);
@@ -185,6 +177,7 @@ function retrieveURLasync ($urls, $ans_req=1, $match="^OK", $returl=False) {
   }
   curl_multi_close ($mh);
 
+  if ($ans_count>0) return $ans_arr;
   return $str;
 }
 
@@ -198,17 +191,20 @@ function retrieveURLsimple ($url, $match="^OK") {
 }
 
 // $otp: A yubikey OTP
-function KSMdecryptOTP($urls) {
+function KSMdecryptOTP($urls, $logger) {
   $ret = array();
   if (!is_array($urls)) {
     $response = retrieveURLsimple ($urls);
   } elseif (count($urls) == 1) {
     $response = retrieveURLsimple ($urls[0]);
   } else {
-    $response = retrieveURLasync ($urls);
+    $response = retrieveURLasync ("YK-KSM", $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10);
+    if (is_array($response)) {
+      $response = $response[0];
+    }
   }
   if ($response) {
-    debug("YK-KSM response: " . $response);
+    $logger->log(LOG_DEBUG, log_format("YK-KSM response: ", $response));
   }
   if (sscanf ($response,
 	      "OK counter=%04x low=%04x high=%02x use=%02x",
@@ -219,7 +215,7 @@ function KSMdecryptOTP($urls) {
   return $ret;
 } // End decryptOTP
 
-function sendResp($status, $apiKey = '', $extra = null) {
+function sendResp($status, $logger, $apiKey = '', $extra = null) {
   if ($status == null) {
     $status = S_BACKEND_ERROR;
   }
@@ -229,7 +225,7 @@ function sendResp($status, $apiKey = '', $extra = null) {
   if ($extra){
     foreach ($extra as $param => $value) $a[$param] = $value;
   }
-  $h = sign($a, $apiKey);
+  $h = sign($a, $apiKey, $logger);
 
   $str = "h=" . $h . "\r\n";
   $str .= "t=" . ($a['t']) . "\r\n";
@@ -241,9 +237,8 @@ function sendResp($status, $apiKey = '', $extra = null) {
   $str .= "status=" . ($a['status']) . "\r\n";
   $str .= "\r\n";
 
-  global $ykval_common_log;
-  $ykval_common_log->log(LOG_INFO, "Response: " . $str .
-			 " (at " . date("c") . " " . microtime() . ")");
+  $logger->log(LOG_INFO, "Response: " . $str .
+    " (at " . date("c") . " " . microtime() . ")");
 
   echo $str;
 }

@@ -19,7 +19,7 @@ if (!$db->connect()) {
 
 $result=$db->customQuery("SELECT active, created, modified, yk_publicname, yk_counter, yk_use, yk_low, yk_high, nonce, notes FROM yubikeys ORDER BY yk_publicname");
 while($row = $db->fetchArray($result)){
-  echo     $row['active'] .
+  echo (int)$row['active'] .
     "\t" . $row['created'] .
     "\t" . $row['modified'] .
     "\t" . $row['yk_publicname'] .

@@ -1,4 +1,23 @@
-* Version 2.17 unreleased
+* Version 2.19 unreleased
+
+* Version 2.18 released 2012-06-15
+
+  * Logging misstakes that broke 2.17 fixed.
+
+* Version 2.17 released 2012-06-15
+
+  * Logging improvements.
+    use ykval-verify/ykval-sync correctly for whole flow
+    clarify/degrade various logging messages
+
+  * Fix mysql error introduced in 2.14, also logs
+    database updated/not updated correctly.
+
+  * Accept sync for disabled keys, but still answer BAD_OTP.
+
+  * Remove from sync queue on BAD_OTP answer.
+
+  * Add munin plugin for response types.
 
 * Version 2.16 released 2012-06-13
 
