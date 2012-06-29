@@ -47,7 +47,7 @@ if (!$db->connect()) {
 }
 
 function get_count($db, $table, $conditions) {
-  $res = $db->customQuery('SELECT count(1) FROM ' . $table . ' WHERE ' . $conditions);
+  $res = $db->customQuery('SELECT count(1) as count FROM ' . $table . ' WHERE ' . $conditions);
   if ($res) {
     $r = $res->fetch(PDO::FETCH_ASSOC);
     return $r['count'];
