@@ -5,7 +5,7 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
 	ykval-export.php ykval-import.php ykval-log.php ykval-ping.php	\
 	ykval-queue.php ykval-revoke.php ykval-synclib.php		\
 	ykval-sync.php ykval-verify.php ykval-export-clients.php 	\
-	ykval-import-clients.php
+	ykval-import-clients.php ykval-resync.php
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php ykval-munin-responses.pl \
 	ykval-munin-yubikeystats.php
@@ -32,6 +32,7 @@ install:
 	install -D --mode 644 ykval-common.php $(DESTDIR)$(phpprefix)/ykval-common.php
 	install -D --mode 644 ykval-synclib.php $(DESTDIR)$(phpprefix)/ykval-synclib.php
 	install -D --mode 644 ykval-sync.php $(DESTDIR)$(phpprefix)/ykval-sync.php
+	install -D --mode 644 ykval-resync.php $(DESTDIR)$(phpprefix)/ykval-resync.php
 	install -D --mode 644 ykval-db.php $(DESTDIR)$(phpprefix)/ykval-db.php
 	install -D --mode 644 ykval-log.php $(DESTDIR)$(phpprefix)/ykval-log.php
 	install -D ykval-queue.php $(DESTDIR)$(sbinprefix)/ykval-queue
@@ -55,6 +56,7 @@ symlink:
 	install -d $(DESTDIR)$(wwwprefix)/2.0
 	ln -sf $(phpprefix)/ykval-verify.php $(DESTDIR)$(wwwprefix)/2.0/verify.php
 	ln -sf $(phpprefix)/ykval-sync.php $(DESTDIR)$(wwwprefix)/2.0/sync.php
+	ln -sf $(phpprefix)/ykval-resync.php $(DESTDIR)$(wwwprefix)/2.0/resync.php
 	ln -sf 2.0/verify.php $(DESTDIR)$(wwwprefix)/verify.php
 
 revoke:
