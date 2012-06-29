@@ -198,11 +198,11 @@ class DbImpl extends Db
   {
     if(!$result) $result = $this->result;
     if($result) {
-        $count = count($result->fetchAll());
-        $result->closeCursor();
-        return $count;
+	$count=$result->rowCount();
+	$result->closeCursor();
+	return $count;
     } else {
-      return 0;
+	return 0;
     }
   }
 }
