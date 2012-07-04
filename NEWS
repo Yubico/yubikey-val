@@ -1,5 +1,11 @@
 * Version 2.19 unreleased
 
+  * Fix for ykval-export running on postgres.
+
+  * Add resync.php to request new sync of public id.
+
+  * Add munin plugin for statistics.
+
 * Version 2.18 released 2012-06-15
 
   * Logging misstakes that broke 2.17 fixed.
