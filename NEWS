@@ -1,5 +1,9 @@
 * Version 2.19 unreleased
 
+  * Refactor database code, allowing for other underlying implementations
+    than PDO. Add a PDO and an Oracle (through php_oci) implementation.
+    Based on patch from Remi Mollon <remi.mollon@cern.ch>
+
   * Fix for ykval-export running on postgres.
 
   * Add resync.php to request new sync of public id.
