@@ -1,4 +1,4 @@
-* Version 2.19 unreleased
+* Version 2.19 released 2012-07-05
 
   * Refactor database code, allowing for other underlying implementations
     than PDO. Add a PDO and an Oracle (through php_oci) implementation.
