@@ -10,11 +10,7 @@ require_once 'ykval-db.php';
 $logname="ykval-export";
 $myLog = new Log($logname);
 
-$db=new Db($baseParams['__YKVAL_DB_DSN__'],
-	   $baseParams['__YKVAL_DB_USER__'],
-	   $baseParams['__YKVAL_DB_PW__'],
-	   $baseParams['__YKVAL_DB_OPTIONS__'],
-	   $logname . ':db');
+$db = Db::GetDatabaseHandle($baseParams, $logname);
 
 if (!$db->connect()) {
   $myLog->log(LOG_WARNING, "Could not connect to database");
@@ -22,7 +18,7 @@ if (!$db->connect()) {
  }
 
 $result = $db->customQuery("select id, active, created, secret, email, notes, otp from clients order by id");
-while($row = $result->fetch(PDO::FETCH_ASSOC)){
+while($row = $db->fetchArray($result)) {
   echo $row['id'] .
     "\t" . (int)$row['active'] .
     "\t" . $row['created'] .
@@ -31,7 +27,10 @@ while($row = $result->fetch(PDO::FETCH_ASSOC)){
     "\t" . $row['notes'] .
     "\t" . $row['otp'] .
     "\n";
- }
+}
+
+$db->closeCursor($result);
+$db->disconnect();
 
 $result=null;
 $db=null;

@@ -26,11 +26,7 @@ require_once 'ykval-db.php';
 $logname="ykval-checksum-clients";
 $myLog = new Log($logname);
 
-$db=new Db($baseParams['__YKVAL_DB_DSN__'],
-	   $baseParams['__YKVAL_DB_USER__'],
-	   $baseParams['__YKVAL_DB_PW__'],
-	   $baseParams['__YKVAL_DB_OPTIONS__'],
-	   $logname . ':db');
+$db = Db::GetDatabaseHandle($baseParams, $logname);
 
 if (!$db->connect()) {
   $myLog->log(LOG_WARNING, "Could not connect to database");
@@ -41,16 +37,18 @@ $everything = "";
 $result=$db->customQuery("SELECT id, active, secret ".
 			 "FROM clients ".
 			 "ORDER BY id");
-while($row = $result->fetch(PDO::FETCH_ASSOC)) {
-  if ($row['active'] == "") {
+while($row = $db->fetchArray($result)) {
+  $active = $row['active'];
+  if ($active == "") {
     # For some reason PostgreSQL returns empty strings for false values?!
-    $row['active'] = "0";
+    $active = "0";
   }
   $everything = $everything .
-    $row['id'] . "\t" . $row['active'] . "\t" . $row['secret'] .
-    "\n";
+    $row['id'] . "\t" . $active . "\t" .
+    $row['secret'] . "\n";
 }
 
+$db->closeCursor($result);
 $hash = sha1 ($everything);
 
 if ($verbose) {

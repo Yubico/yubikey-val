@@ -2,7 +2,7 @@
 
 # For the validation interface.
 $baseParams = array ();
-$baseParams['__YKVAL_DB_DSN__'] = "mysql:dbname=ykval;host=127.0.0.1";
+$baseParams['__YKVAL_DB_DSN__'] = "mysql:dbname=ykval;host=127.0.0.1"; # "oci:oracledb" for Oracle DB (with OCI library)
 $baseParams['__YKVAL_DB_USER__'] = 'ykval_verifier';
 $baseParams['__YKVAL_DB_PW__'] = 'lab';
 $baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);

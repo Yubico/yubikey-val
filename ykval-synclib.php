@@ -15,12 +15,7 @@ class SyncLib
     $this->myLog = new Log($logname);
     global $baseParams;
     $this->syncServers = $baseParams['__YKVAL_SYNC_POOL__'];
-
-    $this->db=new Db($baseParams['__YKVAL_DB_DSN__'],
-		     $baseParams['__YKVAL_DB_USER__'],
-		     $baseParams['__YKVAL_DB_PW__'],
-		     $baseParams['__YKVAL_DB_OPTIONS__'],
-		     $logname . ':db');
+    $this->db = Db::GetDatabaseHandle($baseParams, $logname);
     $this->isConnected=$this->db->connect();
     $this->server_nonce=md5(uniqid(rand()));
 
@@ -56,9 +51,9 @@ class SyncLib
 
   function getClientData($client)
   {
-    $res=$this->db->customQuery("SELECT id, secret FROM clients WHERE active AND id='" . $client . "'");
-    $r = $res->fetch(PDO::FETCH_ASSOC);
-    $res->closeCursor();
+    $res = $this->db->customQuery("SELECT id, secret FROM clients WHERE active='1' AND id='" . $client . "'");
+    $r = $this->db->fetchArray($res);
+    $this->db->closeCursor($res);
     if ($r) return $r;
     else return false;
   }
@@ -143,7 +138,7 @@ class SyncLib
   function getLocalParams($yk_publicname)
   {
     $this->log(LOG_INFO, "searching for yk_publicname " . $yk_publicname . " in local db");
-    $res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
+    $res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname, 1);
 
     if (!$res) {
       $this->log(LOG_NOTICE, 'Discovered new identity ' . $yk_publicname);
@@ -160,14 +155,14 @@ class SyncLib
       $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
     }
     if ($res) {
-      $localParams=array('modified'=>$res['modified'],
-			 'nonce'=>$res['nonce'],
-			 'active'=>$res['active'],
-			 'yk_publicname'=>$yk_publicname,
-			 'yk_counter'=>$res['yk_counter'],
-			 'yk_use'=>$res['yk_use'],
-			 'yk_high'=>$res['yk_high'],
-			 'yk_low'=>$res['yk_low']);
+      $localParams=array('modified' => $res['modified'],
+			 'nonce' => $res['nonce'],
+			 'active' => $res['active'],
+			 'yk_publicname' => $yk_publicname,
+			 'yk_counter' => $res['yk_counter'],
+			 'yk_use' => $res['yk_use'],
+			 'yk_high' => $res['yk_high'],
+			 'yk_low' => $res['yk_low']);
 
       $this->log(LOG_INFO, "yubikey found in db ", $localParams);
       return $localParams;
@@ -289,20 +284,19 @@ class SyncLib
     $this->log(LOG_INFO, 'starting resync');
     /* Loop over all unique servers in queue */
     $queued_limit=time()-$older_than;
-    $res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
+    $server_res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
 
-    foreach ($res as $my_server) {
+    while ($my_server=$this->db->fetchArray($server_res)) {
       $this->log(LOG_INFO, "Processing queue for server " . $my_server['server']);
       $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
       $ch = curl_init();
 
-      while ($entry=$res->fetch(PDO::FETCH_ASSOC)) {
+      while ($entry=$this->db->fetchArray($res)) {
 	$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
 	$url=$entry['server'] .
 	  "?otp=" . $entry['otp'] .
 	  "&modified=" . $entry['modified'] .
 	  "&" . $this->otpPartFromInfoString($entry['info']);
-
 
 	/* Send out sync request */
 	$this->log(LOG_DEBUG, 'url is ' . $url);
@@ -315,7 +309,7 @@ class SyncLib
 	$response = curl_exec($ch);
 
 	if ($response==False) {
-	  $this->log(LOG_NOTICE, 'Timeout. Stopping queue resync for server ' . $my_server['server']);
+	  $this->log(LOG_NOTICE, 'Timeout. Stopping queue resync for server ' . $entry['server']);
 	  break;
 	}
 
@@ -371,8 +365,8 @@ class SyncLib
 
 	  /* Deletion */
 	  $this->log(LOG_INFO, 'deleting queue entry with modified=' . $entry['modified'] .
-		     ' server_nonce=' . $entry['server_nonce'] .
-		     ' server=' . $entry['server']);
+	    ' server_nonce=' . $entry['server_nonce'] .
+	    ' server=' . $entry['server']);
 	  $this->db->deleteByMultiple('queue',
 				      array("modified"=>$entry['modified'],
 					    "server_nonce"=>$entry['server_nonce'],
@@ -388,9 +382,10 @@ class SyncLib
 	}
 
       } /* End of loop over each queue entry for a server */
-    curl_close($ch);
-    $res->closeCursor();
+      curl_close($ch);
+      $this->db->closeCursor($res);
     } /* End of loop over each distinct server in queue */
+    $this->db->closeCursor($server_res);
     return true;
   }
 
@@ -402,7 +397,7 @@ class SyncLib
 
     $urls=array();
     $res=$this->db->findByMultiple('queue', array("modified"=>$this->otpParams['modified'], "server_nonce"=>$this->server_nonce));
-    foreach ($res as $row) {
+    foreach($res as $row) {
       $urls[]=$row['server'] .
 	"?otp=" . $row['otp'] .
 	"&modified=" . $row['modified'] .
