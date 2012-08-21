@@ -13,7 +13,7 @@ if(@ARGV > 0) {
     print "yes\n";
     exit 0;
   } elsif($ARGV[0] eq "config") {
-    print "multigraph yk_responses\n";
+    print "multigraph ykval_responses\n";
     print "graph_title YK-VAL response types\n";
     print "graph_vlabel responses\n";
     print "graph_category ykval\n";
@@ -41,7 +41,7 @@ while(<LOGFILE>) {
 }
 close LOGFILE;
 
-print "multigraph yk_responses\n";
+print "multigraph ykval_responses\n";
 foreach my $type (@types) {
   print "${type}.value ${statuses{$type}}\n";
 }

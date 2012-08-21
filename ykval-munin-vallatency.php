@@ -25,7 +25,7 @@ if ($argc==2 && strcmp($argv[1], "autoconf") == 0) {
 
 if ($argc==2 && strcmp($argv[1], "config") == 0) {
 
-  echo "multigraph ykval_latency\n";
+  echo "multigraph ykval_vallatency\n";
   echo "graph_title VAL latency\n";
   echo "graph_vlabel Average VAL Latency (seconds)\n";
   echo "graph_category ykval\n";
@@ -48,7 +48,7 @@ if ($argc==2 && strcmp($argv[1], "config") == 0) {
   exit (0);
 }
 
-echo "multigraph ykval_latency\n";
+echo "multigraph ykval_vallatency\n";
 foreach ($urls as $url) {
   $shortname = url2shortname ($url);
   $cmd = "--user-agent ykval-munin-vallatency/1.0 --silent --write-out '%{time_total}' --max-time 3 '$url' -o /dev/null";
