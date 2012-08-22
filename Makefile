@@ -6,7 +6,7 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
 	ykval-queue.php ykval-revoke.php ykval-synclib.php		\
 	ykval-sync.php ykval-verify.php ykval-export-clients.php 	\
 	ykval-import-clients.php ykval-db-oci.php ykval-db-pdo.php	\
-	ykval-db.oracle.sql ykval-resync.php
+	ykval-db.oracle.sql ykval-resync.php ykval-checksum-deactivated.php
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php ykval-munin-responses.pl \
 	ykval-munin-yubikeystats.php
@@ -44,6 +44,7 @@ install:
 	install -D ykval-export-clients.php $(DESTDIR)$(sbinprefix)/ykval-export-clients
 	install -D ykval-import-clients.php $(DESTDIR)$(sbinprefix)/ykval-import-clients
 	install -D ykval-checksum-clients.php $(DESTDIR)$(sbinprefix)/ykval-checksum-clients
+	install -D ykval-checksum-deactivated.php $(DESTDIR)$(sbinprefix)/ykval-checksum-deactivated
 	install -D ykval-munin-ksmlatency.php $(DESTDIR)$(muninprefix)/ykval_ksmlatency
 	install -D ykval-munin-vallatency.php $(DESTDIR)$(muninprefix)/ykval_vallatency
 	install -D ykval-munin-queuelength.php $(DESTDIR)$(muninprefix)/ykval_queuelength
