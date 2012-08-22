@@ -37,11 +37,7 @@ if ($argc==2 && strcmp($argv[1], "config") == 0) {
 }
 
 # Connect to db
-$db = new Db($baseParams['__YKVAL_DB_DSN__'],
-	     $baseParams['__YKVAL_DB_USER__'],
-	     $baseParams['__YKVAL_DB_PW__'],
-	     $baseParams['__YKVAL_DB_OPTIONS__'],
-	     'ykval-munin-yubikeystats:db');
+$db = Db::GetDatabaseHandle($baseParams, 'ykval-munin-yubikeystats');
 if (!$db->connect()) {
   logdie($myLog, 'ERROR Database connect error (1)');
 }

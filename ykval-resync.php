@@ -25,11 +25,7 @@ if (!preg_match("/^([cbdefghijklnrtuv]{0,16})$/", $yk)) {
 $myLog->addField('yk', $yk);
 
 # Connect to db
-$db = new Db($baseParams['__YKVAL_DB_DSN__'],
-	     $baseParams['__YKVAL_DB_USER__'],
-	     $baseParams['__YKVAL_DB_PW__'],
-	     $baseParams['__YKVAL_DB_OPTIONS__'],
-	     'ykval-resync:db');
+$db = Db::GetDatabaseHandle($baseParams, 'ykval-resync');
 if (!$db->connect()) {
   logdie($myLog, 'ERROR Database connect error (1)');
 }
