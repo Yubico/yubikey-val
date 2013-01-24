@@ -1,5 +1,7 @@
 * Version 2.20 unreleased
 
+  * Add ChangeLog generation using git2cl.
+
 * Version 2.19 released 2012-07-05
 
   * Refactor database code, allowing for other underlying implementations

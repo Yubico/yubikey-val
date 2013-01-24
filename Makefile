@@ -78,6 +78,7 @@ $(PACKAGE)-$(VERSION).tgz: $(FILES)
 	mkdir $(PACKAGE)-$(VERSION) $(PACKAGE)-$(VERSION)/doc
 	cp $(CODE) $(MUNIN) $(PACKAGE)-$(VERSION)/
 	cp $(DOCS) $(PACKAGE)-$(VERSION)/doc/
+	git2cl > $(PACKAGE)-$(VERSION)/ChangeLog
 	tar cfz $(PACKAGE)-$(VERSION).tgz $(PACKAGE)-$(VERSION)
 	rm -rf $(PACKAGE)-$(VERSION)
 
