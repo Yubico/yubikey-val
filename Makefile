@@ -21,10 +21,10 @@ all:
 
 # Installation rules.
 
-etcprefix = /etc/ykval
+etcprefix = /etc/yubico/val
 sbinprefix = /usr/sbin
-phpprefix = /usr/share/ykval
-docprefix = /usr/share/doc/ykval
+phpprefix = /usr/share/yubikey-val
+docprefix = /usr/share/doc/yubikey-val
 muninprefix = /usr/share/munin/plugins
 wwwgroup = www-data
 

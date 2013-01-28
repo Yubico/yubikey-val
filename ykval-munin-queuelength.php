@@ -2,7 +2,7 @@
 <?php
 
 set_include_path(get_include_path() . PATH_SEPARATOR .
-		 "/etc/ykval:/usr/share/ykval");
+		 "/etc/yubico/val:/usr/share/yubikey-val");
 
 require_once 'ykval-config.php';
 require_once 'ykval-synclib.php';
