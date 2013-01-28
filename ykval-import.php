@@ -19,7 +19,7 @@ if (!$db->connect()) {
  }
 
 
-while ($res=fgetcsv(STDIN, 0, "\t")) {
+while ($res=fgetcsv(STDIN, 0, ",")) {
   $params=array("active"=>$res[0],
 		"created"=>$res[1],
 		"modified"=>$res[2],

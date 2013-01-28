@@ -20,12 +20,12 @@ if (!$db->connect()) {
 $result = $db->customQuery("select id, active, created, secret, email, notes, otp from clients order by id");
 while($row = $db->fetchArray($result)) {
   echo $row['id'] .
-    "\t" . (int)$row['active'] .
-    "\t" . $row['created'] .
-    "\t" . $row['secret'] .
-    "\t" . $row['email'] .
-    "\t" . $row['notes'] .
-    "\t" . $row['otp'] .
+    "," . (int)$row['active'] .
+    "," . $row['created'] .
+    "," . $row['secret'] .
+    "," . $row['email'] .
+    "," . $row['notes'] .
+    "," . $row['otp'] .
     "\n";
 }
 

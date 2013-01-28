@@ -20,15 +20,15 @@ if (!$db->connect()) {
 $result=$db->customQuery("SELECT active, created, modified, yk_publicname, yk_counter, yk_use, yk_low, yk_high, nonce, notes FROM yubikeys ORDER BY yk_publicname");
 while($row = $db->fetchArray($result)){
   echo (int)$row['active'] .
-    "\t" . $row['created'] .
-    "\t" . $row['modified'] .
-    "\t" . $row['yk_publicname'] .
-    "\t" . $row['yk_counter'] .
-    "\t" . $row['yk_use'] .
-    "\t" . $row['yk_low'] .
-    "\t" . $row['yk_high'] .
-    "\t" . $row['nonce'] .
-    "\t" . $row['notes'] .
+    "," . $row['created'] .
+    "," . $row['modified'] .
+    "," . $row['yk_publicname'] .
+    "," . $row['yk_counter'] .
+    "," . $row['yk_use'] .
+    "," . $row['yk_low'] .
+    "," . $row['yk_high'] .
+    "," . $row['nonce'] .
+    "," . $row['notes'] .
     "\n";
  }
 
