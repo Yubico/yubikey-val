@@ -2,6 +2,10 @@
 
   * Add ChangeLog generation using git2cl.
 
+  * Changed location of files to /usr/share/yubikey-val, etc.
+
+  * Changed location of configuration files to /etc/yubico/val/.
+
 * Version 2.19 released 2012-07-05
 
   * Refactor database code, allowing for other underlying implementations
