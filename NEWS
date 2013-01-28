@@ -6,6 +6,10 @@
 
   * Changed location of configuration files to /etc/yubico/val/.
 
+  * Made import/export scripts use comma separation, instead of tabs.
+
+  * Added a working ykval-config.php that looks for a ksm on localhost.
+
 * Version 2.19 released 2012-07-05
 
   * Refactor database code, allowing for other underlying implementations
