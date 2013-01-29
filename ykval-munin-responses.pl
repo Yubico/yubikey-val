@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 my @types = qw/OK BAD_OTP MISSING_PARAMETER BACKEND_ERROR BAD_SIGNATURE DELAYED_OTP NO_SUCH_CLIENT NOT_ENOUGH_ANSWERS REPLAYED_REQUEST REPLAYED_OTP OPERATION_NOT_ALLOWED/;
-my $logfile = "/var/log/yubikey-val-server-php.log";
+my $logfile = "/var/log/syslog";
 
 if(@ARGV > 0) {
   if($ARGV[0] eq "autoconf") {
