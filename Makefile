@@ -1,12 +1,12 @@
 VERSION = 2.20
 PACKAGE = yubikey-val
-CODE = COPYING Makefile NEWS ykval-checksum-clients.php			\
+CODE = COPYING Makefile NEWS ykval-checksum-clients			\
 	ykval-common.php ykval-config.php ykval-db.php ykval-db.sql	\
-	ykval-export.php ykval-import.php ykval-log.php ykval-ping.php	\
-	ykval-queue.php ykval-revoke.php ykval-synclib.php		\
-	ykval-sync.php ykval-verify.php ykval-export-clients.php 	\
-	ykval-import-clients.php ykval-db-oci.php ykval-db-pdo.php	\
-	ykval-db.oracle.sql ykval-resync.php ykval-checksum-deactivated.php
+	ykval-export ykval-import ykval-log.php ykval-ping.php	\
+	ykval-queue ykval-revoke.php ykval-synclib.php		\
+	ykval-sync.php ykval-verify.php ykval-export-clients 	\
+	ykval-import-clients ykval-db-oci.php ykval-db-pdo.php	\
+	ykval-db.oracle.sql ykval-resync.php ykval-checksum-deactivated
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php ykval-munin-responses.pl \
 	ykval-munin-yubikeystats.php
@@ -38,13 +38,13 @@ install:
 	install -D --mode 644 ykval-db-pdo.php $(DESTDIR)$(phpprefix)/ykval-db-pdo.php
 	install -D --mode 644 ykval-db-oci.php $(DESTDIR)$(phpprefix)/ykval-db-oci.php
 	install -D --mode 644 ykval-log.php $(DESTDIR)$(phpprefix)/ykval-log.php
-	install -D ykval-queue.php $(DESTDIR)$(sbinprefix)/ykval-queue
-	install -D ykval-export.php $(DESTDIR)$(sbinprefix)/ykval-export
-	install -D ykval-import.php $(DESTDIR)$(sbinprefix)/ykval-import
-	install -D ykval-export-clients.php $(DESTDIR)$(sbinprefix)/ykval-export-clients
-	install -D ykval-import-clients.php $(DESTDIR)$(sbinprefix)/ykval-import-clients
-	install -D ykval-checksum-clients.php $(DESTDIR)$(sbinprefix)/ykval-checksum-clients
-	install -D ykval-checksum-deactivated.php $(DESTDIR)$(sbinprefix)/ykval-checksum-deactivated
+	install -D ykval-queue $(DESTDIR)$(sbinprefix)/ykval-queue
+	install -D ykval-export $(DESTDIR)$(sbinprefix)/ykval-export
+	install -D ykval-import $(DESTDIR)$(sbinprefix)/ykval-import
+	install -D ykval-export-clients $(DESTDIR)$(sbinprefix)/ykval-export-clients
+	install -D ykval-import-clients $(DESTDIR)$(sbinprefix)/ykval-import-clients
+	install -D ykval-checksum-clients $(DESTDIR)$(sbinprefix)/ykval-checksum-clients
+	install -D ykval-checksum-deactivated $(DESTDIR)$(sbinprefix)/ykval-checksum-deactivated
 	install -D ykval-munin-ksmlatency.php $(DESTDIR)$(muninprefix)/ykval_ksmlatency
 	install -D ykval-munin-vallatency.php $(DESTDIR)$(muninprefix)/ykval_vallatency
 	install -D ykval-munin-queuelength.php $(DESTDIR)$(muninprefix)/ykval_queuelength
