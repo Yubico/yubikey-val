@@ -14,6 +14,8 @@
     backgroundable process that can be daemonized using for instance
     and init.d script.
 
+  * Added man pages for executables.
+
 * Version 2.19 released 2012-07-05
 
   * Refactor database code, allowing for other underlying implementations
