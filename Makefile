@@ -7,6 +7,9 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients			\
 	ykval-sync.php ykval-verify.php ykval-export-clients 	\
 	ykval-import-clients ykval-db-oci.php ykval-db-pdo.php	\
 	ykval-db.oracle.sql ykval-resync.php ykval-checksum-deactivated
+MANS = ykval-queue.1 ykval-import.1 ykval-export.1		\
+	ykval-import-clients.1 ykval-export-clients.1		\
+	ykval-checksum-clients.1 ykval-checksum-deactivated.1
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php ykval-munin-responses.pl \
 	ykval-munin-yubikeystats.php
@@ -25,6 +28,7 @@ etcprefix = /etc/yubico/val
 sbinprefix = /usr/sbin
 phpprefix = /usr/share/yubikey-val
 docprefix = /usr/share/doc/yubikey-val
+manprefix = /usr/share/man/man1
 muninprefix = /usr/share/munin/plugins
 wwwgroup = www-data
 
@@ -45,6 +49,13 @@ install:
 	install -D ykval-import-clients $(DESTDIR)$(sbinprefix)/ykval-import-clients
 	install -D ykval-checksum-clients $(DESTDIR)$(sbinprefix)/ykval-checksum-clients
 	install -D ykval-checksum-deactivated $(DESTDIR)$(sbinprefix)/ykval-checksum-deactivated
+	install -D ykval-queue.1 $(DESTDIR)$(manprefix)/ykval-queue.1
+	install -D ykval-import.1 $(DESTDIR)$(manprefix)/ykval-import.1
+	install -D ykval-export.1 $(DESTDIR)$(manprefix)/ykval-export.1
+	install -D ykval-import-clients.1 $(DESTDIR)$(manprefix)/ykval-import-clients.1
+	install -D ykval-export-clients.1 $(DESTDIR)$(manprefix)/ykval-export-clients.1
+	install -D ykval-checksum-clients.1 $(DESTDIR)$(manprefix)/ykval-checksum-clients.1
+	install -D ykval-checksum-deactivated.1 $(DESTDIR)$(manprefix)/ykval-checksum-deactivated.1
 	install -D ykval-munin-ksmlatency.php $(DESTDIR)$(muninprefix)/ykval_ksmlatency
 	install -D ykval-munin-vallatency.php $(DESTDIR)$(muninprefix)/ykval_vallatency
 	install -D ykval-munin-queuelength.php $(DESTDIR)$(muninprefix)/ykval_queuelength
@@ -76,7 +87,7 @@ $(PACKAGE)-$(VERSION).tgz: $(FILES)
 	git submodule init
 	git submodule update
 	mkdir $(PACKAGE)-$(VERSION) $(PACKAGE)-$(VERSION)/doc
-	cp $(CODE) $(MUNIN) $(PACKAGE)-$(VERSION)/
+	cp $(CODE) $(MANS) $(MUNIN) $(PACKAGE)-$(VERSION)/
 	cp $(DOCS) $(PACKAGE)-$(VERSION)/doc/
 	git2cl > $(PACKAGE)-$(VERSION)/ChangeLog
 	tar cfz $(PACKAGE)-$(VERSION).tgz $(PACKAGE)-$(VERSION)
