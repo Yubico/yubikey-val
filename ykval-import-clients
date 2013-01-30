@@ -20,6 +20,8 @@ if (!$db->connect()) {
 
 
 while ($res=fgetcsv(STDIN, 0, ",")) {
+  if($res[0]===null || strpos($res[0], '#')===0) continue;
+
   $params=array("id"=>$res[0],
 		"active"=>$res[1],
 		"created"=>$res[2],
