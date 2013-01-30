@@ -16,10 +16,11 @@ MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
 	doc/RevocationService.wiki doc/ServerReplicationProtocol.wiki	\
 	doc/SyncMonitor.wiki doc/Troubleshooting.wiki
+TMPDIR = /tmp/tmp.yubikey-val
 
 all:
 	@echo "Try 'make install' or 'make symlink'."
-	@echo "Docs: http://code.google.com/p/$(PROJECT)/wiki/Installation"
+	@echo "Docs: https://github.com/Yubico/yubikey-val/wiki/Installation"
 	@exit 1
 
 # Installation rules.
@@ -81,8 +82,6 @@ revoke:
 
 # Maintainer rules.
 
-PROJECT=yubikey-val-server-php
-
 $(PACKAGE)-$(VERSION).tgz: $(FILES)
 	git submodule init
 	git submodule update
@@ -100,21 +99,34 @@ clean:
 	rm -rf $(PACKAGE)-$(VERSION)
 
 release: dist
-	@if test -z "$(USER)" || test -z "$(KEYID)"; then \
+	@if test -z "$(KEYID)"; then \
 		echo "Try this instead:"; \
-		echo "  make release USER=[GOOGLEUSERNAME] KEYID=[PGPKEYID]"; \
+		echo "  make release KEYID=[PGPKEYID]"; \
 		echo "For example:"; \
-		echo "  make release USER=simon@josefsson.org KEYID=2117364A"; \
+		echo "  make release KEYID=2117364A"; \
 		exit 1; \
 	fi
 	@head -1 NEWS | grep -q "Version $(VERSION) released `date -I`" || \
 		(echo 'error: You need to update date/version in NEWS'; exit 1)
 	gpg --detach-sign --default-key $(KEYID) $(PACKAGE)-$(VERSION).tgz
 	gpg --verify $(PACKAGE)-$(VERSION).tgz.sig
+
+	git tag -u $(KEYID) -m $(VERSION) $(PACKAGE)-$(VERSION)
 	git push
-	git tag -u $(KEYID)! -m $(VERSION) yubikey-val-$(VERSION)
 	git push --tags
-	googlecode_upload.py -s "OpenPGP signature for $(PACKAGE) $(VERSION)." \
-	 -p $(PROJECT) -u $(USER) $(PACKAGE)-$(VERSION).tgz.sig
-	googlecode_upload.py -s "$(PACKAGE) $(VERSION)." \
-	 -p $(PROJECT) -u $(USER) $(PACKAGE)-$(VERSION).tgz 
+	mkdir -p $(TMPDIR)
+	mv $(PACKAGE)-$(VERSION).tgz $(TMPDIR)
+	mv $(PACKAGE)-$(VERSION).tgz.sig $(TMPDIR)
+
+	git checkout gh-pages
+	mv $(TMPDIR)/$(PACKAGE)-$(VERSION).tgz releases/
+	mv $(TMPDIR)/$(PACKAGE)-$(VERSION).tgz.sig releases/
+	git add releases/$(PACKAGE)-$(VERSION).tgz
+	git add releases/$(PACKAGE)-$(VERSION).tgz.sig
+	rmdir --ignore-fail-on-non-empty $(TMPDIR)
+
+	x=$$(ls -1v releases/*.tgz | awk -F\- '{print $$3}' | sed 's/.tgz//' | paste -sd ',' - | sed 's/,/, /g');sed -i -e "2s/\[.*\]/[$$x]/" releases.html
+	git add releases.html
+	git commit -m "Added tarball for release $(VERSION)"
+	git push
+	git checkout master
