@@ -1,3 +1,5 @@
+* Version 2.21 unreleased
+
 * Version 2.20 released 2013-01-31
 
   * Add ChangeLog generation using git2cl.
