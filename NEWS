@@ -1,5 +1,8 @@
 * Version 2.21 unreleased
 
+  * Fixed a problem that caused ykval-queue to terminate if the database
+    was not available initially.
+
 * Version 2.20 released 2013-01-31
 
   * Add ChangeLog generation using git2cl.

@@ -28,6 +28,7 @@ class DbImpl extends Db
     $this->db_username=$db_username;
     $this->db_password=$db_password;
     $this->db_options=$db_options;
+    $this->result = null;
 
     $this->myLog=new Log($name);
   }
@@ -96,7 +97,7 @@ class DbImpl extends Db
    */
   public function closeCursor($result=null){
     if(!$result) $result = $this->result;
-    $result->closeCursor();
+    if($result) $result->closeCursor();
   }
 
   public function truncateTable($name)
