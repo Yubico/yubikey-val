@@ -125,7 +125,7 @@ release: dist
 	git add releases/$(PACKAGE)-$(VERSION).tgz.sig
 	rmdir --ignore-fail-on-non-empty $(TMPDIR)
 
-	x=$$(ls -1v releases/*.tgz | awk -F\- '{print $$3}' | sed 's/.tgz//' | paste -sd ',' - | sed 's/,/, /g');sed -i -e "2s/\[.*\]/[$$x]/" releases.html
+	x=$$(ls -1v releases/*.tgz | awk -F\- '{print $$3}' | sed 's/.tgz//' | paste -sd ',' - | sed 's/,/, /g' | sed 's/\([0-9.]\{1,\}\)/"\1"/g');sed -i -e "2s/\[.*\]/[$$x]/" releases.html
 	git add releases.html
 	git commit -m "Added tarball for release $(VERSION)"
 	git push
