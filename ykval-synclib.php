@@ -435,7 +435,7 @@ class SyncLib
 
       /* Check for warnings
 
-       See http://code.google.com/p/yubikey-val-server-php/wiki/ServerReplicationProtocol
+       See https://github.com/Yubico/yubikey-val/wiki/ServerReplicationProtocol
 
        NOTE: We use localParams for validationParams comparison since they are actually the
        same in this situation and we have them at hand.
