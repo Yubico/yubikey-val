@@ -1,4 +1,4 @@
-* Version 2.21 (unreleased)
+* Version 2.21 (released 2013-02-05)
 
   * Fixed a problem that caused ykval-queue to terminate if the database
     was not available initially.
