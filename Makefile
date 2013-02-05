@@ -106,7 +106,7 @@ release: dist
 		echo "  make release KEYID=2117364A"; \
 		exit 1; \
 	fi
-	@head -1 NEWS | grep -q "Version $(VERSION) released `date -I`" || \
+	@head -1 NEWS | grep -q "Version $(VERSION) (released `date -I`)" || \
 		(echo 'error: You need to update date/version in NEWS'; exit 1)
 	gpg --detach-sign --default-key $(KEYID) $(PACKAGE)-$(VERSION).tgz
 	gpg --verify $(PACKAGE)-$(VERSION).tgz.sig
