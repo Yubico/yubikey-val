@@ -47,7 +47,7 @@ $yk = $_REQUEST["yk"];
 if (!$yk) {
   logdie($myLog, "ERROR Missing parameter");
 }
-if (!preg_match("/^([cbdefghijklnrtuv]{0,16})$/", $yk)) {
+if (!($yk == "all" || preg_match("/^([cbdefghijklnrtuv]{0,16})$/", $yk))) {
   logdie($myLog, "ERROR Unknown yk value: $yk");
 }
 $myLog->addField('yk', $yk);
@@ -58,10 +58,20 @@ if (!$db->connect()) {
   logdie($myLog, 'ERROR Database connect error (1)');
 }
 
-# Check if key exists
-$r = $db->findBy('yubikeys', 'yk_publicname', $yk, 1);
-if (!$r) {
-  logdie($myLog, "ERROR Unknown yubikey: $yk");
+if($yk == "all") {
+  # Get all keys
+  $res = $db->customQuery("SELECT yk_publicname FROM yubikeys WHERE active = true");
+  while($r = $db->fetchArray($res)) {
+    $yubikeys[] = $r['yk_publicname'];
+  }
+  $db->closeCursor($res);
+} else {
+  # Check if key exists
+  $r = $db->findBy('yubikeys', 'yk_publicname', $yk, 1);
+  if (!$r) {
+    logdie($myLog, "ERROR Unknown yubikey: $yk");
+  }
+  $yubikeys = array($yk);
 }
 
 /* Initialize the sync library. */
@@ -73,17 +83,19 @@ if (! $sync->isConnected()) {
   logdie($myLog, 'ERROR Database connect error (2)');
 }
 
-$localParams = $sync->getLocalParams($yk);
-if (!$localParams) {
-  logdie($myLog, 'ERROR Invalid Yubikey ' . $yk);
-}
+foreach($yubikeys as $key) {
+  $localParams = $sync->getLocalParams($key);
+  if (!$localParams) {
+    logdie($myLog, 'ERROR Invalid Yubikey ' . $key);
+  }
 
-$localParams['otp'] = $yk . str_repeat('c', 32); // Fake an OTP, only used for logging.
-$myLog->log(LOG_DEBUG, "Auth data:", $localParams);
+  $localParams['otp'] = $key . str_repeat('c', 32); // Fake an OTP, only used for logging.
+  $myLog->log(LOG_DEBUG, "Auth data:", $localParams);
 
-/* Queue sync requests */
-if (!$sync->queue($localParams, $localParams)) {
-  logdie($myLog, 'ERROR Failed resync');
+  /* Queue sync request */
+  if (!$sync->queue($localParams, $localParams)) {
+    logdie($myLog, 'ERROR Failed resync');
+  }
 }
 
 # We are done
