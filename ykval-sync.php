@@ -52,30 +52,26 @@ $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
 if (! $sync->isConnected()) {
   sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
   exit;
- }
+}
 
 #
 # Verify that request comes from valid server
 #
 
 $myLog->log(LOG_INFO, 'Received request from ' . $_SERVER['REMOTE_ADDR']);
-$allowed=False;
-foreach ($baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] as $server) {
-  if ($_SERVER['REMOTE_ADDR'] == $server) {
-    $allowed=True;
-    break;
-  }
-}
+
+$allowed = in_array($_SERVER['REMOTE_ADDR'], $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']);
+
 if (!$allowed) {
   $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $_SERVER['REMOTE_ADDR']);
   $myLog->log(LOG_DEBUG, 'Remote IP ' . $_SERVER['REMOTE_ADDR'] . ' not listed in allowed sync pool : ' .
 	      implode(', ', $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']));
   sendResp(S_OPERATION_NOT_ALLOWED, $myLog, $apiKey);
   exit;
- }
+}
 
 #
-# Define requirements on protocoll
+# Define requirements on protocol
 #
 
 $syncParams=array('modified'=>Null,
@@ -105,7 +101,7 @@ foreach ($syncParams as $param=>$value) {
 $myLog->log(LOG_INFO, $tmp_log);
 
 #
-# At this point we should have to otp so let's add it to the logging module
+# At this point we should have the otp so let's add it to the logging module
 #
 $myLog->addField('otp', $syncParams['otp']);
 $sync->addField('otp', $syncParams['otp']);
@@ -143,7 +139,7 @@ if (!$localParams) {
   $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
   sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
   exit;
- }
+}
 
 /* Conditional update local database */
 $sync->updateDbCounters($syncParams);
@@ -161,7 +157,7 @@ $myLog->log(LOG_DEBUG, 'Sync request params ' , $syncParams);
 
 if ($sync->countersHigherThan($localParams, $syncParams)) {
   $myLog->log(LOG_WARNING, 'Remote server out of sync.');
- }
+}
 
 
 if ($sync->countersEqual($localParams, $syncParams)) {
@@ -189,7 +185,7 @@ if ($sync->countersEqual($localParams, $syncParams)) {
   if ($syncParams['nonce']!=$localParams['nonce']) {
     $myLog->log(LOG_WARNING, 'Remote server has received a request to validate an already validated OTP ');
   }
- }
+}
 
 if ($localParams['active'] != 1) {
   /* The remote server has accepted an OTP from a YubiKey which we would not.
