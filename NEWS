@@ -1,3 +1,11 @@
+* Version 2.22 (unreleased)
+
+  * Added the ability to send yk=all to ykval-resync.php to queue sync
+    of all known active YubiKeys.
+
+  * Added ykval-synchronize to easily call ykval-resync.php on a remote
+    server.
+
 * Version 2.21 (released 2013-02-05)
 
   * Fixed a problem that caused ykval-queue to terminate if the database
