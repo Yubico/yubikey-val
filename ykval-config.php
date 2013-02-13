@@ -62,7 +62,9 @@ $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array(/*"1.2.3.4",*/
 $baseParams['__YKREV_IPS__'] = array(/*"127.0.0.1"*/);
 # An array of IP addresses allowed to issue database resync requests through
 # ykval-resync.php. NOTE: You must use IP addresses here.
-$baseParams['__YKRESYNC_IPS__'] = array(/*"127.0.0.1"*/);
+#$baseParams['__YKRESYNC_IPS__'] = array("127.0.0.1");
+#Use the same as for issuing sync requests:
+$baseParams['__YKRESYNC_IPS__'] = $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'];
 
 # Specify how often the sync daemon awakens
 $baseParams['__YKVAL_SYNC_INTERVAL__'] = 10;
