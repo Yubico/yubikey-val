@@ -1,0 +1,69 @@
+.\" Copyright (c) 2011-2013 Yubico AB
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\"     * Redistributions of source code must retain the above copyright
+.\"       notice, this list of conditions and the following disclaimer.
+.\"
+.\"     * Redistributions in binary form must reproduce the above
+.\"       copyright notice, this list of conditions and the following
+.\"       disclaimer in the documentation and/or other materials provided
+.\"       with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" The following commands are required for all man pages.
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.TH ykval-synchronize "1" "January 2013" "yubico-val"
+.SH NAME
+ykval-synchronize - Request synchronization from servers in a 
+yubikey-val sync pool.
+.SH SYNOPSIS
+.B ykval-synchronize
+.SH DESCRIPTION
+Sends a request to a remote server in the sync pool to synchronize 
+YubiKey counters with the sender. Can be used to synchronize a specific 
+key, or all keys.
+
+The remote server must be configured to allow resync requests from the 
+machine the command is run from, and the machine running the command 
+must be configured to accept sync requests from the remote server.
+The synchronization is queued remotely and handled by the ykval-queue 
+daemon.
+.SH EXAMPLES
+Request sync for a specific YubiKey:
+
+    $ ykval-synchronize http://1.2.3.4/wsapi/2.0/resync ccccccdndndn
+
+If the URL follows the default format (as in the example above) you can 
+skip the protocol and just give the hostname directly, or as an IP address.
+Request sync for all (active) YubiKeys from server using the default path:
+
+    $ ykval-synchronize example.com all
+
+.SH BUGS
+Report ykval-synchronize bugs in
+.URL "https://github.com/Yubico/yubikey-val/issues" "the issue tracker"
+.SH "SEE ALSO"
+The
+.URL "https://github.com/Yubico/yubikey-val" "yubikey-val home page"
+.PP
+YubiKeys can be obtained from
+.URL "http://www.yubico.com/" "Yubico" "."
+
