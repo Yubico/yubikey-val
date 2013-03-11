@@ -6,6 +6,8 @@
   * Added ykval-synchronize to easily call ykval-resync.php on a remote
     server.
 
+  * Added ykval-gen-clients to generate API clients.
+
 * Version 2.21 (released 2013-02-05)
 
   * Fixed a problem that caused ykval-queue to terminate if the database

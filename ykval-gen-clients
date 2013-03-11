@@ -1,0 +1,123 @@
+#!/usr/bin/php
+
+<?php
+
+# Copyright (c) 2013 Yubico AB
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#   * Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#
+#   * Redistributions in binary form must reproduce the above
+#     copyright notice, this list of conditions and the following
+#     disclaimer in the documentation and/or other materials provided
+#     with the distribution.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+set_include_path(get_include_path() . PATH_SEPARATOR . "/usr/share/yubikey-val:/etc/yubico/val");
+
+require_once 'ykval-config.php';
+require_once 'ykval-db.php';
+
+$logname="ykval-gen-clients";
+$myLog = new Log($logname);
+
+$options = getopt("h", array("help", "email::", "notes::", "otp::", "urandom"));
+
+if(array_key_exists('h', $options) || array_key_exists('help', $options)) {
+  echo "Usage: ".$argv[0]." [ OPTIONS ] [ num_clients ]\n";
+  echo "  Unless num_clients is defined, one client will be generated.\n\n";
+  echo "Options supported by ".$argv[0]."\n";
+  echo "  --urandom\n";
+  echo "        Use /dev/urandom instead of /dev/random as entropy source.";
+  echo "  --email=EMAIL\n";
+  echo "        Sets the e-mail field of the created clients\n";
+  echo "  --notes=NOTES\n";
+  echo "        Sets the notes field of the created clients\n";
+  echo "  --otp=OTP\n";
+  echo "        Sets the otp field of the created clients\n";
+  exit(1);
+}
+
+$db = Db::GetDatabaseHandle($baseParams, $logname);
+
+if(!$db->connect()) {
+  $myLog->log(LOG_WARNING, "Could not connect to database");
+  error_log("Could not connect to database");
+  exit(1);
+}
+
+$count=1;
+if($last_arg = intval(array_pop($argv))) {
+  $count = $last_arg;
+}
+
+$result = $db->customQuery("SELECT id FROM clients ORDER BY id DESC LIMIT 1");
+$row = $db->fetchArray($result);
+$db->closeCursor($result);
+if($row) {
+  $next_id = $row['id']+1;
+} else {
+  $next_id = 1;
+}
+
+$random = array_key_exists('urandom', $options) ? "/dev/urandom" : "/dev/random";
+$fh = fopen($random, "r");
+if(!$fh) {
+ die("cannot open ".$random);
+}
+
+for ($i=0; $i<$count; $i++) {
+  $client_id = $next_id++;
+  if (!($rnd = fread ($fh, 20))) {
+    die("cannot read from ".$random);
+  }
+  $secret = base64_encode($rnd);
+
+  $params = array(
+    "id" => $client_id,
+    "active" => 1,
+    "created" => time(),
+    "secret" => $secret,
+    "email" => array_key_exists('email', $options) ? $options['email'] : '',
+    "notes" => array_key_exists('notes', $options) ? $options['notes'] : '',
+    "otp" => array_key_exists('otp', $options) ? $options['otp'] : ''
+  );
+
+  $query="INSERT INTO clients " .
+      "(id,active,created,secret,email,notes,otp) VALUES " .
+      "('" . $params["id"] . "', " .
+      "'" . $params["active"] . "', " .
+      "'" . $params['created'] . "'," .
+      "'" . $params['secret'] . "'," .
+      "'" . $params['email'] . "'," .
+      "'" . $params['notes'] . "'," .
+      "'" . $params['otp'] . "')";
+
+  if(!$db->customQuery($query)){
+    $myLog->log(LOG_ERR, "Failed to insert new client with query " . $query);
+    error_log("Failed to insert new client with query " . $query);
+    exit(1);
+  }
+
+  echo $client_id.", ".$secret."\n";
+}
+
+fclose($fh);
+
+$myLog->log(LOG_NOTICE, "Successfully inserted generated clients into database");
