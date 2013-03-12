@@ -37,7 +37,18 @@ header("content-type: text/plain");
 
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
-$myLog->log(LOG_INFO, "Request: " . $_SERVER['QUERY_STRING'] .
+$query_string = '';
+if ($_POST) {
+  $kv = array();
+  foreach ($_POST as $key => $value) {
+    $kv[] = "$key=$value";
+  }
+  $query_string = "POST: " . join("&", $kv);
+} else {
+  $query_string = "Request: " . $_SERVER['QUERY_STRING'];
+}
+
+$myLog->log(LOG_INFO, $query_string .
 	    " (at " . date("c") . " " . microtime() . ") " .
 	    (isset($_SERVER["HTTPS"])  && $_SERVER["HTTPS"] == "on" ? "HTTPS" : "HTTP"));
 
