@@ -11,7 +11,7 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients			\
 MANS = ykval-queue.1 ykval-import.1 ykval-export.1		\
 	ykval-import-clients.1 ykval-export-clients.1		\
 	ykval-checksum-clients.1 ykval-checksum-deactivated.1	\
-	ykval-synchronize.1
+	ykval-synchronize.1 ykval-gen-clients.1
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php ykval-munin-responses.pl \
 	ykval-munin-yubikeystats.php
@@ -58,6 +58,7 @@ install:
 	install -D ykval-synchronize.1 $(DESTDIR)$(manprefix)/ykval-synchronize.1
 	install -D ykval-import.1 $(DESTDIR)$(manprefix)/ykval-import.1
 	install -D ykval-export.1 $(DESTDIR)$(manprefix)/ykval-export.1
+	install -D ykval-gen-clients.1 $(DESTDIR)$(manprefix)/ykval-gen-clients.1
 	install -D ykval-import-clients.1 $(DESTDIR)$(manprefix)/ykval-import-clients.1
 	install -D ykval-export-clients.1 $(DESTDIR)$(manprefix)/ykval-export-clients.1
 	install -D ykval-checksum-clients.1 $(DESTDIR)$(manprefix)/ykval-checksum-clients.1

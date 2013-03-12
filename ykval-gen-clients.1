@@ -1,0 +1,66 @@
+.\" Copyright (c) 2011-2013 Yubico AB
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions are
+.\" met:
+.\"
+.\"     * Redistributions of source code must retain the above copyright
+.\"       notice, this list of conditions and the following disclaimer.
+.\"
+.\"     * Redistributions in binary form must reproduce the above
+.\"       copyright notice, this list of conditions and the following
+.\"       disclaimer in the documentation and/or other materials provided
+.\"       with the distribution.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+.\" "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+.\" LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+.\" A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+.\" OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+.\" SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+.\" LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+.\" OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+.\"
+.\" The following commands are required for all man pages.
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.TH ykval-gen-clients "1" "January 2013" "yubico-val"
+.SH NAME
+ykval-gen-clients - Generate Yubikey API clients.
+.SH SYNOPSIS
+.B ykval-gen-clients [ OPTIONS ] [ num_clients ]
+.SH DESCRIPTION
+Generates clients and client secrets, and inserts them into the yubikey-val
+database. They are also printed to stdout as comma separated lines 
+containing client_id, secret.
+.PP
+Database configuration is read from /etc/yubico/val/ykval-config.php
+.PP
+\fB\-\-urandom\fR
+        Use /dev/urandom instead of /dev/random as entropy source.
+.PP
+\fB\-\-email\fR=EMAIL
+        Sets the e-mail field of the created clients
+.PP
+\fB\-\-notes\fR=NOTES
+        Sets the notes field of the created clients
+.PP
+\fB\-\-otp\fR=OTP
+        Sets the otp field of the created clients
+
+.SH BUGS
+Report ykval-gen-clients bugs in
+.URL "https://github.com/Yubico/yubikey-val/issues" "the issue tracker"
+.SH "SEE ALSO"
+.BR ykval-import-clients (1)
+
+.PP
+YubiKeys can be obtained from
+.URL "http://www.yubico.com/" "Yubico" "."
+
