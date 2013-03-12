@@ -7,7 +7,7 @@ CODE = COPYING Makefile NEWS ykval-checksum-clients			\
 	ykval-sync.php ykval-verify.php ykval-export-clients 	\
 	ykval-import-clients ykval-db-oci.php ykval-db-pdo.php	\
 	ykval-db.oracle.sql ykval-resync.php ykval-checksum-deactivated	\
-	ykval-synchronize
+	ykval-synchronize ykval-gen-clients
 MANS = ykval-queue.1 ykval-import.1 ykval-export.1		\
 	ykval-import-clients.1 ykval-export-clients.1		\
 	ykval-checksum-clients.1 ykval-checksum-deactivated.1	\
@@ -49,6 +49,7 @@ install:
 	install -D ykval-synchronize $(DESTDIR)$(sbinprefix)/ykval-synchronize
 	install -D ykval-export $(DESTDIR)$(sbinprefix)/ykval-export
 	install -D ykval-import $(DESTDIR)$(sbinprefix)/ykval-import
+	install -D ykval-gen-clients $(DESTDIR)$(sbinprefix)/ykval-gen-clients
 	install -D ykval-export-clients $(DESTDIR)$(sbinprefix)/ykval-export-clients
 	install -D ykval-import-clients $(DESTDIR)$(sbinprefix)/ykval-import-clients
 	install -D ykval-checksum-clients $(DESTDIR)$(sbinprefix)/ykval-checksum-clients
