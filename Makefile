@@ -18,7 +18,6 @@ MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
 	doc/RevocationService.wiki doc/ServerReplicationProtocol.wiki	\
 	doc/SyncMonitor.wiki doc/Troubleshooting.wiki
-TMPDIR = /tmp/tmp.yubikey-val
 
 all:
 	@echo "Try 'make install' or 'make symlink'."
@@ -88,6 +87,8 @@ revoke:
 
 # Maintainer rules.
 
+PROJECT = $(PACKAGE)
+
 $(PACKAGE)-$(VERSION).tgz: $(FILES)
 	git submodule init
 	git submodule update
@@ -114,25 +115,13 @@ release: dist
 	fi
 	@head -1 NEWS | grep -q "Version $(VERSION) (released `date -I`)" || \
 		(echo 'error: You need to update date/version in NEWS'; exit 1)
+	@if test ! -d $(YUBICO_GITHUB_REPO); then \
+		echo "yubico.github.com repo not found!"; \
+		echo "Make sure that YUBICO_GITHUB_REPO is set"; \
+		exit 1; \
+	fi
 	gpg --detach-sign --default-key $(KEYID) $(PACKAGE)-$(VERSION).tgz
 	gpg --verify $(PACKAGE)-$(VERSION).tgz.sig
-
 	git tag -u $(KEYID) -m $(VERSION) $(PACKAGE)-$(VERSION)
-	git push
-	git push --tags
-	mkdir -p $(TMPDIR)
-	mv $(PACKAGE)-$(VERSION).tgz $(TMPDIR)
-	mv $(PACKAGE)-$(VERSION).tgz.sig $(TMPDIR)
-
-	git checkout gh-pages
-	mv $(TMPDIR)/$(PACKAGE)-$(VERSION).tgz releases/
-	mv $(TMPDIR)/$(PACKAGE)-$(VERSION).tgz.sig releases/
-	git add releases/$(PACKAGE)-$(VERSION).tgz
-	git add releases/$(PACKAGE)-$(VERSION).tgz.sig
-	rmdir --ignore-fail-on-non-empty $(TMPDIR)
-
-	x=$$(ls -1v releases/*.tgz | awk -F\- '{print $$3}' | sed 's/.tgz//' | paste -sd ',' - | sed 's/,/, /g' | sed 's/\([0-9.]\{1,\}\)/"\1"/g');sed -i -e "2s/\[.*\]/[$$x]/" releases.html
-	git add releases.html
-	git commit -m "Added tarball for release $(VERSION)"
-	git push
-	git checkout master
+	echo "Release created and tagged, remember to git push && git push --tags"
+	$(YUBICO_GITHUB_REPO)/publish $(PROJECT) $(VERSION) $(PACKAGE)-$(VERSION).tgz*
