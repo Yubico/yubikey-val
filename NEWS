@@ -2,6 +2,8 @@
 
   * Removed initial empty line from output for all commands.
 
+  * Updated release procedure.
+
 * Version 2.22 (released 2013-03-12)
 
   * Added the ability to send yk=all to ykval-resync.php to queue sync
