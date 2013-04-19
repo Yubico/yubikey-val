@@ -142,7 +142,7 @@ release: dist
 	fi
 	@head -1 NEWS | grep -q "Version $(VERSION) (released `date -I`)" || \
 		(echo 'error: You need to update date/version in NEWS'; exit 1)
-	@if test ! -d $(YUBICO_GITHUB_REPO); then \
+	@if test ! -d "$(YUBICO_GITHUB_REPO)"; then \
 		echo "yubico.github.com repo not found!"; \
 		echo "Make sure that YUBICO_GITHUB_REPO is set"; \
 		exit 1; \
