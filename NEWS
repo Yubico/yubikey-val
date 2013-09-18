@@ -1,4 +1,4 @@
-* Version 2.24 (unreleased)
+* Version 2.24 (released 2013-09-18)
   
   * Removed space after comma in the output of ykval-gen-clients.
 
