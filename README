@@ -1,21 +1,26 @@
 yubikey-val
 ===========
 
-The YubiKey Validation Server (YK-VAL) is a server that validates Yubikey OTPs. It is written in PHP, for use with web servers such as Apache.
+The YubiKey Validation Server (YK-VAL) is a server that validates
+Yubikey OTPs.  YK-VAL is written in PHP, for use with web servers such
+as Apache.
 
-The server implements the Yubico API protocol as defined in:
+The server implements the Yubico API protocol as defined in
+doc/ValidationProtocol*.
 
-http://yubico.com/developers/api/
-
-This server talks to another service for decrypting the OTPs, to avoid storing any AES keys within the validation server. One implementation of this service is YKKSM:
+This server talks to another service for decrypting the OTPs, to avoid
+storing any AES keys within the validation server. One implementation
+of this service is YKKSM:
 
 https://github.com/Yubico/yubikey-ksm
 
-Another implementation of a KSM using the YubiHSM hardware is Python-PyHSM:
+Another implementation of a KSM using the YubiHSM hardware is
+Python-PyHSM:
 
 https://github.com/Yubico/python-pyhsm
 
-Note that version 1.x is a minimal centralized server. Version 2.x is a replicated system that uses multiple machines.
+Note that version 1.x is a minimal centralized server. Version 2.x is
+a replicated system that uses multiple machines.
 
 Releases are available from:
 

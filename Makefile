@@ -27,7 +27,7 @@
 
 VERSION = 2.24
 PACKAGE = yubikey-val
-CODE = COPYING Makefile NEWS ykval-checksum-clients			\
+CODE = COPYING Makefile NEWS README ykval-checksum-clients		\
 	ykval-common.php ykval-config.php ykval-db.php ykval-db.sql	\
 	ykval-export ykval-import ykval-log.php ykval-ping.php	\
 	ykval-queue ykval-revoke.php ykval-synclib.php		\

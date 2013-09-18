@@ -2,6 +2,8 @@
   
   * Removed space after comma in the output of ykval-gen-clients.
 
+  * Include README in tarball.
+
 * Version 2.23 (released 2013-04-17)
 
   * Removed initial empty line from output for all commands.
