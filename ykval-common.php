@@ -208,27 +208,16 @@ function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $re
   return $str;
 }
 
-function retrieveURLsimple ($url, $match="^OK") {
-  foreach (file($url) as $line) {
-    if (preg_match("/".$match."/", $line)) {
-      return $line;
-    }
-  }
-  return false;
-}
-
 // $otp: A yubikey OTP
 function KSMdecryptOTP($urls, $logger) {
   $ret = array();
   if (!is_array($urls)) {
-    $response = retrieveURLsimple ($urls);
-  } elseif (count($urls) == 1) {
-    $response = retrieveURLsimple ($urls[0]);
-  } else {
-    $response = retrieveURLasync ("YK-KSM", $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10);
-    if (is_array($response)) {
-      $response = $response[0];
-    }
+    $urls = array($urls);
+  }
+
+  $response = retrieveURLasync ("YK-KSM", $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10);
+  if (is_array($response)) {
+    $response = $response[0];
   }
   if ($response) {
     $logger->log(LOG_DEBUG, log_format("YK-KSM response: ", $response));
