@@ -1,6 +1,6 @@
 language: php
 php:
-    - 5.5
+    - 5.3
 env:
     - DB=mysql
     - DB=pgsql
