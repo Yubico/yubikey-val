@@ -1,0 +1,9 @@
+language: php
+php:
+    - 5.5
+env:
+    - DB=mysql
+    - DB=pgsql
+    - DB=sqlite
+script:
+    - travis/selftest.sh
