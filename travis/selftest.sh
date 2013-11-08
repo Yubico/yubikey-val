@@ -34,6 +34,8 @@ sudo mkdir -p /etc/yubico/val/
 sudo chmod 0755 /etc/yubico/val/
 sudo mv config-db.php /etc/yubico/val/
 
+sudo perl travis/server.pl &
+
 echo '1,1,1383728711,EHmo8FMxuhumBlTinC4uYL0Mgwg=,,,' | php ykval-import-clients
 
 set +e
