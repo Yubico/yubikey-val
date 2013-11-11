@@ -88,6 +88,7 @@ fi
 num=`php ykval-export | wc -l`
 if [ $num != 1 ]; then
   echo "failed exporting"
+  php ykval-export
   exit 1
 else
   echo "Success export"
@@ -96,6 +97,7 @@ fi
 num=`php ykval-gen-clients | wc -l`
 if [ $num != 1 ]; then
   echo "failed generating new client"
+  php ykval-gen-clients
   exit 1
 else
   echo "Success generating new client"
@@ -104,6 +106,7 @@ fi
 num=`php ykval-export-clients | wc -l`
 if [ $num != 2 ]; then
   echo "failed exporting clients"
+  php ykval-export-clients
   exit 1
 else
   echo "Success export-clients"
