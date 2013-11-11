@@ -85,7 +85,7 @@ else
   echo "Success 3"
 fi
 
-num=`./ykval-export | wc -l`
+num=`php ykval-export | wc -l`
 if [ $num != 1 ]; then
   echo "failed exporting"
   exit 1
@@ -93,7 +93,7 @@ else
   echo "Success export"
 fi
 
-num=`./ykval-gen-clients | wc -l`
+num=`php ykval-gen-clients | wc -l`
 if [ $num != 1 ]; then
   echo "failed generating new client"
   exit 1
@@ -101,7 +101,7 @@ else
   echo "Success generating new client"
 fi
 
-num=`./ykval-export-clients | wc -l`
+num=`php ykval-export-clients | wc -l`
 if [ $num != 2 ]; then
   echo "failed exporting clients"
   exit 1
