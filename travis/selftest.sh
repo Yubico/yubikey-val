@@ -74,3 +74,19 @@ if [ $? != 0 ]; then
 else
   echo "Success 3"
 fi
+
+num=`./ykval-export | wc -l`
+if [ $num != 1 ]; then
+  echo "failed exporting"
+  exit 1
+else
+  echo "Success export"
+fi
+
+num=`./ykval-export-clients | wc -l`
+if [ $num != 1 ]; then
+  echo "failed exporting clients"
+  exit 1
+else
+  echo "Success export-clients"
+fi
