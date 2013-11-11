@@ -58,6 +58,16 @@ else
   echo "Success 1"
 fi
 
+id="2"
+run_command $id $otp $nonce | grep -q 'status=NO_SUCH_CLIENT'
+if [ $? != 0 ]; then
+  sudo tail /var/log/syslog
+  exit 1
+else
+  echo "Success 1"
+fi
+
+id="1"
 run_command $id $otp $nonce | grep -q 'status=REPLAYED_REQUEST'
 if [ $? != 0 ]; then
   sudo tail /var/log/syslog
