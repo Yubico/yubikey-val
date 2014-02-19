@@ -1,0 +1,8 @@
+Author: Yubico
+Basename: yubikey-val
+Homepage: http://opensource.yubico.com/yubikey-val/
+License: BSD-2-Clause
+Name: yubikey-val
+Project: yubikey-val
+Summary: YubiKey OTP validation server in PHP
+Travis: https://travis-ci.org/Yubico/yubikey-val
