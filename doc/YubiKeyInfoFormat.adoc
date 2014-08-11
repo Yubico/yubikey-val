@@ -43,4 +43,4 @@ An example of a valid data line:
 ```
 
 For an example of importing and exporting YubiKey Info data, please see
-[[ImportExportData|Importing and Exporting Data]].
+`ImportExportData.adoc`.
