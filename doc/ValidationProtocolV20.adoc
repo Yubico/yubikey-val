@@ -71,17 +71,44 @@ http://api.yubico.com/wsapi/2.0/verify
 
 with the following parameters (note that this request need not be signed):
 
-[options="header"]
-|==========================================
+|===
 | parameter | type | required | purpose
-| id | string | Yes | Specifies the requestor so that the end-point can retrieve correct shared secret for signing the response.
-|otp | string | Yes | The OTP from the !YubiKey.
-| h | string | No | The optional HMAC-SHA1 signature for the request.
-| timestamp | string | No | Timestamp=1 requests timestamp and session counter information in the response
-| nonce | string | Yes | A 16 to 40 character long string with random unique data
-| sl | string | No | A value 0 to 100 indicating percentage of syncing required by client, or strings "fast" or "secure" to use server-configured values; if absent, let the server decide
-| timeout | integer | No | Number of seconds to wait for sync responses; if absent, let the server decide
-|=========================================
+
+| id 
+| string 
+| Yes 
+| Specifies the requestor so that the end-point can retrieve correct shared secret for signing the response.
+
+|otp 
+| string 
+| Yes 
+| The OTP from the YubiKey.
+
+| h 
+| string 
+| No 
+| The optional HMAC-SHA1 signature for the request.
+
+| timestamp 
+| string 
+| No 
+| Timestamp=1 requests timestamp and session counter information in the response
+
+| nonce 
+| string 
+| Yes 
+| A 16 to 40 character long string with random unique data
+
+| sl 
+| string 
+| No 
+| A value 0 to 100 indicating percentage of syncing required by client, or strings "fast" or "secure" to use server-configured values; if absent, let the server decide
+
+| timeout 
+| integer 
+| No
+| Number of seconds to wait for sync responses; if absent, let the server decide
+|===
 
 An example request:
 
