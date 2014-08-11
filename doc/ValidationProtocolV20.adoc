@@ -72,7 +72,7 @@ http://api.yubico.com/wsapi/2.0/verify
 with the following parameters (note that this request need not be signed):
 
 [options="header"]
-==========================================
+|==========================================
 | parameter | type | required | purpose
 | id | string | Yes | Specifies the requestor so that the end-point can retrieve correct shared secret for signing the response.
 |otp | string | Yes | The OTP from the !YubiKey.
@@ -101,19 +101,47 @@ http://api.yubico.com/wsapi/2.0/verify?id=87&otp=vvvvvvcucrlcietctckflvnncdgckub
 The verification response tells you whether the OTP is valid.  The
 response has the following values:
 
-[options="header"]
-|===========================
-| parameter | type | purpose
-| otp | string | The OTP from the !YubiKey, from request.
-| nonce | string | Random unique data, from request.
-| h | string (base64) | Signature as described above.
-| t | time stamp | Timestamp in UTC.
-| status | string | The status of the operation, see below.
-| timestamp | string | YubiKey internal timestamp value when key was pressed
-| sessioncounter | string | YubiKey internal usage counter when key was pressed
-| sessionuse | string | YubiKey internal session usage counter when key was pressed
-| sl | integer | percentage of external validation server that replied successfully (0 to 100)
-|===========================
+// tag::impl-h[]
+|===
+|parameter | type | purpose
+
+|otp
+|string
+|The OTP from the YubiKey, from request
+
+|nonce
+|string
+|Random unique data, from request
+
+|h
+|string (base64)
+|Signature as described above.
+
+|t
+|time stamp
+|Timestamp in UTC
+
+|status
+|string
+|The status of the operation, see below
+
+|timestamp
+|string
+|YubiKey internal timestamp value when key was pressed
+
+|sessioncounter
+|string
+|YubiKey internal usage counter when key was pressed
+
+|sessionuse
+|string
+|YubiKey internal session usage counter when key was pressed
+
+|sl
+|integer
+|percentage of external validation server that replied successfully (0 to 100)
+|===
+// end::impl-h[]
 
 These are the possible "status" values in a verify response:
 
