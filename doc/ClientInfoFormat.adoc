@@ -1,4 +1,5 @@
-=Format of Client Info Data= 
+Format of Client Info Data
+==========================
 
 This file holds data used in the YubiKey OTP validation phase.
 
@@ -12,20 +13,22 @@ Any empty line, or a line beginning with a # is ignored.
 
 The meaning are as follows:
 
-;id:
-: the client identity, decimal integer
-;active
-: the client state, 1 if active, 0 if not
-;created
-: unix timestamp of when the client was created, decimal integer
-;secret
-: printable ascii string with shared HMAC secret for client id
-;email
-: the email address used by the client, printable ascii string
-;notes
-: not used, printable ascii string
-;otp
-: the YubiKey OTP used to create the client, modhex string
+```
+id:
+ the client identity, decimal integer
+active
+ the client state, 1 if active, 0 if not
+created
+ unix timestamp of when the client was created, decimal integer
+secret
+ printable ascii string with shared HMAC secret for client id
+email
+ the email address used by the client, printable ascii string
+notes
+ not used, printable ascii string
+otp
+ the YubiKey OTP used to create the client, modhex string
+```
 
 An examples of a valid data line:
 
@@ -33,5 +36,4 @@ An examples of a valid data line:
 1,1,1359550387,foobar,user@example.com,,cccccccccccbubfncnklbknnkrfvfkbubftlfliikdrt
 ```
 
-For an example of importing and exporting Client Info data, please see 
-[[ImportExportData|Importing and Exporting Data]].
+For an example of importing and exporting Client Info data, please see `ImportExportData.adoc`.
