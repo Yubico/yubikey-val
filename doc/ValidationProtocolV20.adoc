@@ -1,6 +1,7 @@
-= Validation Protocol Version 2.0 =
+Validation Protocol Version 2.0
+===============================
 
-== Introduction ==
+## Introduction
 
 All requests are HTTP GET requests. As such, all parameters must be
 properly URL encoded.  In particular, some base64 characters (such as
@@ -11,7 +12,7 @@ response has not been tampered with, clients either verify the HMAC
 signature or use HTTPS connections (and verify the server
 certificate).
 
-== Generating signatures ==
+## Generating signatures
 
 The protocol uses HMAC-SHA-1 signatures. The HMAC key to use is the
 client API key.
@@ -22,13 +23,13 @@ over the entire set (excluding the signature itself), and sorted in
 alphabetical order of the keys. More precisely, to generate a message
 signature do:
 
-# Alphabetically sort the set of key/value pairs by key order.
-# Construct a single line with each ordered key/value pair concatenated using '&', and each key and value contatenated with '='. Do not add any linebreaks. Do not add whitespace. For example: `a=2&b=1&c=3`.
-# Apply the HMAC-SHA-1 algorithm on the line as an octet string using the API key as key.
-# Base 64 encode the resulting value according to RFC 4648, for example, `t2ZMtKeValdA+H0jVpj3LIichn4=`.
-# Append the value under key 'h' to the message. 
+ * Alphabetically sort the set of key/value pairs by key order.
+ * Construct a single line with each ordered key/value pair concatenated using '&', and each key and value contatenated with '='. Do not add any linebreaks. Do not add whitespace. For example: `a=2&b=1&c=3`.
+ * Apply the HMAC-SHA-1 algorithm on the line as an octet string using the API key as key.
+ * Base 64 encode the resulting value according to RFC 4648, for example, `t2ZMtKeValdA+H0jVpj3LIichn4=`.
+ * Append the value under key 'h' to the message. 
 
-== Verifying signatures ==
+## Verifying signatures
 
 To verify a signature on a response message, follow the same procedure
 that was used to sign the response message and compare the signature
@@ -49,9 +50,9 @@ b=1&a=2&c=3
 
 Don't forget to sort the key/value pairs.
 
-== Verification ==
+## Verification
 
-There is one call to verify !YubiKey OTPs: verify.
+There is one call to verify YubiKey OTPs: verify.
 
 The verify call lets you check whether an OTP is valid.  Since the OTP
 itself contains identification information, all you have to do is to
@@ -60,7 +61,7 @@ send the OTP.
 To avoid cut'n'paste attacks, the client MUST verify that the "otp" in
 the response is the same as the "otp" supplied in the request.
 
-=== Request ===
+## Request
 
 Construct an HTTP GET call to
 
@@ -101,32 +102,23 @@ counters:
 http://api.yubico.com/wsapi/2.0/verify?id=87&otp=vvvvvvcucrlcietctckflvnncdgckubflugerlnr&timeout=8&sl=50&nonce=askjdnkajsndjkasndkjsnad&timestamp=1
 ```
 
-=== Response ===
+## Response
 
 The verification response tells you whether the OTP is valid.  The
 response has the following values:
 
-{|
-! parameter !! type !! purpose
-|-
-| otp || string || The OTP from the !YubiKey, from request.
-|-
-| nonce || string || Random unique data, from request.
-|-
-| h || string (base64) || Signature as described above.
-|-
-| t || time stamp || Timestamp in UTC.
-|-
-| status || string || The status of the operation, see below.
-|-
-| timestamp || string || !YubiKey internal timestamp value when key was pressed
-|-
-| sessioncounter || string || !YubiKey internal usage counter when key was pressed
-|-
-| sessionuse || string || !YubiKey internal session usage counter when key was pressed
-|-
-| sl || integer || percentage of external validation server that replied successfully (0 to 100)
-|}
+|===========================
+| parameter | type | purpose
+| otp | string | The OTP from the !YubiKey, from request.
+| nonce | string | Random unique data, from request.
+| h | string (base64) | Signature as described above.
+| t | time stamp | Timestamp in UTC.
+| status | string | The status of the operation, see below.
+| timestamp | string | YubiKey internal timestamp value when key was pressed
+| sessioncounter | string | YubiKey internal usage counter when key was pressed
+| sessionuse | string | YubiKey internal session usage counter when key was pressed
+| sl | integer | percentage of external validation server that replied successfully (0 to 100)
+|===========================
 
 These are the possible "status" values in a verify response:
 
@@ -154,7 +146,7 @@ These are the possible "status" values in a verify response:
 | REPLAYED_REQUEST || Server has seen the OTP/Nonce combination before
 |}
 
-== Changes since version 1.1 ==
+## Changes since version 1.1
 
 The verify URL has changed.  In the request, the new required field
 "nonce" were added, and the new optional fields "sl" and "timeout" are
