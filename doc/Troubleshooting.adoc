@@ -1,0 +1,23 @@
+= Troubleshooting =
+
+First check if the web server is working.
+
+Check that PHP is working.  Create a foo.php script containing '<?php
+phpinfo(); ?>' to debug PHP configuration.
+
+Next make sure you serve the YK-VAL code under the URL you want, and
+that accesssing the URL reaches the YK-VAL code.  PHP error log in the
+file set by php.ini error_log, by default /var/log/apache2/error.log.
+Database errors will also be logged into it.
+
+The database needs to be started.  Make sure you can access it and the
+tables.
+
+If 'ykval-export' crashes, you may be running into a compatibility
+problem between PHP, curl and libpq.  See
+[http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=411982] for more
+information.  The workaround is simple:
+
+```
+user@val:~$ sudo mv /etc/php5/conf.d/curl.ini /etc/php5/conf.d/z_curl.ini
+```

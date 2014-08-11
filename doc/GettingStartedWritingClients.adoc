@@ -1,0 +1,137 @@
+Getting Started Writing Clients
+===============================
+
+## Introduction
+
+While the canonical description of the validation protocol is
+documented in link:ValidationProtocolV20[ValidationProtocolV20], it may be difficult to grasp the
+high level of how a client typically works.  The intention with this
+page is to illustrate one simple case.  Note that this does not cover
+the replicated protocol.
+
+If you want to make your own client implementation, here is the
+quickest way to get started:
+
+## API key
+
+API key is used to optionally sign the OTP validation request and to
+verify the OTP validation response. We recommend all production
+deployments use either API key or HTTPS.
+
+If you use HTTPS to access Yubico's validation web service and you
+validate the Yubico server SSL certificate, you don't need to use the
+shared key to further authenticate response signatures from Yubico.
+
+If you for some reason do not want to rely on HTTPS. You may also sign
+requests using this API key.
+
+To get an API key, first use our online API key generator. It will
+assign you an ID and create a shared key. You can use the shared key
+to authenticate that the API responses do come from Yubico.
+
+## Capture an OTP
+
+Capture an OTP output from your YubiKey. You can do that by opening
+a text editor and simply pressing the button on the YubiKey. The OTP is a
+simple string of characters, like this:
+
+```
+vvvvvvcurikvhjcvnlnbecbkubjvuittbifhndhn
+```
+
+## Validate OTP format
+
+Prudent clients should validate the data entered by the user so that
+it is what the software expects.  YubiKey OTPs consists of 32-48
+characters in the ModHex alphabet `cbdefghijklnrtuv`.  Unfortunately,
+this has turned to be over-aggresive because if the keyboard layout is
+Dvorak-based, it will look differently.  For example, the modhex
+alphabet in the US Dvorak layout is `jxe.uidchtnbpygk`.  There are
+other Dvorak layouts as well.  For this reason, our recommendation is
+that clients only check that the input consists of 32-48 printable
+characters.
+
+## Send OTP to our server
+
+Send the authentication request to our servers following the protocol
+specified below. Your request should include the verifier ID (a number
+that identifies the signature key), the OTP you captured in the
+previous instruction, and a random looking string of characters to
+make the request unique. The request is part of the HTTP GET URL,
+encoded using normal parameter/value pairs. For example (broken into
+two lines for legibility):
+
+```
+http://api2.yubico.com/wsapi/2.0/verify?id=1&otp=cccccccbcjdifc\
+trndncchkftchjlnbhvhtugdljibej&nonce=aef3a7835277a28da831005c2ae3b919e2076a62
+```
+
+The servers that we provide are:
+
+```
+api.yubico.com
+api2.yubico.com
+api3.yubico.com
+api4.yubico.com
+api5.yubico.com
+```
+
+These servers are hosted in different places and by different organizations.
+
+## Parse response
+
+You will recieve a response back from the server, a string of text
+that resembles the following:
+
+```
+h=vjhFxZrNHB5CjI6vhuSeF2n46a8=
+t=2010-04-23T20:34:51Z0678
+otp=cccccccbcjdifctrndncchkftchjlnbhvhtugdljibej
+nonce=aef3a7835277a28da831005c2ae3b919e2076a62
+sl=75
+status=OK
+```
+
+You can check the authenticity of this response by checking that the
+OTP and nonce was the same as the one you requested validation for and
+verify the HMAC-SHA-1 signature.
+
+## Make a decision
+
+Use the `status=` codes to make a decision whether to authenticate
+your user or not. All the status codes and their meanings are
+described by the protocol specification, see below.
+
+## Binding an OTP to an Identity
+
+Since a valid OTP on its own is not terribly useful, you need to
+connect it to a user in some way.  This is normally not something the
+client needs to do, it belongs elsewhere in the application, however
+for completeness we mention how it is done here.
+
+In some situations, the user is typing her username directly into your
+application, which solves the issue.
+
+More generally, the YubiKey OTP contains as the initial part an
+identity of the YubiKey, and it can be used to identify the user.  The
+identity part is the same for every OTP, and it is the initial 2-16
+modhex characters of the OTP.  (The identity can be programmed to 0
+characters, but then obviously this scheme does not apply.)  Since the
+rest of the OTP is always 32 characters, the method to extract the
+identity is to remove 32 characters from the end and then use the
+remaining string, which should be 2-16 characters, as the YubiKey
+identity.
+
+Note that the validation server is case insensitive, so you need to
+lower-case the string in order to avoid caps lock resulting in
+different identities with the only differ being case of the prefix.
+
+Typically you would store the association between the user and the
+YubiKey prefix in a database.
+
+## The End
+
+There are some more subtle matters that can be important, so please
+read the entire protocol specification for all the details.  Further,
+for added reliability, you may send the request in parallel to more
+than one server, which is not explained above.

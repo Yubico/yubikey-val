@@ -1,0 +1,90 @@
+= Server Replication Protocol =
+
+This document describes the server to server protocol.  Its purpose is
+to synchronize the last used session and use counter between multiple
+validation servers.
+
+Multiple validations servers are connected together so that each
+validation server can talk to any of the other validation server using
+the Server Replication Protocol.  The validation servers are
+authenticated by the use of certificates.
+
+```
+val A  <->  val B <-> val C <-> val A
+```
+
+See the ValidationProtocolV20 for definition of the client to server
+protocol.  The protocol described here is the server to server
+protocol.  See ValidationServerAlgorithm for a description of the
+implementation algorithm that uses this protocol.
+
+== Sync request specification ==
+
+A sync request is issued with a HTTP get call, like this:
+
+```
+https://apiX.yubico.com/wsapi/sync?otp=xyz&modified=1264430686&nonce=foobar&yk_identity=foo&yk_counter=42&yk_use=17&yk_high=10&yk_low=5
+```
+
+The following parameters are used
+
+{|
+! parameter !! type !! values
+|-
+| otp || string || one-time password (for logging purposes)
+|-
+| modified || integer || unix timestamp of when OTP was received
+|-
+| nonce || string || nonce from client request
+|-
+| yk_identity || modhex || !YubiKey OTP identity in question
+|-
+| yk_counter || integer || last seen session counter by sender
+|-
+| yk_use || integer || last seen session use by sender
+|-
+| yk_high || integer || OTP internal high time value
+|-
+| yk_low || integer || OTP internal low time value
+|}
+
+Input values for yk_counter, yk_use, yk_high and yk_low are always
+positive except for -1 which indicates that the requesting server did
+not have any earlier information about the !YubiKey.
+
+An example response is
+
+```sh
+modified=1264430686
+nonce=aspodkaaspdokas
+yk_identity=cccccccccccf
+yk_counter=api2 session counter
+yk_use=api2 session use counter
+yk_high=value
+yk_low=value
+```
+
+The values returned are:
+
+{|
+! parameter !! type !! values
+|-
+| modified || integer || timestamp of when last OTP was received
+|-
+| nonce || string || nonce from client for last OTP
+|-
+| yk_identity || modhex || !YubiKey OTP identity in question
+|-
+| yk_counter || integer || last seen session counter
+|-
+| yk_use || integer || last seen session use
+|-
+| yk_high || integer || last seen high time value
+|-
+| yk_low || integer || last seen low time value
+|}
+
+Output values for modified, yk_counter, yk_use, yk_high and yk_low are
+always positive except for -1 which indicates that the server did not
+have any earlier information about the !YubiKey.  In this case, nonce
+is a newly allocated random nonce.

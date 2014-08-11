@@ -1,0 +1,193 @@
+= Validation Server Algorithm =
+
+This document describes how a validation server should be implemented,
+and the required steps it needs to perform in order to be secure.
+
+The client-to-server protocol is described in ValidationProtocolV20
+and the server-to-server protocol is described in
+ServerReplicationProtocol.
+
+== Normal validation with Sync ==
+
+Val X receives an OTP verify request and needs to update the other
+validation servers on the last seen counter values. The procedure is
+as follows
+
+# Val X parses validation request, retrieves the client key for the client id from local database and checks the request signature.
+# Val X decrypts the OTP using a KSM and reads out the modified/counters from the internal database -- if the YubiKey identity doesn't exist in the database, add it with counter/use/high/low=-1.
+# Val X checks the OTP/Nonce against local database, and replies with REPLAYED_REQUEST if local information is identical.
+# Val X checks the OTP counters against local counters, and rejects OTP as replayed if local counters are higher than or equal to OTP counters.
+# Val X updates the internal database with counters/nonce from request.
+# Val X queues a sync request in a sync queue for each validation server in the validation server pool (manually configured).
+# Val X requests the queued requests (otp, modified, nonce, yk_identity, yk_counter, yk_use, yk_high, yk_low) to be sent out, by sending parallel sync requests to all other validation servers.
+# Each validation server receiving a sync request updates its own internal database with received information to use the highest counter.
+# Each remote server responds with a sync response (modified, nonce, yk_identity, yk_counter, yk_use, yk_high, yk_low) using data from its internal database.
+# Val X waits for a sync response (up until timeout, or when sufficient number of sync responses indicating valid OTP and no sync response indicating invalid OTP) from the other validation servers to which it sent a sync request. For each response that arrives the corresponding entry in the sync queue is removed and the following is checked
+## If the sync response counters have higher values than val X internal database, the internal database is updated with new information, AND
+## If the sync response counter have higher values as val X internal database the response is considered to mark the OTP as invalid, AND
+## If the sync response have equal counter values and nonce as val X internal database the response is considered to mark the OTP as valid, AND
+## If the sync response have equal counter values and different nonce as val X internal database the response is considered to mark the OTP as invalid, AND
+## If the sync response counter have smaller values than val X had in its internal database before the validation attempt the server logs a warning, and the response is considered to mark the OTP as valid.
+# Val X construct validation response.  Validation is successful if the Verification Algorithm below is successful.
+# Val X marks the remaining entries in the sync queue as marked with timestamp=NULL.
+
+Any remaining sync requests in the sync queue are from now on handled
+by a background daemon which re-sends them at regular intervals
+(described below).
+
+=== Verification algorithm ===
+
+```sh
+Input:
+  otp - the otp
+  nonce - the nonce from the request
+  yk:counter - the session counter
+  yk:use - the session use counter
+  yk:high - the high timestamp
+  yk:low - the low timestamp
+  modified - when the counters were last modified
+
+Output:
+  Error code.
+```
+
+Val X requires that SL % of the sent sync requests gives a response
+marking the OTP as valid, and that none of the responses indicate the
+OTP is invalid, in order to consider the OTP to be valid.
+
+# If internal database counters are equal to otp counters AND nonce is identical, then return REPLAYED_REQUEST.
+# If internal database counters are higher/equal to otp counters, then return REPLAYED_OTP.
+# If any counter in sync response are higher/equal to otp counters, then return REPLAYED_OTP.
+# If insufficient number of sync responses are received, then return NOT_ENOUGH_ANSWERS.
+# (optional: if phishing test fails, return DELAYED_OTP)
+# return OK
+
+=== Warning algorithm ===
+
+Warn if any of these are true:
+
+* If received sync response have lower counters than locally saved last counters (indicating that remote server wasn't synced)
+
+* If received sync response have higher counters than locally saved last counters (indicating that local server wasn't synced)
+
+* If received sync response have counters higher than or equal to the OTP counters (indicating that the OTP is replayed)
+
+* If received sync request have counters equal to local counters and modified field equal to local modified field (sync request has been unnecessarily resent).
+
+* If received sync request have counters equal to local counters and modified field different to local modified field (We might have a replay. 2 events at different times have generated the same counters) 
+
+* If received sync request have lower counters than local (indicating that remote server is not synced)
+
+* If received sync request have identical counters but different nonce (indicating that remote server received a request to validate an already validated OTP)
+
+=== Update validation server that has been offline ===
+
+Val X has been out of function and its internal database needs to be
+updated.
+
+This case is handled automatically since the sync requests which did
+not succeed immediately in the previous point are queued.
+
+When val X is accessible again, all the sync requests in queue are
+re-sent and val X database is updated.
+
+Responses which would have caused the sender of the sync request to
+consider the OTP as invalid will give raise to a warning on the sender
+validation server.
+
+== Sync queue daemon ==
+
+There is one queue daemon that is responsible for sending all the
+queued requests.
+
+The sync queue will loop the following algorithm.
+
+# Get a list of all remote server from the database; S1, S2, ...
+# For each remote server S in the list S1, S2, ... do
+## For each entry in the queue table for S which have a queued_time==NULL or a timestamp older than a configured period (e.g., one minute) do
+### Send one request, using a configured timeout value (e.g., 30 seconds).
+### If the request is unsuccessful (or times out), quit to the outer loop.
+### The request was successful so the sync daemon receives counter/nonce values from the remote server.
+### If the sync response counters are lower, give a warning
+### If the sync response counters are equal and nonce different, give a warning
+### If the sync response counter have higher than or equal values as val X internal database had at the moment of request creation a warning is logged.
+### The sync daemon updates the internal database to use the highest counter values: {{{UPDATE yubikeys SET counter = X, sessionUse = Y, high = P, low = Q, nonce = N, accessed = D WHERE publicName = ID AND ((counter < X) OR (counter = X AND sessionUse < Y))}}}
+### The corresponding entry in the sync queue is removed.
+
+= Logging matrix =
+
+Available parameters in comparisons are the following.
+
+{|
+| local || Local parameters at time of comparison
+|-
+| otp || Parameters from OTP provided in validation request
+|-
+| response || Parameters  in sync respone
+|-
+| request || Parameters in sync request
+|-
+| validation || Local parameters when OTP vaildation request arrived
+|}
+Parameters could be counters, modified, nonce.
+
+== Non-queued Sync response logging ==
+
+We compare reponse parameters against validation parameters since we
+are interested in if the server is in sync at the moment when the
+validation request arrives.
+
+{|
+! condition !! level !! action !! message
+|-
+| response.counters < validation.counters || Notice || None || Remote server out of sync.
+|-
+| response.counters > validation.counters || Notice || None ||Local server out of sync.
+|-
+| response.counters = validation.counters and response.nonce != validation.nonce || Notice || None || Servers out of sync. Nonce differs.
+|-
+| response.counters = validation.counters and response.modified != validation.modified || Notice || None || Servers out of sync. Modified differs.
+|-
+| response.counters > otp.counters  || Warning || OTP marked as invalid ||OTP is replayed. Sync response counters higher than OTP counters
+|-
+| response.counter = otp.counters and response.nonce != otp.nonce || Warning || OTP marked as invalid || OTP is replayed. Sync response counters equal to OTP counters and nonce differs.
+|}
+
+== Sync request logging ==
+
+Both an original sync and a queued sync looks the same so we can not
+determine if the sync is original or queued. Therefore the logging is
+the same in both cases.
+
+{|
+! condition !! level !! message !! note
+|-
+| request.counters < local.counters || Warning || Remote server out of sync. ||  
+|-
+| request.counters = local.counters and request.modified = local.modifed and request.nonce = local.nonce || Notice || Sync request has been unnecessarily resent. || This could happen frequently whenever a syncentry is queued but the syncprocess terminates before the resonse to the syncentry arrives (since SL level was already achived).
+|-
+| request.counters = local.counters and request.modified != local.modified and request.nonce = local.nonce || Warning || We might have a replay. 2 events at different times have generated the same counters. The time difference is X seconds ||
+|-
+| request.counters = local.counters and request.nonce != local.nonce || Warning || Remote server has received a request to validate an already validated OTP ||
+|}
+
+== Queued sync response logging ==
+
+What do we want to warn for here. Out of sync at time of OTP
+validation request or out of sync compared to current local counters?
+
+{|
+! condition !! level !! message !! note
+|-
+| response.counters < validation.counters || Notice || Remote server out of sync compared to counters at validation request time. ||
+|-
+| response.counters > validation.counters || Notice || Local server out of sync compared to counters at validation request time. ||
+|-
+| response.counters < local.counters || Warning || Remote server out of sync compared to current local counters. ||
+|-
+| response.counters > local.counters || Warning || Local server out of sync compared to current local counters. Local server updated. ||
+|-
+| response.counters > otp.counters  || Error || Remote server has higher counters than OTP. This response would have marked the OTP as invalid. ||
+|-
+| response.counter = otp.counters and response.nonce != otp.nonce || Error || Remote server has equal counters as OTP and nonce differs. This response would have marked the OTP as invalid. ||
+|}

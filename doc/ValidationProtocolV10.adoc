@@ -1,0 +1,114 @@
+= Validation Protocol Version 1.0 =
+
+== Introduction ==
+
+All requests are HTTP GETs. As such, all parameters must be properly
+URL encoded. In particular, some base64 characters (such as "+") in
+the value fields needs to be escaped.
+
+Each response sent by Yubico is signed. To make sure the response has
+not been tampered with, you should verify the signature.
+
+To verify a signature on a response message, follow the same procedure
+that was used to sign the response message and compare the signature
+in the response to the signature you generated. If the signature
+values are equal, the signature is correct.  Make sure you remove the
+signature itself from the values you generate the signature over for
+verification. If the incoming message is
+
+```
+b=1&a=2&c=3&h=V5FkMYr9GCG9tQA9ihuuybWl99U=
+```
+
+make sure to remove h before verifying:
+
+```
+b=1&a=2&c=3 
+```
+
+== Generating signatures ==
+
+The Yubico API uses HMAC-SHA1 signatures with 160 bit key lengths (as
+defined by RFC 3174). The HMAC key to use is the API key.
+
+Generate the signature over the parameters in the message. Each
+message contains a set of key/value pairs, and the signature is always
+over the entire set (excluding the signature itself), sorted in
+alphabetical order of the keys. To generate a message signature:
+
+# Alphabetically sort the set of key/value pairs by key order.
+# Construct a single line with each ordered key/value pair concatenated using '&', and each key and value contatenated with '='. Do not add any linebreaks. Do not add whitespace. For example: `a=2&b=1&c=3`.
+# Apply the signature algorithm to the line's octet string (UTF-8 byte values according to RFC 3629) using the API key as key.
+# Base 64 encode the resulting value according to RFC 4648, for example, `t2ZMtKeValdA+H0jVpj3LIichn4=`.
+# Append the value under key h to the message. 
+
+== Verification ==
+
+There is one call to verify !YubiKey OTPs: verify.
+
+The verify call lets you check whether an OTP is valid.  Since the OTP
+itself contains identification information, all you have to do is to
+send the OTP.
+
+=== Request ===
+
+Construct an HTTP GET call to
+
+```
+http://api.yubico.com/wsapi/verify
+```
+
+with the following parameters (note that this request need not be signed):
+
+{|
+! parameter !! type !! required !! purpose
+|-
+| id || string || Yes || Specifies the requestor so that the end-point can retrieve correct shared secret for signing the response.
+|-
+| otp || string || Yes || The OTP from the !YubiKey.
+|-
+| h || string || No || The optional HMAC-SHA1 signature for the request.
+}|
+
+An example request:
+
+```
+http://api.yubico.com/wsapi/verify?otp=vvvvvvcucrlcietctckflvnncdgckubflugerlnr&id=87
+```
+
+=== Response ===
+
+The verification response tells you whether the OTP is valid.  The
+response has the following values:
+
+{|
+! parameter !! type !! purpose
+|-
+| h || string (base64) || Signature as described above.
+|-
+| t || time stamp || Timestamp in UTC.
+|-
+| status || string || The status of the operation, see below.
+|}
+
+These are the possible "status" values in a verify response:
+
+{|
+! name !! meaning
+|-
+| OK || The OTP is valid.
+|-
+| BAD_OTP || The OTP is invalid format.
+|-
+| REPLAYED_OTP || The OTP has already been seen by the service.
+|-
+| BAD_SIGNATURE || The HMAC signature verification failed.
+|-
+| MISSING_PARAMETER || The request lacks a parameter.
+|-
+| NO_SUCH_CLIENT || The request id does not exist.
+|-
+| OPERATION_NOT_ALLOWED || The request id is not allowed to verify OTPs.
+|-
+| BACKEND_ERROR || Unexpected error in our server. Please contact us if you see this error.
+|}

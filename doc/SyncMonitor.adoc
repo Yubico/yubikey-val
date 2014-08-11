@@ -1,0 +1,29 @@
+= YK-VAL Synchronization Monitor =
+
+If you deploy multiple YK-VAL instances, it is important to monitor
+them to make sure the data they have is synchronized.  While there are
+many mechanisms to achieve this, we provide a simple yet flexible
+approach.  The 'ykval-checksum-clients' tool reads out the important
+fields from the database and computes a SHA-1 hash of it, and
+truncates the hash to 10 hex characters and prints them to stdout.
+
+The "important fields" are currently considered to be the id, active,
+and secret columns of the clients table.
+
+The typical way to use this is either manually or to run it in a cron
+job and output the hash to a file that can be downloaded by a remote
+monitor system such as Nagios.
+
+```sh
+user@val:~$ sudo sh -c 'cat > /etc/cron.hourly/run-ykval-checksum-clients'
+#!/bin/sh
+FILE=/var/www/checksum-clients.txt
+(date --utc +%s; ykval-checksum-clients) > $FILE.tmp
+mv $FILE.tmp $FILE
+user@val:~$ sudo chmod +x /etc/cron.hourly/run-ykval-checksum-clients
+```
+
+If you notice mismatches, you may want to run ykval-checksum-clients
+with the '-v' parameter on the different hosts and then use 'diff -ur'
+or similar tool to compare the outputs.  This should make it possible
+to identify the missmatching entries easily.
