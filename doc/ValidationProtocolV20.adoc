@@ -62,12 +62,11 @@ the response is the same as the "otp" supplied in the request.
 
 Construct an HTTP GET call to
 
-```
-http://api.yubico.com/wsapi/2.0/verify
-```
+ http://api.yubico.com/wsapi/2.0/verify
 
 with the following parameters (note that this request need not be signed):
 
+[options="header"]
 |===
 | parameter | type | required | purpose
 
