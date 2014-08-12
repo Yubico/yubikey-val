@@ -121,7 +121,7 @@ counters:
 The verification response tells you whether the OTP is valid.  The
 response has the following values:
 
-// tag::impl-h[]
+[options="header"]
 |===
 |parameter | type | purpose
 
@@ -161,10 +161,10 @@ response has the following values:
 |integer
 |percentage of external validation server that replied successfully (0 to 100)
 |===
-// end::impl-h[]
 
 These are the possible "status" values in a verify response:
 
+[options="header"]
 |===
 | name | meaning
 
