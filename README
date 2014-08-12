@@ -27,12 +27,3 @@ Releases are available from:
 http://yubico.github.com/yubikey-val/releases.html
 
 Documentation is in doc/
-
-If you've checked out the source tree and the doc/ dir is empty, do
-
-    $ git submodule init
-    $ git submodule update
-
-The documentation is also available online at
-
-    http://github.com/Yubico/yubikey-val/wiki
