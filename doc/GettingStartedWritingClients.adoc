@@ -44,7 +44,7 @@ vvvvvvcurikvhjcvnlnbecbkubjvuittbifhndhn
 Prudent clients should validate the data entered by the user so that
 it is what the software expects.  YubiKey OTPs consists of 32-48
 characters in the ModHex alphabet `cbdefghijklnrtuv`.  Unfortunately,
-this has turned to be over-aggresive because if the keyboard layout is
+this has turned out to be over-aggresive because if the keyboard layout is
 Dvorak-based, it will look differently.  For example, the modhex
 alphabet in the US Dvorak layout is `jxe.uidchtnbpygk`.  There are
 other Dvorak layouts as well.  For this reason, our recommendation is
