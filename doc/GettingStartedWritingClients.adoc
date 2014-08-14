@@ -1,7 +1,7 @@
 Getting Started Writing Clients
 ===============================
 
-## Introduction
+== Introduction
 
 While the canonical description of the validation protocol is
 documented in link:ValidationProtocolV20[ValidationProtocolV20], it may be difficult to grasp the
@@ -12,7 +12,7 @@ the replicated protocol.
 If you want to make your own client implementation, here is the
 quickest way to get started:
 
-## API key
+== API key
 
 API key is used to optionally sign the OTP validation request and to
 verify the OTP validation response. We recommend all production
@@ -29,17 +29,15 @@ To get an API key, first use our online API key generator. It will
 assign you an ID and create a shared key. You can use the shared key
 to authenticate that the API responses do come from Yubico.
 
-## Capture an OTP
+== Capture an OTP
 
 Capture an OTP output from your YubiKey. You can do that by opening
 a text editor and simply pressing the button on the YubiKey. The OTP is a
 simple string of characters, like this:
 
-```
-vvvvvvcurikvhjcvnlnbecbkubjvuittbifhndhn
-```
+ vvvvvvcurikvhjcvnlnbecbkubjvuittbifhndhn
 
-## Validate OTP format
+== Validate OTP format
 
 Prudent clients should validate the data entered by the user so that
 it is what the software expects.  YubiKey OTPs consists of 32-48
@@ -51,7 +49,7 @@ other Dvorak layouts as well.  For this reason, our recommendation is
 that clients only check that the input consists of 32-48 printable
 characters.
 
-## Send OTP to our server
+== Send OTP to our server
 
 Send the authentication request to our servers following the protocol
 specified below. Your request should include the verifier ID (a number
@@ -61,48 +59,42 @@ make the request unique. The request is part of the HTTP GET URL,
 encoded using normal parameter/value pairs. For example (broken into
 two lines for legibility):
 
-```
-http://api2.yubico.com/wsapi/2.0/verify?id=1&otp=cccccccbcjdifc\
-trndncchkftchjlnbhvhtugdljibej&nonce=aef3a7835277a28da831005c2ae3b919e2076a62
-```
+ http://api2.yubico.com/wsapi/2.0/verify?id=1&otp=cccccccbcjdifc\
+ trndncchkftchjlnbhvhtugdljibej&nonce=aef3a7835277a28da831005c2ae3b919e2076a62
 
-The servers that we provide are:
+The servers that Yubico provides are:
 
-```
-api.yubico.com
-api2.yubico.com
-api3.yubico.com
-api4.yubico.com
-api5.yubico.com
-```
+ api.yubico.com
+ api2.yubico.com
+ api3.yubico.com
+ api4.yubico.com
+ api5.yubico.com
 
 These servers are hosted in different places and by different organizations.
 
-## Parse response
+== Parse response
 
 You will recieve a response back from the server, a string of text
 that resembles the following:
 
-```
-h=vjhFxZrNHB5CjI6vhuSeF2n46a8=
-t=2010-04-23T20:34:51Z0678
-otp=cccccccbcjdifctrndncchkftchjlnbhvhtugdljibej
-nonce=aef3a7835277a28da831005c2ae3b919e2076a62
-sl=75
-status=OK
-```
+ h=vjhFxZrNHB5CjI6vhuSeF2n46a8=
+ t=2010-04-23T20:34:51Z0678
+ otp=cccccccbcjdifctrndncchkftchjlnbhvhtugdljibej
+ nonce=aef3a7835277a28da831005c2ae3b919e2076a62
+ sl=75
+ status=OK
 
 You can check the authenticity of this response by checking that the
 OTP and nonce was the same as the one you requested validation for and
 verify the HMAC-SHA-1 signature.
 
-## Make a decision
+== Make a decision
 
 Use the `status=` codes to make a decision whether to authenticate
 your user or not. All the status codes and their meanings are
 described by the protocol specification, see below.
 
-## Binding an OTP to an Identity
+== Binding an OTP to an Identity
 
 Since a valid OTP on its own is not terribly useful, you need to
 connect it to a user in some way.  This is normally not something the
@@ -129,7 +121,7 @@ different identities with the only differ being case of the prefix.
 Typically you would store the association between the user and the
 YubiKey prefix in a database.
 
-## The End
+== The End
 
 There are some more subtle matters that can be important, so please
 read the entire protocol specification for all the details.  Further,

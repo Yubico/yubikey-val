@@ -1,4 +1,4 @@
-= Introduction =
+== Introduction
 
 The YK-VAL server has an optional interface that can be used to
 enable/disable validation of particular YubiKeys from a remote server.
@@ -7,55 +7,45 @@ This document explains how to configure and set up that service.
 Currently authorization is based on IP address of client, which may
 not be secure unless you take additional pre-cautions.
 
-= Installation =
+== Installation
 
-```sh
-user@val:~/yubikey-val$ sudo make revoke
-user@val:~/yubikey-val$ 
-```
+ user@val:~/yubikey-val$ sudo make revoke
+ user@val:~/yubikey-val$ 
 
-= Configuration =
+== Configuration
 
 Add the following to your /etc/yubico/val/ykval-config.php:
 
-```php
-# For the revoke service.
-$baseParams['__YKREV_IPS__'] = array('10.0.0.1', '2000:1:2:3::4');
-```
+ # For the revoke service.
+ $baseParams['__YKREV_IPS__'] = array('10.0.0.1', '2000:1:2:3::4');
 
 Obviously you need to modify the IP address.
 
 You also need to grant additional rights to the database, for MySQL:
 
-```
-user@val:~$ mysql --silent ykval
-mysql> GRANT UPDATE(active) ON ykval.yubikeys to 'ykval_verifier'@'localhost'; \
-FLUSH PRIVILEGES;
-mysql> \q
-user@val:~$ 
-```
+ user@val:~$ mysql --silent ykval
+ mysql> GRANT UPDATE(active) ON ykval.yubikeys to 'ykval_verifier'@'localhost'; \
+ FLUSH PRIVILEGES;
+ mysql> \q
+ user@val:~$ 
 
 For PostgreSQL this should already be working, through this command:
 
-```
-postgres@val:~$ psql ykval -q
-ykval=# GRANT UPDATE ON yubikeys TO ykval_verifier; 
-ykval=# \q
-postgres@val:~$ 
-```
+ postgres@val:~$ psql ykval -q
+ ykval=# GRANT UPDATE ON yubikeys TO ykval_verifier; 
+ ykval=# \q
+ postgres@val:~$ 
 
-= Testing =
+== Testing
 
 Test the installation like this:
 
-```sh
-user@revoke:~$ wget -q -O - 'http://api.example.com/wsapi/revoke?yk=dteffujehknh&do=enable'
-OK Processed dteffujehknh with enable
-user@revoke:~$ 
-```
+ user@revoke:~$ wget -q -O - 'http://api.example.com/wsapi/revoke?yk=dteffujehknh&do=enable'
+ OK Processed dteffujehknh with enable
+ user@revoke:~$ 
 
 Use 'disable' instead of 'enable' to test disabling of the YubiKey.
 
-= The End =
+== The End
 
 You now have the YK-VAL Revocation Service up and running.

@@ -15,9 +15,7 @@ tables.
 
 If 'ykval-export' crashes, you may be running into a compatibility
 problem between PHP, curl and libpq.  See
-[http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=411982] for more
+http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=411982 for more
 information.  The workaround is simple:
 
-```
-user@val:~$ sudo mv /etc/php5/conf.d/curl.ini /etc/php5/conf.d/z_curl.ini
-```
+ user@val:~$ sudo mv /etc/php5/conf.d/curl.ini /etc/php5/conf.d/z_curl.ini

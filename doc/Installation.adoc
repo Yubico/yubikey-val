@@ -15,11 +15,11 @@ remote YK-KSM and get the URL to it, or install your own YK-KSM.
 
 Currently there are two recommended implementations of a YK-KSM.  If you have a YubiHSM hardware dongle and want improve security, we recommend using Python-PyHSM:
 
-[https://github.com/Yubico/python-pyhsm]
+https://github.com/Yubico/python-pyhsm
 
 Otherwise we recommend the "soft" YK-KSM:
 
-[https://github.com/Yubico/yubikey-ksm/]
+https://github.com/Yubico/yubikey-ksm/
 
 The YK-KSM can be on the same machine as the validation server, but
 for improved security we recommend to use different machines for the
@@ -29,7 +29,7 @@ The OTP validation service is delivered through web service API.
 There's no web-based HTML form interface involved.  The protocol is
 defined at:
 
-[http://www.yubico.com/developers/api/]
+http://www.yubico.com/developers/api/
 
 For redundancy it is possible to set up multiple instances of the
 YubiKey Validation Server.  The intent is that clients should be able
@@ -57,14 +57,14 @@ upgrades if prompted.
 
 First you should download and install the latest YK-VAL release:
 
-```sh
-user@val:~$ sudo apt-get install git make
-...
-user@val:~$ git clone git://github.com/Yubico/yubikey-val.git
-...
-user@val:~$ cd yubikey-val
-user@val:~/yubikey-val$ sudo make install
-```
+....
+ user@val:~$ sudo apt-get install git make
+ ...
+ user@val:~$ git clone git://github.com/Yubico/yubikey-val.git
+ ...
+ user@val:~$ cd yubikey-val
+ user@val:~/yubikey-val$ sudo make install
+....
 
 The rest of this documentation will assume you have YK-VAL available
 in the default installation targets.  You can override the paths, see
@@ -74,9 +74,7 @@ the Makefile.
 
 You also need to install a web server with PHP5, php5-curl and php-pear.
 
-```sh
-user@val:~$ sudo apt-get install apache2 php5 php5-curl php-pear
-```
+ user@val:~$ sudo apt-get install apache2 php5 php5-curl php-pear
 
 Any web server with PHP support should work.
 
@@ -90,94 +88,76 @@ PostgreSQL or MySQL here.
 
 Install the required packages:
 
-```sh
-user@val:~$ sudo apt-get install mysql-server php5-mysql
-```
+ user@val:~$ sudo apt-get install mysql-server php5-mysql
 
 The installation asks you for a MySQL "root" password, and I recommend
 to specify one. To avoid having to specify a password when using the
 'mysql' tool interactively, you can store the password in ~/.my.cnf,
 see /usr/share/doc/mysql-server-5.0/README.Debian.gz.  For example:
 
-```sh
-user@val:~$ cat > .my.cnf
-[client]
-user = root
-password = YOURPASSWORD
-user@val:~$ chmod go-r .my.cnf
-user@val:~$ 
-```
+ user@val:~$ cat > .my.cnf
+ [client]
+ user = root
+ password = YOURPASSWORD
+ user@val:~$ chmod go-r .my.cnf
+ user@val:~$ 
 
 Note the 'chmod' to protect your password from non-root users.
 
 The database needs to be initialized as follows:
 
-```sh
-user@val:~$ echo 'create database ykval' | mysql
-user@val:~$ mysql ykval < /usr/share/doc/yubikey-val/ykval-db.sql 
-user@val:~$ 
-```
+ user@val:~$ echo 'create database ykval' | mysql
+ user@val:~$ mysql ykval < /usr/share/doc/yubikey-val/ykval-db.sql 
+ user@val:~$ 
 
 You also need to create a database user for the verifier interface,
 normally called 'ykval_verifier':
 
-```sh
-user@val:~$ mysql --silent ykval
-mysql> CREATE USER 'ykval_verifier'@'localhost'; \
-GRANT SELECT,INSERT,UPDATE(modified, yk_counter, yk_low, yk_high, yk_use, nonce) ON ykval.yubikeys TO 'ykval_verifier'@'localhost'; \
-GRANT SELECT(id, secret, active) ON ykval.clients TO 'ykval_verifier'@'localhost'; \
-GRANT SELECT,INSERT,UPDATE,DELETE ON ykval.queue TO 'ykval_verifier'@'localhost'; \
-SET PASSWORD FOR 'ykval_verifier'@'localhost' = PASSWORD('yourpassword'); \
-FLUSH PRIVILEGES;
-mysql> \q
-user@val:~$ 
-```
-
+ user@val:~$ mysql --silent ykval
+ mysql> CREATE USER 'ykval_verifier'@'localhost'; \
+ GRANT SELECT,INSERT,UPDATE(modified, yk_counter, yk_low, yk_high, yk_use, nonce) ON ykval.yubikeys TO 'ykval_verifier'@'localhost'; \
+ GRANT SELECT(id, secret, active) ON ykval.clients TO 'ykval_verifier'@'localhost'; \
+ GRANT SELECT,INSERT,UPDATE,DELETE ON ykval.queue TO 'ykval_verifier'@'localhost'; \
+ SET PASSWORD FOR 'ykval_verifier'@'localhost' = PASSWORD('yourpassword'); \
+ FLUSH PRIVILEGES;
+ mysql> \q
+ user@val:~$ 
 
 ==== Step 3B: PostgreSQL Installation ====
 
 Install the required packages:
 
-```sh
-user@val:~$ sudo apt-get install postgresql php5-pgsql 
-...
-user@val:~$ 
-```
+ user@val:~$ sudo apt-get install postgresql php5-pgsql 
+ ...
+ user@val:~$ 
 
 The database needs to be initialized as follows:
 
-```sh
-user@val:~$ sudo su postgres
-postgres@val:~$ createdb ykval
-postgres@val:~$ psql ykval < /usr/share/doc/yubikey-val/ykval-db.sql 
-postgres@val:~$
-```
+ user@val:~$ sudo su postgres
+ postgres@val:~$ createdb ykval
+ postgres@val:~$ psql ykval < /usr/share/doc/yubikey-val/ykval-db.sql 
+ postgres@val:~$
 
 You also need to create a database user for the verifier interface,
 normally called 'ykval_verifier':
 
-```sh
-postgres@val:~$ psql ykval -q
-ykval=# CREATE USER ykval_verifier PASSWORD 'yourpassword'; 
-ykval=# GRANT SELECT,INSERT,UPDATE ON yubikeys TO ykval_verifier; 
-ykval=# GRANT SELECT ON clients TO ykval_verifier; 
-ykval=# GRANT SELECT, INSERT, UPDATE, DELETE ON queue TO ykval_verifier;
-ykval=# \q
-postgres@val:~$ 
-```
+ postgres@val:~$ psql ykval -q
+ ykval=# CREATE USER ykval_verifier PASSWORD 'yourpassword'; 
+ ykval=# GRANT SELECT,INSERT,UPDATE ON yubikeys TO ykval_verifier; 
+ ykval=# GRANT SELECT ON clients TO ykval_verifier; 
+ ykval=# GRANT SELECT, INSERT, UPDATE, DELETE ON queue TO ykval_verifier;
+ ykval=# \q
+ postgres@val:~$ 
 
 Don't forget to switch back to your normal user
-```sh
-postgres@val:~$ exit
-user@val:~$
-```
+
+ postgres@val:~$ exit
+ user@val:~$
 
 During installation and debugging it may be useful to watch the
 database log entries:
 
-```sh
-user@val:~$ sudo tail -F /var/log/postgresql/postgresql-*-main.log &
-```
+ user@val:~$ sudo tail -F /var/log/postgresql/postgresql-*-main.log &
 
 === Step 4: Setup Verify OTP Interface ===
 
@@ -187,13 +167,11 @@ can place the script under any URL, but we recommend serving it as
 the symlinks is to invoke 'make symlink' in your YK-VAL source tree.
 Like this:
 
-```sh
-user@val:~/yubikey-val$ sudo make symlink
-install -d /var/www/wsapi/2.0
-ln -sf /usr/share/yubikey-val/ykval-verify.php /var/www/wsapi/2.0/verify.php
-ln -sf /usr/share/yubikey-val/ykval-sync.php /var/www/wsapi/2.0/sync.php
-user@val:~/yubikey-val$ 
-```
+ user@val:~/yubikey-val$ sudo make symlink
+ install -d /var/www/wsapi/2.0
+ ln -sf /usr/share/yubikey-val/ykval-verify.php /var/www/wsapi/2.0/verify.php
+ ln -sf /usr/share/yubikey-val/ykval-sync.php /var/www/wsapi/2.0/sync.php
+ user@val:~/yubikey-val$ 
 
 If you want to do it manually, you can invoke the above commands
 manually.
@@ -203,25 +181,21 @@ manually.
 Set the include path for the queue daemon by creating a file
 /etc/default/ykval-queue with the following content:
 
-```sh
-user@val:~$ sudo sh -c 'cat > /etc/default/ykval-queue'
-DAEMON_ARGS="/etc/yubico/val:/usr/share/yubikey-val"
-user@val:~$ 
-```
+ user@val:~$ sudo sh -c 'cat > /etc/default/ykval-queue'
+ DAEMON_ARGS="/etc/yubico/val:/usr/share/yubikey-val"
+ user@val:~$ 
 
 You also need to set the include path for the PHP scripts running via
 Apache, using a .htaccess file:
 
-```sh
-user@val:~$ sudo sh -c 'cat > /var/www/wsapi/2.0/.htaccess'
-RewriteEngine on
-RewriteRule ^([^/\.\?]+)(\?.*)?$ $1.php$2 [L]
-<IfModule mod_php5.c>
- php_value include_path ".:/etc/yubico/val:/usr/share/yubikey-val"
-</IfModule>
-user@val:~$ sudo ln -s 2.0/.htaccess /var/www/wsapi/.htaccess
-user@val:~$
-```
+ user@val:~$ sudo sh -c 'cat > /var/www/wsapi/2.0/.htaccess'
+ RewriteEngine on
+ RewriteRule ^([^/\.\?]+)(\?.*)?$ $1.php$2 [L]
+ <IfModule mod_php5.c>
+  php_value include_path ".:/etc/yubico/val:/usr/share/yubikey-val"
+ </IfModule>
+ user@val:~$ sudo ln -s 2.0/.htaccess /var/www/wsapi/.htaccess
+ user@val:~$
 
 The .htaccess file also sets up rewriting from the non-.PHP suffix URL
 name to the right script.
@@ -236,10 +210,8 @@ included in YK-VAL package as ykval-config.php
 
 A template is typically installed in /etc/yubico/val/ykval-config.php-template.
 
-```sh
-user@val:~$ sudo cp /etc/yubico/val/ykval-config.php-template /etc/yubico/val/ykval-config.php
-user@val:~$ sudo emacs -nw /etc/yubico/val/ykval-config.php
-```
+ user@val:~$ sudo cp /etc/yubico/val/ykval-config.php-template /etc/yubico/val/ykval-config.php
+ user@val:~$ sudo emacs -nw /etc/yubico/val/ykval-config.php
 
 Be careful about the user permissions and ownership so that unrelated
 users on the system cannot read the database password.
@@ -251,43 +223,35 @@ otp2ksmurls function.
 
 An example DSN for a MySQL setup: 
 
-```php
-$baseParams['__YKVAL_DB_DSN__'] = "mysql:dbname=ykval;host=127.0.0.1";
-```
+ $baseParams['__YKVAL_DB_DSN__'] = "mysql:dbname=ykval;host=127.0.0.1";
 
 An example DSN for a PostgreSQL setup:
 
-```php
-$baseParams['__YKVAL_DB_DSN__'] = "pgsql:dbname=ykval;host=127.0.0.1";
-```
+ $baseParams['__YKVAL_DB_DSN__'] = "pgsql:dbname=ykval;host=127.0.0.1";
 
 We recommend to add the hosts in YKVAL_SYNC_POOL as entries in '/etc/hosts' to avoid network delays caused by DNS-lookups. For example:
 
-```sh
-user@val:~$ sudo sh -c 'cat >> /etc/hosts'
-1.2.3.4 api1.example.com
-2.3.4.5 api2.example.com
-user@val:~$ 
-```
+ user@val:~$ sudo sh -c 'cat >> /etc/hosts'
+ 1.2.3.4 api1.example.com
+ 2.3.4.5 api2.example.com
+ user@val:~$ 
 
 
 To improve database performance you can use persistent database connection so that each request doesn't require a new connection to be setup. To enable this modify '__YKVAL_DB_OPTIONS__' as follows:
 
-```php
-$baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_PERSISTENT => true); 
-```
+ $baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_PERSISTENT => true); 
 
 === Step 7: Apache configuration ===
 
 Create an apache web configuration file for the normal HTTP interface
 like this:
 
-```
-user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval'
-<VirtualHost *:80>
-	ServerName api.example.com
-	ServerAdmin support@example.com
-	
+....
+ user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval'
+ <VirtualHost *:80>
+ 	ServerName api.example.com
+ 	ServerAdmin support@example.com
+
 	DocumentRoot /var/www/
 	<Directory />
 		Options FollowSymLinks
@@ -306,9 +270,9 @@ user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval'
 	CustomLog /var/log/apache2/ykval-access.log "%h %l %u %t \"%r\" %>s %b %D \"%{Referer}i\" \"%{User-Agent}i\""
 	ServerSignature On
 
-</VirtualHost>
-user@val:~$ 
-```
+ </VirtualHost>
+ user@val:~$ 
+....
 
 HTTPS is strictly speaking not required, but we strongly recommend it.
 
@@ -319,19 +283,17 @@ both, but you will need to decide which one to use.
 You will need to create a key/certificate for your server using normal
 tools like GnuTLS "certtool".  A small howto for !GoDaddy is available
 from
-[http://permalink.gmane.org/gmane.comp.encryption.gpg.gnutls.devel/4062].
+http://permalink.gmane.org/gmane.comp.encryption.gpg.gnutls.devel/4062.
 
 ==== Step 7A: HTTPS via mod_gnutls ====
 
 First install and enable the mod_gnutls module:
 
-```sh
-user@val:~$ sudo apt-get install libapache2-mod-gnutls
-user@val:~$ sudo a2enmod gnutls
-Enabling module gnutls.
-Run '/etc/init.d/apache2 restart' to activate new configuration!
-user@val:~$ 
-```
+ user@val:~$ sudo apt-get install libapache2-mod-gnutls
+ user@val:~$ sudo a2enmod gnutls
+ Enabling module gnutls.
+ Run '/etc/init.d/apache2 restart' to activate new configuration!
+ user@val:~$ 
 
 You will need to place the private key in
 /etc/ssl/private/api.example.com-key.pem and the certificate chain in
@@ -339,10 +301,10 @@ You will need to place the private key in
 
 Create Apache web configuration files: 
 
-```
-user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl'
-Listen 443
-<VirtualHost *:443>
+....
+ user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl'
+ Listen 443
+ <VirtualHost *:443>
 	ServerName api.example.com
 	ServerAdmin support@example.com
 
@@ -369,29 +331,27 @@ Listen 443
 	CustomLog /var/log/apache2/ykval-ssl-access.log "%h %l %u %t \"%r\" %>s %b %D \"%{Referer}i\" \"%{User-Agent}i\""
 	ServerSignature On
 
-</VirtualHost>
-user@val:~$ 
-```
+ </VirtualHost>
+ user@val:~$ 
+....
 
 ==== Step 7B: HTTPS via mod_ssl ====
 
 The mod_ssl module is typically installed by default, but you need to
 enable it.
 
-```sh
-user@val:~$ sudo a2enmod ssl
-Enabling module ssl.
-Run '/etc/init.d/apache2 restart' to activate new configuration!
-user@val:~$ 
-```
+ user@val:~$ sudo a2enmod ssl
+ Enabling module ssl.
+ Run '/etc/init.d/apache2 restart' to activate new configuration!
+ user@val:~$ 
 
 You will need to place the private key in
 /etc/ssl/private/api.example.com-key.pem and the certificate chain in
 /etc/ssl/private/api.example.com-chain.pem.
 
-```
-user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl'
-<VirtualHost *:443>
+....
+ user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl'
+ <VirtualHost *:443>
 	ServerName api.example.com
 	ServerAdmin support@example.com
 
@@ -418,28 +378,26 @@ user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl'
 	CustomLog /var/log/apache2/ykval-ssl-access.log "%h %l %u %t \"%r\" %>s %b %D \"%{Referer}i\" \"%{User-Agent}i\""
 	ServerSignature On
 
-</VirtualHost>
-user@val:~$ 
-```
+ </VirtualHost>
+ user@val:~$ 
+....
 
 ==== Common Apache Configuration ====
 
 This step is the same for both mod_gnutls and mod_ssl.
 
-```sh
-user@val:~$ sudo a2enmod rewrite
-Enabling module rewrite.
-Run '/etc/init.d/apache2 restart' to activate new configuration!
-user@val:~$ sudo a2dissite default
-Site default disabled.
-Run '/etc/init.d/apache2 reload' to activate new configuration!
-user@val:~$ sudo a2ensite ykval ykval-ssl
-Enabling site ykval.
-Enabling site ykval-ssl.
-Run '/etc/init.d/apache2 reload' to activate new configuration!
-user@val:~$ sudo /etc/init.d/apache2 restart
-user@val:~$ 
-```
+ user@val:~$ sudo a2enmod rewrite
+ Enabling module rewrite.
+ Run '/etc/init.d/apache2 restart' to activate new configuration!
+ user@val:~$ sudo a2dissite default
+ Site default disabled.
+ Run '/etc/init.d/apache2 reload' to activate new configuration!
+ user@val:~$ sudo a2ensite ykval ykval-ssl
+ Enabling site ykval.
+ Enabling site ykval-ssl.
+ Run '/etc/init.d/apache2 reload' to activate new configuration!
+ user@val:~$ sudo /etc/init.d/apache2 restart
+ user@val:~$ 
 
 === Step 8: Logging ===
 
@@ -448,13 +406,11 @@ facility is LOG_LOCAL0.  To place these messages in a separate file,
 you can add the following to /etc/syslog.conf, or if you use rsyslog,
 create a file /etc/rsyslog.d/ykval.conf with this content:
 
-```sh
-user@val:~$ sudo sh -c 'cat > /etc/rsyslog.d/ykval.conf'
-local0.* -/var/log/ykval.log
-user@val:~$ sudo /etc/init.d/rsyslog restart
-...
-user@val:~$ 
-```
+ user@val:~$ sudo sh -c 'cat > /etc/rsyslog.d/ykval.conf'
+ local0.* -/var/log/ykval.log
+ user@val:~$ sudo /etc/init.d/rsyslog restart
+ ...
+ user@val:~$ 
 
 The '-' before the filename avoids syncing the file after each write,
 which is recommended for performance.
@@ -463,10 +419,9 @@ The log file can grow large quickly, so it is a good idea to setup
 rotation of log files.  Here is an example that rotates the log file
 weekly.  Create a file /etc/logrotate.d/ykval like this:
 
-```sh
-user@val:~$ sudo sh -c 'cat > /etc/logrotate.d/ykval'
-/var/log/ykval.log {
-	weekly
+ user@val:~$ sudo sh -c 'cat > /etc/logrotate.d/ykval'
+ /var/log/ykval.log {
+ 	weekly
         dateext
 	compress
 	missingok
@@ -475,9 +430,8 @@ user@val:~$ sudo sh -c 'cat > /etc/logrotate.d/ykval'
 	postrotate
 		invoke-rc.d rsyslog reload > /dev/null
         endscript
-}
-user@val:~$ 
-```
+ }
+ user@val:~$ 
 
 You may want to modify the default /etc/logrotate.d/apache2, useful
 things to add are 'dateext' and 'compress' and change 'rotate' to
@@ -494,39 +448,37 @@ rules.  To avoid YK-VAL log entries in these other files, you must
 modify the default rules.  For example, edit the following lines of
 /etc/rsyslog.conf (or /etc/syslog.conf if you don't use rsyslog):
 
-```
-*.=debug;\
+....
+ *.=debug;\
         auth,authpriv.none;\
         news.none;mail.none     -/var/log/debug
-*.*;auth,authpriv.none          -/var/log/syslog
-*.=info;*.=notice;*.=warn;\
+ *.*;auth,authpriv.none          -/var/log/syslog
+ *.=info;*.=notice;*.=warn;\
         auth,authpriv.none;\
         cron,daemon.none;\
         mail,news.none          -/var/log/messages
-```
+....
 
 Change them into:
 
-```
-*.=debug;\
+....
+ *.=debug;\
         auth,authpriv.none;\
         news.none;mail.none;local0.none     -/var/log/debug
-*.*;auth,authpriv.none,local0.none              -/var/log/syslog
-*.=info;*.=notice;*.=warn;\
+ *.*;auth,authpriv.none,local0.none              -/var/log/syslog
+ *.=info;*.=notice;*.=warn;\
         auth,authpriv.none;\
         cron,daemon.none;\
-	local0.none;\
+        local0.none;\
         mail,news.none          -/var/log/messages
-```
+....
 
 Idempotent commands to speed this up:
 
-```sh
-user@host:~$ sudo perl -pi -e 's/;auth,authpriv.none/;auth,local0.none,authpriv.none/' /etc/rsyslog.conf
-user@host:~$ sudo perl -pi -e 's/news.none;mail.none/news.none;local0.none;mail.none/' /etc/rsyslog.conf
-user@host:~$ sudo perl -pi -e 's/cron,daemon.none/cron,daemon.none;local0.none/' /etc/rsyslog.conf
-user@host:~$ sudo /etc/init.d/rsyslog restart
-```
+ user@host:~$ sudo perl -pi -e 's/;auth,authpriv.none/;auth,local0.none,authpriv.none/' /etc/rsyslog.conf
+ user@host:~$ sudo perl -pi -e 's/news.none;mail.none/news.none;local0.none;mail.none/' /etc/rsyslog.conf
+ user@host:~$ sudo perl -pi -e 's/cron,daemon.none/cron,daemon.none;local0.none/' /etc/rsyslog.conf
+ user@host:~$ sudo /etc/init.d/rsyslog restart
 
 === Step 9: Start Sync Daemon ===
 
@@ -535,9 +487,7 @@ daemon running to ensure that data is synchronized between the servers in
 the pool. The easiest way of running this is to simply invoke ykval-queue 
 in a shell:
 
-```sh
-user@val:~$ sudo ykval-queue
-```
+ user@val:~$ sudo ykval-queue
 
 However, the recommended approach is to automate running this process in 
 the background, by use of an init script or similar. Instructions on doing 
@@ -556,25 +506,24 @@ address(es) to __YKVAL_ALLOWED_SYNC_POOL__.
 
 Once these permissions have been configured, you can initiate the full sync 
 by running the following command from the new server:
-```sh
-user@val:~$ ykval-synchronize http://<IP or hostname of existing server>/wsapi/2.0/resync all
-```
+
+ user@val:~$ ykval-synchronize http://<IP or hostname of existing server>/wsapi/2.0/resync all
 
 === Step 11: Test it ===
 
 You can test the service by requesting a URL.  Using wget, for
 example:
 
-```sh
-user@val:~$ wget -q -O - 'http://localhost/wsapi/2.0/verify?id=1&nonce=asdmalksdmlkasmdlkasmdlakmsdaasklmdlak&otp=dteffujehknhfjbrjnlnldnhcujvddbikngjrtgh'
-h=/QVWkl5VlcX+Or1A2b3vOeoLEwI=
-t=2010-05-17T14:48:15Z0355
-otp=dteffujehknhfjbrjnlnldnhcujvddbikngjrtgh
-nonce=asdmalksdmlkasmdlkasmdlakmsdaasklmdlak
-status=NO_SUCH_CLIENT
+....
+ user@val:~$ wget -q -O - 'http://localhost/wsapi/2.0/verify?id=1&nonce=asdmalksdmlkasmdlkasmdlakmsdaasklmdlak&otp=dteffujehknhfjbrjnlnldnhcujvddbikngjrtgh'
+ h=/QVWkl5VlcX+Or1A2b3vOeoLEwI=
+ t=2010-05-17T14:48:15Z0355
+ otp=dteffujehknhfjbrjnlnldnhcujvddbikngjrtgh
+ nonce=asdmalksdmlkasmdlkasmdlakmsdaasklmdlak
+ status=NO_SUCH_CLIENT
 
-user@val:~$ 
-```
+ user@val:~$ 
+....
 
 Naturally, you will need to import client keys into the database for
 the verify function to work properly.
@@ -582,5 +531,5 @@ the verify function to work properly.
 === The End ===
 
 You now have a YK-VAL up and running.  See
-[https://github.com/Yubico/yubikey-ksm/wiki/ServerHardening] on how to
+https://github.com/Yubico/yubikey-ksm/wiki/ServerHardening on how to
 improve security of your system.
