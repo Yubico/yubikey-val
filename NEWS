@@ -1,5 +1,11 @@
 * Version 2.24 (released 2013-09-18)
   
+  * Now works with 'allow_url_fopen' == false.
+
+  * Always verifies SSL peer when syncing between servers via HTTPS.
+
+* Version 2.24 (released 2013-09-18)
+  
   * Removed space after comma in the output of ykval-gen-clients.
 
   * Include README in tarball.
