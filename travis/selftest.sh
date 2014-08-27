@@ -8,6 +8,10 @@ if [ "x$DB" = "xmysql" ]; then
   mysql -u $dbuser -e 'create database ykval;'
   mysql -u $dbuser ykval < ykval-db.sql
 elif [ "x$DB" = "xpgsql" ]; then
+  sudo service postgresql status
+  if [ $? != 0 ]; then
+    sudo service postgresql restart
+  fi
   dbuser=postgres
 
   psql -U $dbuser -c 'create database ykval;'
