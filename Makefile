@@ -42,9 +42,12 @@ MANS = ykval-queue.1 ykval-import.1 ykval-export.1		\
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php ykval-munin-responses.pl \
 	ykval-munin-yubikeystats.php
-DOCS = doc/ClientInfoFormat.wiki doc/Installation.wiki			\
-	doc/RevocationService.wiki doc/ServerReplicationProtocol.wiki	\
-	doc/SyncMonitor.wiki doc/Troubleshooting.wiki
+DOCS = doc/GeneratingClients.adoc doc/GettingStartedWritingClients.adoc \
+	doc/ImportExportData.adoc doc/Installation.adoc doc/MakeRelease.adoc \
+	doc/MuninProbes.adoc doc/RevocationService.adoc \
+	doc/ServerReplicationProtocol.adoc doc/SyncMonitor.adoc \
+	doc/Troubleshooting.adoc doc/ValidationProtocolV20.adoc \
+	doc/ValidationServerAlgorithm.adoc doc/YubiKeyInfoFormat.adoc
 
 all:
 	@echo "Try 'make install' or 'make symlink'."
