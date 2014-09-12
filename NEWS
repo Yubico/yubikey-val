@@ -1,3 +1,5 @@
+* Version 2.26 (unreleased)
+
 * Version 2.25 (released 2014-08-18)
   
   * Now works with 'allow_url_fopen' == false.
