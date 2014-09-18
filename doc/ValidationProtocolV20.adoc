@@ -25,7 +25,7 @@ signature do:
 
  * Alphabetically sort the set of key/value pairs by key order.
  * Construct a single line with each ordered key/value pair concatenated using '&', and each key and value contatenated with '='. Do not add any linebreaks. Do not add whitespace. For example: `a=2&b=1&c=3`.
- * Apply the HMAC-SHA-1 algorithm on the line as an octet string using the API key as key.
+ * Apply the HMAC-SHA-1 algorithm on the line as an octet string using the API key as key (remember to base64decode the API key obtained from Yubico).
  * Base 64 encode the resulting value according to RFC 4648, for example, `t2ZMtKeValdA+H0jVpj3LIichn4=`.
  * Append the value under key 'h' to the message. 
 
