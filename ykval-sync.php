@@ -150,7 +150,7 @@ $myLog->log(LOG_DEBUG, 'Sync request params ' , $syncParams);
 #
 # Compare sync and local counters and generate warnings according to
 #
-# https://github.com/Yubico/yubikey-val/wiki/ServerReplicationProtocol
+# https://developers.yubico.com/yubikey-val/doc/ServerReplicationProtocol.html
 #
 
 

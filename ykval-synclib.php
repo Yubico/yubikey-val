@@ -461,7 +461,7 @@ class SyncLib
 
       /* Check for warnings
 
-       See https://github.com/Yubico/yubikey-val/wiki/ServerReplicationProtocol
+       See https://developers.yubico.com/yubikey-val/doc/ServerReplicationProtocol.html
 
        NOTE: We use localParams for validationParams comparison since they are actually the
        same in this situation and we have them at hand.

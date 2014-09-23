@@ -51,7 +51,7 @@ DOCS = doc/GeneratingClients.adoc doc/GettingStartedWritingClients.adoc \
 
 all:
 	@echo "Try 'make install' or 'make symlink'."
-	@echo "Docs: https://github.com/Yubico/yubikey-val/wiki/Installation"
+	@echo "Docs: https://developers.yubico.com/yubikey-val/doc/Installation.html"
 	@exit 1
 
 # Installation rules.
