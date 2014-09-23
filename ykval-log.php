@@ -55,6 +55,9 @@ class Log
   function log($priority, $message, $arr=null){
     if (is_array($arr)) {
       foreach($arr as $key=>$value){
+        if (is_array($value)) {
+          $value = implode(":", $value);
+        }
 	$message.=" $key=$value ";
       }
     }
