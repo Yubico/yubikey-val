@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-# Copyright (c) 2010-2013 Yubico AB
+# Copyright (c) 2010-2014 Yubico AB
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -70,7 +70,7 @@ while($row = $db->fetchArray($result)) {
     # For some reason PostgreSQL returns empty strings for false values?!
     $active = "0";
   }
-  $everything = $everything .
+  $everything .=
     $row['id'] . "\t" . $active . "\t" .
     $row['secret'] . "\n";
 }
