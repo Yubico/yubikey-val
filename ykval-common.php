@@ -173,7 +173,7 @@ function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $re
 	  $error = curl_error ($info['handle']);
 	  $errno = curl_errno ($info['handle']);
 	  $cinfo = curl_getinfo ($info['handle']);
-	  $logger->log(LOG_DEBUG, $ident . " errno/error: " . $errno . "/" . $error, $cinfo);
+	  $logger->log(LOG_INFO, $ident . " errno/error: " . $errno . "/" . $error, $cinfo);
 	  $ans_count++;
 	  if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
 	  else $ans_arr[]=$str;
