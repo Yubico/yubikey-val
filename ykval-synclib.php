@@ -308,13 +308,13 @@ class SyncLib
 
   public function reSync($older_than=60, $timeout)
   {
-    $this->log(LOG_INFO, 'starting resync');
+    $this->log(LOG_DEBUG, 'starting resync');
     /* Loop over all unique servers in queue */
     $queued_limit=time()-$older_than;
     $server_res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
 
     while ($my_server=$this->db->fetchArray($server_res)) {
-      $this->log(LOG_INFO, "Processing queue for server " . $my_server['server']);
+      $this->log(LOG_DEBUG, "Processing queue for server " . $my_server['server']);
       $res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
       $ch = curl_init();
 
@@ -390,7 +390,7 @@ class SyncLib
 	}
 
 	  /* Deletion */
-	  $this->log(LOG_INFO, 'deleting queue entry with modified=' . $entry['modified'] .
+	  $this->log(LOG_DEBUG, 'deleting queue entry with modified=' . $entry['modified'] .
 	    ' server_nonce=' . $entry['server_nonce'] .
 	    ' server=' . $entry['server']);
 	  $this->db->deleteByMultiple('queue',
