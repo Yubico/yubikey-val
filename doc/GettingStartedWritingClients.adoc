@@ -4,7 +4,7 @@ Getting Started Writing Clients
 == Introduction
 
 While the canonical description of the validation protocol is
-documented in link:ValidationProtocolV20[ValidationProtocolV20], it may be difficult to grasp the
+documented in link:ValidationProtocolV20.adoc[ValidationProtocolV20], it may be difficult to grasp the
 high level of how a client typically works.  The intention with this
 page is to illustrate one simple case.  Note that this does not cover
 the replicated protocol.
