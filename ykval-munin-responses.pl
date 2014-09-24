@@ -32,8 +32,12 @@
 use strict;
 use warnings;
 
+use Env qw/YKVAL_LOGFILE/;
+
 my @types = qw/OK BAD_OTP MISSING_PARAMETER BACKEND_ERROR BAD_SIGNATURE DELAYED_OTP NO_SUCH_CLIENT NOT_ENOUGH_ANSWERS REPLAYED_REQUEST REPLAYED_OTP OPERATION_NOT_ALLOWED/;
-my $logfile = "/var/log/syslog";
+
+my $logfile = $YKVAL_LOGFILE;
+$logfile = "/var/log/syslog" unless $logfile;
 
 if(@ARGV > 0) {
   if($ARGV[0] eq "autoconf") {
