@@ -1,5 +1,9 @@
 * Version 2.27 (unreleased)
 
+  * Further logging updates.
+
+  * ykval-munin-responses: Make log file configurable.
+
 * Version 2.26 (released 2014-09-24)
 
   * Logging updates.
