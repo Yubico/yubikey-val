@@ -1,4 +1,10 @@
-* Version 2.26 (unreleased)
+* Version 2.26 (released 2014-09-24)
+
+  * Logging updates.
+
+  * Optimization fix in the checksum scripts.
+
+  * Documentation fixes.
 
 * Version 2.25 (released 2014-08-18)
   
