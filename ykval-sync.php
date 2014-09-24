@@ -1,6 +1,6 @@
 <?php
 
-# Copyright (c) 2009-2013 Yubico AB
+# Copyright (c) 2009-2014 Yubico AB
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -58,7 +58,7 @@ if (! $sync->isConnected()) {
 # Verify that request comes from valid server
 #
 
-$myLog->log(LOG_INFO, 'Received request from ' . $_SERVER['REMOTE_ADDR']);
+$myLog->log(LOG_DEBUG, 'Received request from ' . $_SERVER['REMOTE_ADDR']);
 
 $allowed = in_array($_SERVER['REMOTE_ADDR'], $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']);
 

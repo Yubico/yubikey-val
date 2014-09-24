@@ -1,6 +1,6 @@
 <?php
 
-# Copyright (c) 2009-2013 Yubico AB
+# Copyright (c) 2009-2014 Yubico AB
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -164,7 +164,7 @@ class SyncLib
 
   function getLocalParams($yk_publicname)
   {
-    $this->log(LOG_INFO, "searching for yk_publicname " . $yk_publicname . " in local db");
+    $this->log(LOG_DEBUG, "searching for yk_publicname " . $yk_publicname . " in local db");
     $res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname, 1);
 
     if (!$res) {
