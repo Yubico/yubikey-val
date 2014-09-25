@@ -4,6 +4,8 @@
 
   * ykval-munin-responses: Make log file configurable.
 
+  * ykval-munin-ksmresponses: New munin probe.
+
 * Version 2.26 (released 2014-09-24)
 
   * Logging updates.
