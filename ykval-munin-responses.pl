@@ -2,7 +2,7 @@
 #%# family=auto
 #%# capabilities=autoconf
 
-# Copyright (c) 2012-2013 Yubico AB
+# Copyright (c) 2012-2014 Yubico AB
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -65,12 +65,12 @@ if(@ARGV > 0) {
 my %statuses = map { $_ => 0 } @types;
 
 my $reg = qr/status=([A-Z_]+)/;
-open (LOGFILE, "grep 'ykval-verify.*Response' $logfile |");
-while(<LOGFILE>) {
+open (my $file, "-|", "grep 'ykval-verify.*Response' $logfile");
+while(<$file>) {
   next unless /$reg/;
   $statuses{$1}++;
 }
-close LOGFILE;
+close $file;
 
 print "multigraph ykval_responses\n";
 foreach my $type (@types) {
