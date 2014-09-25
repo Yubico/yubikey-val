@@ -41,7 +41,7 @@ MANS = ykval-queue.1 ykval-import.1 ykval-export.1		\
 	ykval-synchronize.1 ykval-gen-clients.1
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php ykval-munin-responses.pl \
-	ykval-munin-yubikeystats.php
+	ykval-munin-yubikeystats.php ykval-munin-ksmresponses.pl
 DOCS = doc/GeneratingClients.adoc doc/GettingStartedWritingClients.adoc \
 	doc/ImportExportData.adoc doc/Installation.adoc doc/MakeRelease.adoc \
 	doc/MuninProbes.adoc doc/RevocationService.adoc \
@@ -96,6 +96,7 @@ install:
 	install -D ykval-munin-vallatency.php $(DESTDIR)$(muninprefix)/ykval_vallatency
 	install -D ykval-munin-queuelength.php $(DESTDIR)$(muninprefix)/ykval_queuelength
 	install -D ykval-munin-responses.pl $(DESTDIR)$(muninprefix)/ykval_responses
+	install -D ykval-munin-ksmresponses.pl $(DESTDIR)$(muninprefix)/ykval_ksmresponses
 	install -D ykval-munin-yubikeystats.php $(DESTDIR)$(muninprefix)/ykval_yubikeystats
 	install -D --backup --mode 640 --group $(wwwgroup) ykval-config.php $(DESTDIR)$(etcprefix)/ykval-config.php
 	install -D --mode 644 ykval-db.sql $(DESTDIR)$(docprefix)/ykval-db.sql
