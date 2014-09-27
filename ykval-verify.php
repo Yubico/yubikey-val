@@ -226,7 +226,7 @@ if ($h != '') {
 
   $hmac = sign($a, $apiKey, $myLog);
   // Compare it
-  if ($hmac != $h) {
+  if (!hash_equals($hmac, $h)) {
     $myLog->log(LOG_DEBUG, 'client hmac=' . $h . ', server hmac=' . $hmac);
     sendResp(S_BAD_SIGNATURE, $myLog, $apiKey);
     exit;
