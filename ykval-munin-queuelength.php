@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-# Copyright (c) 2010-2013 Yubico AB
+# Copyright (c) 2010-2014 Yubico AB
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,23 @@ set_include_path(get_include_path() . PATH_SEPARATOR .
 		 "/etc/yubico/val:/usr/share/yubikey-val");
 
 require_once 'ykval-config.php';
-require_once 'ykval-synclib.php';
-require_once 'ykval-log.php';
+require_once 'ykval-db.php';
+
+function url2shortname ($url) {
+  if (preg_match("/^[^\/]+\/\/([a-z0-9-]+)/", $url, $name)==0){
+    echo "Cannot match URL hostname: " . $url . "\n";
+    exit (1);
+  }
+  return $name[1];
+}
 
 if ($argc==2 && strcmp($argv[1], "autoconf") == 0) {
   print "yes\n";
   exit (0);
 }
+
+$urls = $baseParams['__YKVAL_SYNC_POOL__'];
+$shortnames = array_map("url2shortname", $urls);
 
 if ($argc==2 && strcmp($argv[1], "config") == 0) {
 
@@ -46,19 +56,38 @@ if ($argc==2 && strcmp($argv[1], "config") == 0) {
   echo "graph_vlabel sync requests in queue\n";
   echo "graph_category ykval\n";
 
-  echo "queuelength.label sync requests\n";
-  echo "queuelength.draw AREA\n";
+  foreach ($shortnames as $shortname) {
+    echo "queuelength_${shortname}.label sync ${shortname}\n";
+    echo "queuelength_${shortname}.draw AREASTACK\n";
+    echo "queuelength_${shortname}.type GAUGE\n";
+  }
 
   exit (0);
 }
 
-$sync = new SyncLib('ykval-verify:synclib');
-if (isset($_SERVER['REMOTE_ADDR'])) {
-  $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
+
+$db = Db::GetDatabaseHandle($baseParams, 'ykval-munin-queuelength');
+if (!$db->connect()) {
+  logdie($myLog, 'ERROR Database connect error (1)');
 }
 
-$len = $sync->getQueueLength ();
-echo "queuelength.value $len\n";
+$res = $db->customQuery('select server,count(server) as count from queue group by server');
+if ($res) {
+  $r = $res->fetchAll(PDO::FETCH_ASSOC);
+} else {
+  logdie($myLog, 'ERROR getting data from db');
+}
+
+foreach ($shortnames as $shortname) {
+  $count = 0;
+  foreach ($r as $result) {
+    if(strpos($result['server'], "$shortname.") !== FALSE) {
+      $count = $result['count'];
+      break;
+    }
+  }
+  echo "queuelength_${shortname}.value $count\n";
+}
 
 #%# family=auto
 #%# capabilities=autoconf
