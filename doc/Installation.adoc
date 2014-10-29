@@ -251,9 +251,9 @@ user@val:~$ sudo emacs -nw /etc/yubico/val/ykval-config.php
 Be careful about the user permissions and ownership so that unrelated
 users on the system cannot read the database password.
 
-You will typically need to modify the DSN ('__YKVAL_DB_DSN__'), database
-passwords (__YKVAL_DB_PW__), the sync pool lists ('__YKVAL_SYNC_POOL__'
-and '__YKVAL_ALLOWED_SYNC_POOL__'), and the YK-KSM URLs inside the
+You will typically need to modify the DSN (`__YKVAL_DB_DSN__`), database
+passwords (`__YKVAL_DB_PW__`), the sync pool lists (`__YKVAL_SYNC_POOL__`
+and `__YKVAL_ALLOWED_SYNC_POOL__`), and the YK-KSM URLs inside the
 otp2ksmurls function.
 
 An example DSN for a MySQL setup: 
@@ -276,7 +276,7 @@ user@val:~$ sudo sh -c 'cat >> /etc/hosts'
 user@val:~$ 
 ----
 
-To improve database performance you can use persistent database connection so that each request doesn't require a new connection to be setup. To enable this modify '__YKVAL_DB_OPTIONS__' as follows:
+To improve database performance you can use persistent database connection so that each request doesn't require a new connection to be setup. To enable this modify `__YKVAL_DB_OPTIONS__` as follows:
 
 [source, php]
 $baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_PERSISTENT => true); 
@@ -563,10 +563,10 @@ If you're adding a new server to an existing pool, you can synchronize all
 YubiKey counter data from one of the existing servers. To do so, the server 
 you want to sync from needs to be configured to allow it. Do this by editing 
 /etc/yubico/val/ykval-config.php on the existing server, adding the new 
-servers IP address to the '__YKRESYNC_IPS__' setting. You'll most likely want 
-to add the IP to the '__YKVAL_ALLOWED_SYNC_POOL__' setting as well. You also 
+servers IP address to the `__YKRESYNC_IPS__` setting. You'll most likely want 
+to add the IP to the `__YKVAL_ALLOWED_SYNC_POOL__` setting as well. You also 
 need to edit this file on the new server, adding the existing server(s) IP
-address(es) to '__YKVAL_ALLOWED_SYNC_POOL__'.
+address(es) to `__YKVAL_ALLOWED_SYNC_POOL__`.
 
 Once these permissions have been configured, you can initiate the full sync 
 by running the following command from the new server:
