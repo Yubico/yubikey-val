@@ -9,40 +9,55 @@ not be secure unless you take additional pre-cautions.
 
 == Installation
 
- user@val:~/yubikey-val$ sudo make revoke
- user@val:~/yubikey-val$ 
+[source, sh]
+----
+user@val:~/yubikey-val$ sudo make revoke
+user@val:~/yubikey-val$ 
+----
 
 == Configuration
 
 Add the following to your /etc/yubico/val/ykval-config.php:
 
- # For the revoke service.
- $baseParams['__YKREV_IPS__'] = array('10.0.0.1', '2000:1:2:3::4');
+[source, php]
+----
+# For the revoke service.
+$baseParams['__YKREV_IPS__'] = array('10.0.0.1', '2000:1:2:3::4');
+----
 
 Obviously you need to modify the IP address.
 
 You also need to grant additional rights to the database, for MySQL:
 
- user@val:~$ mysql --silent ykval
- mysql> GRANT UPDATE(active) ON ykval.yubikeys to 'ykval_verifier'@'localhost'; \
- FLUSH PRIVILEGES;
- mysql> \q
- user@val:~$ 
+[source, sh]
+----
+user@val:~$ mysql --silent ykval
+mysql> GRANT UPDATE(active) ON ykval.yubikeys to 'ykval_verifier'@'localhost'; \
+FLUSH PRIVILEGES;
+mysql> \q
+user@val:~$ 
+----
 
 For PostgreSQL this should already be working, through this command:
 
- postgres@val:~$ psql ykval -q
- ykval=# GRANT UPDATE ON yubikeys TO ykval_verifier; 
- ykval=# \q
- postgres@val:~$ 
+[source, sh]
+----
+postgres@val:~$ psql ykval -q
+ykval=# GRANT UPDATE ON yubikeys TO ykval_verifier; 
+ykval=# \q
+postgres@val:~$ 
+----
 
 == Testing
 
 Test the installation like this:
-
- user@revoke:~$ wget -q -O - 'http://api.example.com/wsapi/revoke?yk=dteffujehknh&do=enable'
- OK Processed dteffujehknh with enable
- user@revoke:~$ 
+ 
+[source, sh]
+----
+user@revoke:~$ wget -q -O - 'http://api.example.com/wsapi/revoke?yk=dteffujehknh&do=enable'
+OK Processed dteffujehknh with enable
+user@revoke:~$ 
+----
 
 Use 'disable' instead of 'enable' to test disabling of the YubiKey.
 

@@ -1,13 +1,14 @@
-= Validation Server Algorithm =
+== Validation Server Algorithm
 
 This document describes how a validation server should be implemented,
 and the required steps it needs to perform in order to be secure.
 
-The client-to-server protocol is described in ValidationProtocolV20
-and the server-to-server protocol is described in
-ServerReplicationProtocol.
+The client-to-server protocol is described in 
+link:Validation_Protocol_V2.0.adoc[Validation Protocol V2.0] and the
+server-to-server protocol is described in
+lnk:Server_Replication_Protocol.adoc[Server Replication Protocol].
 
-== Normal validation with Sync ==
+=== Normal validation with Sync
 
 Val X receives an OTP verify request and needs to update the other
 validation servers on the last seen counter values. The procedure is
@@ -35,20 +36,20 @@ Any remaining sync requests in the sync queue are from now on handled
 by a background daemon which re-sends them at regular intervals
 (described below).
 
-=== Verification algorithm ===
+==== Verification algorithm
 
 ....
- Input:
-   otp - the otp
-   nonce - the nonce from the request
-   yk:counter - the session counter
-   yk:use - the session use counter
-   yk:high - the high timestamp
-   yk:low - the low timestamp
-   modified - when the counters were last modified
+Input:
+  otp - the otp
+  nonce - the nonce from the request
+  yk:counter - the session counter
+  yk:use - the session use counter
+  yk:high - the high timestamp
+  yk:low - the low timestamp
+  modified - when the counters were last modified
 
- Output:
-   Error code.
+Output:
+  Error code.
 ....
 
 Val X requires that SL % of the sent sync requests gives a response
@@ -62,7 +63,7 @@ OTP is invalid, in order to consider the OTP to be valid.
 . (optional: if phishing test fails, return DELAYED_OTP)
 . return OK
 
-=== Warning algorithm ===
+==== Warning algorithm
 
 Warn if any of these are true:
 
@@ -80,7 +81,7 @@ Warn if any of these are true:
 
 * If received sync request have identical counters but different nonce (indicating that remote server received a request to validate an already validated OTP)
 
-=== Update validation server that has been offline ===
+==== Update validation server that has been offline
 
 Val X has been out of function and its internal database needs to be
 updated.
@@ -95,7 +96,7 @@ Responses which would have caused the sender of the sync request to
 consider the OTP as invalid will give raise to a warning on the sender
 validation server.
 
-== Sync queue daemon ==
+=== Sync queue daemon
 
 There is one queue daemon that is responsible for sending all the
 queued requests.
@@ -114,7 +115,7 @@ The sync queue will loop the following algorithm.
 ... The sync daemon updates the internal database to use the highest counter values: {{{UPDATE yubikeys SET counter = X, sessionUse = Y, high = P, low = Q, nonce = N, accessed = D WHERE publicName = ID AND ((counter < X) OR (counter = X AND sessionUse < Y))}}}
 ... The corresponding entry in the sync queue is removed.
 
-== Logging matrix
+=== Logging matrix
 
 Available parameters in comparisons are the following.
 
@@ -127,7 +128,7 @@ Available parameters in comparisons are the following.
 |================
 Parameters could be counters, modified, nonce.
 
-== Non-queued Sync response logging ==
+=== Non-queued Sync response logging
 
 We compare reponse parameters against validation parameters since we
 are interested in if the server is in sync at the moment when the
@@ -144,7 +145,7 @@ validation request arrives.
 | response.counter = otp.counters and response.nonce != otp.nonce | Warning | OTP marked as invalid | OTP is replayed. Sync response counters equal to OTP counters and nonce differs.
 |=============
 
-== Sync request logging ==
+=== Sync request logging
 
 Both an original sync and a queued sync looks the same so we can not
 determine if the sync is original or queued. Therefore the logging is
@@ -159,7 +160,7 @@ the same in both cases.
 | request.counters = local.counters and request.nonce != local.nonce | Warning | Remote server has received a request to validate an already validated OTP |
 |===================
 
-== Queued sync response logging ==
+=== Queued sync response logging
 
 What do we want to warn for here. Out of sync at time of OTP
 validation request or out of sync compared to current local counters?

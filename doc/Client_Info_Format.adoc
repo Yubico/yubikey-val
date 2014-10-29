@@ -1,5 +1,4 @@
-Format of Client Info Data
---------------------------
+== Format of Client Info Data
 
 This file holds data used in the YubiKey OTP validation phase.
 
@@ -11,32 +10,25 @@ Any empty line, or a line beginning with a # is ignored.
 
 The meaning are as follows:
 
-* id:
-
+id::
  the client identity, decimal integer
 
-* active
-
+active::
  the client state, 1 if active, 0 if not
 
-* created
-
+created::
  unix timestamp of when the client was created, decimal integer
 
-* secret
-
+secret::
  printable ascii string with shared HMAC secret for client id
 
-* email
-
+email::
  the email address used by the client, printable ascii string
 
-* notes
-
+notes::
  not used, printable ascii string
 
-* otp
-
+otp::
  the YubiKey OTP used to create the client, modhex string
 
 An examples of a valid data line:

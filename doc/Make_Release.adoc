@@ -1,12 +1,11 @@
-Maintainer instructions for making releases
-===========================================
+== Maintainer instructions for making releases
 
-== Introduction
+=== Introduction
 
 The point of this document is to describe all steps required to make a
 proper release of the yubikey-personalization project.
 
-== Dependencies
+=== Dependencies
 
 Making a release requires the following packages:
 
@@ -16,7 +15,7 @@ which can be installed (under Ubuntu) by running:
 
   sudo apt-get install make git gnupg git2cl
 
-== Details
+=== Details
 
 * Make sure the doc/ sub-directory uses the latest revision.  Confirm with:
   cd doc && git checkout master && git pull && git diff

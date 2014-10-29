@@ -1,4 +1,4 @@
-= Troubleshooting =
+== Troubleshooting
 
 First check if the web server is working.
 
@@ -18,4 +18,5 @@ problem between PHP, curl and libpq.  See
 http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=411982 for more
 information.  The workaround is simple:
 
- user@val:~$ sudo mv /etc/php5/conf.d/curl.ini /etc/php5/conf.d/z_curl.ini
+[source, sh]
+user@val:~$ sudo mv /etc/php5/conf.d/curl.ini /etc/php5/conf.d/z_curl.ini

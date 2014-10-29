@@ -1,4 +1,4 @@
-= Server Replication Protocol =
+== Server Replication Protocol
 
 This document describes the server to server protocol.  Its purpose is
 to synchronize the last used session and use counter between multiple
@@ -16,7 +16,7 @@ protocol.  The protocol described here is the server to server
 protocol.  See ValidationServerAlgorithm for a description of the
 implementation algorithm that uses this protocol.
 
-== Sync request specification ==
+=== Sync request specification
 
 A sync request is issued with a HTTP get call, like this:
 
@@ -66,5 +66,5 @@ The values returned are:
 
 Output values for modified, yk_counter, yk_use, yk_high and yk_low are
 always positive except for -1 which indicates that the server did not
-have any earlier information about the !YubiKey.  In this case, nonce
+have any earlier information about the YubiKey.  In this case, nonce
 is a newly allocated random nonce.

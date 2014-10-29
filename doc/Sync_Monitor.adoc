@@ -1,4 +1,4 @@
-= YK-VAL Synchronization Monitor =
+== YK-VAL Synchronization Monitor
 
 If you deploy multiple YK-VAL instances, it is important to monitor
 them to make sure the data they have is synchronized.  While there are
@@ -14,12 +14,15 @@ The typical way to use this is either manually or to run it in a cron
 job and output the hash to a file that can be downloaded by a remote
 monitor system such as Nagios.
 
- user@val:~$ sudo sh -c 'cat > /etc/cron.hourly/run-ykval-checksum-clients'
- #!/bin/sh
- FILE=/var/www/checksum-clients.txt
- (date --utc +%s; ykval-checksum-clients) > $FILE.tmp
- mv $FILE.tmp $FILE
- user@val:~$ sudo chmod +x /etc/cron.hourly/run-ykval-checksum-clients
+[source, sh]
+----
+user@val:~$ sudo sh -c 'cat > /etc/cron.hourly/run-ykval-checksum-clients'
+#!/bin/sh
+FILE=/var/www/checksum-clients.txt
+(date --utc +%s; ykval-checksum-clients) > $FILE.tmp
+mv $FILE.tmp $FILE
+user@val:~$ sudo chmod +x /etc/cron.hourly/run-ykval-checksum-clients
+----
 
 If you notice mismatches, you may want to run ykval-checksum-clients
 with the '-v' parameter on the different hosts and then use 'diff -ur'
