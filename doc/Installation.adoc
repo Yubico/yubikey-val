@@ -506,7 +506,7 @@ rules.  To avoid YK-VAL log entries in these other files, you must
 modify the default rules.  For example, edit the following lines of
 /etc/rsyslog.conf (or /etc/syslog.conf if you don't use rsyslog):
 
-[source, conf]
+[source, sh]
 ----
 *.=debug;\
        auth,authpriv.none;\
@@ -520,7 +520,7 @@ modify the default rules.  For example, edit the following lines of
 
 Change them into:
 
-[source, conf]
+[source, sh]
 ----
 *.=debug;\
        auth,authpriv.none;\
