@@ -38,10 +38,11 @@ CODE = COPYING Makefile NEWS README ykval-checksum-clients		\
 MANS = ykval-queue.1 ykval-import.1 ykval-export.1		\
 	ykval-import-clients.1 ykval-export-clients.1		\
 	ykval-checksum-clients.1 ykval-checksum-deactivated.1	\
-	ykval-synchronize.1 ykval-gen-clients.1
+	ykval-synchronize.1 ykval-gen-clients.1 ykval-nagios-queuelength.1
 MUNIN = ykval-munin-ksmlatency.php ykval-munin-vallatency.php	\
 	ykval-munin-queuelength.php ykval-munin-responses.pl \
 	ykval-munin-yubikeystats.php ykval-munin-ksmresponses.pl
+NAGIOS= ykval-nagios-queuelength.php
 DOCS = doc/Generating_Clients.adoc doc/Getting_Started_Writing_Clients.adoc \
 	doc/Import_Export_Data.adoc doc/Installation.adoc doc/Make_Release.adoc \
 	doc/Munin_Probes.adoc doc/Revocation_Service.adoc \
@@ -83,6 +84,7 @@ install:
 	install -D ykval-import-clients $(DESTDIR)$(sbinprefix)/ykval-import-clients
 	install -D ykval-checksum-clients $(DESTDIR)$(sbinprefix)/ykval-checksum-clients
 	install -D ykval-checksum-deactivated $(DESTDIR)$(sbinprefix)/ykval-checksum-deactivated
+	install -D ykval-nagios-queuelength.php $(DESTDIR)$(sbinprefix)/ykval-nagios-queuelength
 	install -D ykval-queue.1 $(DESTDIR)$(manprefix)/ykval-queue.1
 	install -D ykval-synchronize.1 $(DESTDIR)$(manprefix)/ykval-synchronize.1
 	install -D ykval-import.1 $(DESTDIR)$(manprefix)/ykval-import.1
@@ -122,7 +124,7 @@ PROJECT = $(PACKAGE)
 
 $(PACKAGE)-$(VERSION).tgz: $(FILES)
 	mkdir $(PACKAGE)-$(VERSION) $(PACKAGE)-$(VERSION)/doc
-	cp $(CODE) $(MANS) $(MUNIN) $(PACKAGE)-$(VERSION)/
+	cp $(CODE) $(MANS) $(MUNIN) $(NAGIOS) $(PACKAGE)-$(VERSION)/
 	cp $(DOCS) $(PACKAGE)-$(VERSION)/doc/
 	git2cl > $(PACKAGE)-$(VERSION)/ChangeLog
 	tar cfz $(PACKAGE)-$(VERSION).tgz $(PACKAGE)-$(VERSION)
