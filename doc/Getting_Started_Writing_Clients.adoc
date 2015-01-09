@@ -25,7 +25,8 @@ shared key to further authenticate response signatures from Yubico.
 If you for some reason do not want to rely on HTTPS. You may also sign
 requests using this API key.
 
-To get an API key, first use our online API key generator. It will
+To get an API key, first use
+https://upgrade.yubico.com/getapikey/[our online API key generator]. It will
 assign you an ID and create a shared key. You can use the shared key
 to authenticate that the API responses do come from Yubico.
 
