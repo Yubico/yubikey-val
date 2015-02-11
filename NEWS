@@ -1,4 +1,10 @@
-* Version 2.28 (unreleased)
+* Version 2.28 (released 2015-02-11)
+
+  * Refactor munin quelenegth plugin to show what is queued.
+
+  * Add ykval-nagios-queuelength.
+
+  * Use constant time string comparisson for validating HMAC signature.
 
 * Version 2.27 (released 2014-09-25)
 
