@@ -288,7 +288,7 @@ like this:
 
 [source, sh]
 ----
-user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval'
+user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval.conf'
 <VirtualHost *:80>
   ServerName api.example.com
   ServerAdmin support@example.com
@@ -347,7 +347,7 @@ Create Apache web configuration files:
 
 [source, sh]
 ----
-user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl'
+user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl.conf'
 Listen 443
 <VirtualHost *:443>
   ServerName api.example.com
@@ -399,7 +399,7 @@ You will need to place the private key in
 
 [source, sh]
 ----
-user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl'
+user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl.conf'
 <VirtualHost *:443>
   ServerName api.example.com
   ServerAdmin support@example.com
