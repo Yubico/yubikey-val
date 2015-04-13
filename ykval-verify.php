@@ -251,7 +251,11 @@ if (!is_array($urls)) {
 
 //// Decode OTP from input
 //
-$otpinfo = KSMdecryptOTP($urls, $myLog);
+$curlopts = array();
+if (array_key_exists('__YKVAL_KSM_CURL_OPTS__', $baseParams)) {
+  $curlopts = $baseParams['__YKVAL_KSM_CURL_OPTS__'];
+}
+$otpinfo = KSMdecryptOTP($urls, $myLog, $curlopts);
 if (!is_array($otpinfo)) {
   sendResp(S_BAD_OTP, $myLog, $apiKey);
   exit;

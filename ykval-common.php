@@ -130,6 +130,63 @@ function modhex2b64 ($modhex_str) {
   return hex2b64($hex_str);
 }
 
+function curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts) {
+  //configure "hard" options
+  $logger->log(LOG_DEBUG, $ident . " adding URL : " . $url);
+  curl_setopt($handle, CURLOPT_URL, $url);
+  curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
+  curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
+  curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
+  curl_setopt($handle, CURLOPT_FAILONERROR, TRUE);
+
+  if (!is_array($curlopts)) {
+    $logger->log(LOG_WARN, $ident . "curl options must be an array");
+    return;
+  }
+
+  //allowed configurable options in ykval-config.php
+  $allowed = array(
+    CURLOPT_PROTOCOLS,
+    CURLOPT_IPRESOLVE,
+    CURLOPT_SSLVERSION,
+    CURLOPT_SSL_VERIFYPEER,
+    CURLOPT_SSL_VERIFYHOST,
+    CURLOPT_CAINFO,
+    CURLOPT_CAPATH,
+  );
+
+  foreach($curlopts as $key => $val) {
+    if (in_array($key, $allowed) === FALSE) {
+      $logger->log(LOG_WARN, $ident . curl_opt_name($key) . "  is not configurable");
+      continue;
+    }
+
+    if (curl_setopt($handle, $key, $val) === FALSE) {
+      $logger->log(LOG_WARN, $ident . " failed to set " . curl_opt_name($key));
+      continue;
+    }
+  }
+}
+
+//returns the string name of a curl constant,
+//	or "curl option" if constant not found.
+// e.g.
+//  curl_opt_name(CURLOPT_URL) returns "CURLOPT_URL"
+//  curl_opt_name(CURLOPT_BLABLA) returns "curl option"
+function curl_opt_name($opt) {
+  $consts = get_defined_constants(true);
+  $consts = $consts['curl'];
+
+  $name = array_search($opt, $consts, TRUE);
+
+  //array_search may return either on failure...
+  if ($name === FALSE || $name === NULL) {
+    return "curl option";
+  }
+
+  return $name;
+}
+
 // This function takes a list of URLs.  It will return the content of
 // the first successfully retrieved URL, whose content matches ^OK.
 // The request are sent asynchronously.  Some of the URLs can fail
@@ -137,18 +194,14 @@ function modhex2b64 ($modhex_str) {
 // long as one of the URLs given work, data will be returned.  If all
 // URLs fail, data from some URL that did not match parameter $match
 // (defaults to ^OK) is returned, or if all URLs failed, false.
-function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10) {
+function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10, $curlopts) {
   $mh = curl_multi_init();
 
   $ch = array();
   foreach ($urls as $id => $url) {
     $handle = curl_init();
-    $logger->log(LOG_DEBUG, $ident . " adding URL : " . $url);
-    curl_setopt($handle, CURLOPT_URL, $url);
-    curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
-    curl_setopt($handle, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($handle, CURLOPT_FAILONERROR, true);
-    curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
+
+    curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts);
 
     curl_multi_add_handle($mh, $handle);
 
@@ -209,13 +262,13 @@ function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $re
 }
 
 // $otp: A yubikey OTP
-function KSMdecryptOTP($urls, $logger) {
+function KSMdecryptOTP($urls, $logger, $curlopts) {
   $ret = array();
   if (!is_array($urls)) {
     $urls = array($urls);
   }
 
-  $response = retrieveURLasync ("YK-KSM", $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10);
+  $response = retrieveURLasync ("YK-KSM", $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10, $curlopts);
   if (is_array($response)) {
     $response = $response[0];
   }

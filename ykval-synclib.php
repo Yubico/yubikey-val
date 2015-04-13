@@ -430,10 +430,17 @@ class SyncLib
 	"&" . $this->otpPartFromInfoString($row['info']);
     }
 
+    global $baseParams;
+    $curlopts = array();
+
+    if (array_key_exists('__YKVAL_SYNC_CURL_OPTS__', $baseParams)) {
+      $curlopts = $baseParams['__YKVAL_SYNC_CURL_OPTS__'];
+    }
+
     /*
      Send out requests
     */
-    $ans_arr=$this->retrieveURLasync_wrap($urls, $ans_req, $timeout);
+    $ans_arr=$this->retrieveURLasync_wrap($urls, $ans_req, $timeout, $curlopts);
 
     if (!is_array($ans_arr)) {
       $this->log(LOG_WARNING, 'No responses from validation server pool');
@@ -537,9 +544,9 @@ class SyncLib
     else return 0;
   }
 
-  function retrieveURLasync_wrap ($urls, $ans_req=1, $timeout=1.0)
+  function retrieveURLasync_wrap ($urls, $ans_req=1, $timeout=1.0, $curlopts)
   {
-    return retrieveURLasync("YK-VAL sync", $urls, $this->myLog, $ans_req, $match="status=OK", $returl=True, $timeout);
+    return retrieveURLasync("YK-VAL sync", $urls, $this->myLog, $ans_req, $match="status=OK", $returl=True, $timeout, $curlopts);
   }
 
 }

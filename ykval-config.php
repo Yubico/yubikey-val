@@ -79,6 +79,40 @@ $baseParams['__YKVAL_SYNC_SECURE_LEVEL__'] = 40;
 $baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'] = 60;
 $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
 
+# A key -> value array with curl options to set
+#  when calling URLs defined in __YKVAL_SYNC_POOL__
+#
+# Only the following options are configurable;
+#   CURLOPT_PROTOCOLS
+#   CURLOPT_IPRESOLVE
+#   CURLOPT_SSLVERSION
+#   CURLOPT_SSL_VERIFYPEER
+#   CURLOPT_SSL_VERIFYHOST
+#   CURLOPT_CAINFO
+#   CURLOPT_CAPATH
+#
+# Any other option is ignored and a warning is emitted.
+$baseParams['__YKVAL_SYNC_CURL_OPTS__'] = array(
+  //CURLOPT_PROTOCOLS => CURLPROTO_HTTP,
+);
+
+# A key -> value array with curl options to set
+#  when calling URLs returned by otp2ksmurls()
+#
+# Only the following options are configurable;
+#   CURLOPT_PROTOCOLS
+#   CURLOPT_IPRESOLVE
+#   CURLOPT_SSLVERSION
+#   CURLOPT_SSL_VERIFYPEER
+#   CURLOPT_SSL_VERIFYHOST
+#   CURLOPT_CAINFO
+#   CURLOPT_CAPATH
+#
+# Any other option is ignored and a warning is emitted.
+$baseParams['__YKVAL_KSM_CURL_OPTS__'] = array(
+  //CURLOPT_PROTOCOLS => CURLPROTO_HTTP,
+);
+
 // otp2ksmurls: Return array of YK-KSM URLs for decrypting OTP for
 // CLIENT.  The URLs must be fully qualified, i.e., contain the OTP
 // itself.
