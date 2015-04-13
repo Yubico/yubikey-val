@@ -97,5 +97,3 @@ function otp2ksmurls ($otp, $client) {
 		"http://127.0.0.1/wsapi/decrypt?otp=$otp"
 	       );
 }
-
-?>
