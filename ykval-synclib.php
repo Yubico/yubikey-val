@@ -434,7 +434,7 @@ class SyncLib
     /*
      Send out requests
     */
-    $ans_arr=$this->retrieveURLasync_wrap($urls, $ans_req, $timeout, $this->curlopts);
+    $ans_arr=$this->retrieveURLasync_wrap($urls, $ans_req, $timeout);
 
     if (!is_array($ans_arr)) {
       $this->log(LOG_WARNING, 'No responses from validation server pool');
@@ -538,9 +538,9 @@ class SyncLib
     else return 0;
   }
 
-  function retrieveURLasync_wrap ($urls, $ans_req=1, $timeout=1.0, $curlopts)
+  function retrieveURLasync_wrap ($urls, $ans_req=1, $timeout=1.0)
   {
-    return retrieveURLasync("YK-VAL sync", $urls, $this->myLog, $ans_req, $match="status=OK", $returl=True, $timeout, $curlopts);
+    return retrieveURLasync("YK-VAL sync", $urls, $this->myLog, $ans_req, $match="status=OK", $returl=True, $timeout, $this->curlopts);
   }
 
 }
