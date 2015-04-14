@@ -144,23 +144,7 @@ function curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts) {
     return;
   }
 
-  //allowed configurable options in ykval-config.php
-  $allowed = array(
-    CURLOPT_PROTOCOLS,
-    CURLOPT_IPRESOLVE,
-    CURLOPT_SSLVERSION,
-    CURLOPT_SSL_VERIFYPEER,
-    CURLOPT_SSL_VERIFYHOST,
-    CURLOPT_CAINFO,
-    CURLOPT_CAPATH,
-  );
-
   foreach($curlopts as $key => $val) {
-    if (in_array($key, $allowed) === FALSE) {
-      $logger->log(LOG_WARN, $ident . curl_opt_name($key) . "  is not configurable");
-      continue;
-    }
-
     if (curl_setopt($handle, $key, $val) === FALSE) {
       $logger->log(LOG_WARN, $ident . " failed to set " . curl_opt_name($key));
       continue;
