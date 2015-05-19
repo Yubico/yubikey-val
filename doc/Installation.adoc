@@ -59,7 +59,7 @@ First you should download and install the latest YK-VAL release:
 ----
 user@val:~$ sudo apt-get install git make
 ...
-user@val:~$ git clone git://developers.yubico.com/yubikey-val.git
+user@val:~$ git clone https://github.com/Yubico/yubikey-val.git
 ...
 user@val:~$ cd yubikey-val
 user@val:~/yubikey-val$ sudo make install
