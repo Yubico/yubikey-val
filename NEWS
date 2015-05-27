@@ -1,4 +1,6 @@
-* Version 2.29 (unreleased)
+* Version 2.29 (released 2015-05-27)
+
+  * Allow curl options to be set from config file.
 
 * Version 2.28 (released 2015-02-11)
 
