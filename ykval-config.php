@@ -29,7 +29,9 @@
 
 //ykval will use the configuration stored in /etc/yubico/val/config-db.php, if that file exists. If it does not exist, the below values will be used.
 
-if(!include '/etc/yubico/val/config-db.php') {
+if(file_exists('/etc/yubico/val/config-db.php')) {
+	include '/etc/yubico/val/config-db.php';
+} else {
 	$dbuser='ykval_verifier';
 	$dbpass='yourpassword';
 	$basepath='';
@@ -38,7 +40,6 @@ if(!include '/etc/yubico/val/config-db.php') {
 	$dbport='';
 	$dbtype='mysql';
 }
-
 
 # For the validation interface.
 $baseParams = array ();
