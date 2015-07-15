@@ -76,8 +76,10 @@ class SyncLib
 
   function getServer($index)
   {
-    if (isset($this->syncServers[$index])) return $this->syncServers[$index];
-    else return "";
+    if (isset($this->syncServers[$index]))
+      return $this->syncServers[$index];
+
+    return "";
   }
 
   function getClientData($client)
@@ -85,8 +87,11 @@ class SyncLib
     $res = $this->db->customQuery("SELECT id, secret FROM clients WHERE active='1' AND id='" . $client . "'");
     $r = $this->db->fetchArray($res);
     $this->db->closeCursor($res);
-    if ($r) return $r;
-    else return false;
+
+    if ($r)
+      return $r;
+
+    return false;
   }
 
   public function getQueueLength()
@@ -254,7 +259,6 @@ class SyncLib
 
   public function updateDbCounters($params)
   {
-
     if (isset($params['yk_publicname'])) {
       $condition='('.$params['yk_counter'].'>yk_counter or ('.$params['yk_counter'].'=yk_counter and ' . $params['yk_use'] . '>yk_use))' ;
       if(! $this->db->conditionalUpdateBy('yubikeys', 'yk_publicname', $params['yk_publicname'],
@@ -282,7 +286,8 @@ class SyncLib
     if ($p1['yk_counter'] > $p2['yk_counter'] ||
 	($p1['yk_counter'] == $p2['yk_counter'] &&
 	 $p1['yk_use'] > $p2['yk_use'])) return true;
-    else return false;
+
+    return false;
   }
 
   public function countersHigherThanOrEqual($p1, $p2)
@@ -290,7 +295,8 @@ class SyncLib
     if ($p1['yk_counter'] > $p2['yk_counter'] ||
 	($p1['yk_counter'] == $p2['yk_counter'] &&
 	 $p1['yk_use'] >= $p2['yk_use'])) return true;
-    else return false;
+
+    return false;
   }
 
   public function countersEqual($p1, $p2) {
@@ -422,7 +428,6 @@ class SyncLib
     /*
      Construct URLs
     */
-
     $urls=array();
     $res=$this->db->findByMultiple('queue', array("modified"=>$this->otpParams['modified'], "server_nonce"=>$this->server_nonce));
     foreach($res as $row) {
@@ -457,9 +462,7 @@ class SyncLib
       $this->log(LOG_DEBUG, "OTP contains " , $this->otpParams);
 
       /* Update internal DB (conditional) */
-
       $this->updateDbCounters($resParams);
-
 
       /* Check for warnings
 
@@ -513,19 +516,25 @@ class SyncLib
      Since we only obtain the required amount of answers from
      retrieveAsync this indicates that all answers were actually valid.
      Otherwise, return false. */
-    if ($this->valid_answers==$ans_req) return True;
-    else return False;
+    if ($this->valid_answers==$ans_req)
+      return True;
+
+    return False;
   }
 
   public function getNumberOfValidAnswers()
   {
-    if (isset($this->valid_answers)) return $this->valid_answers;
-    else return 0;
+    if (isset($this->valid_answers))
+      return $this->valid_answers;
+
+    return 0;
   }
 
   public function getNumberOfAnswers()
   {
-    if (isset($this->answers)) return $this->answers;
-    else return 0;
+    if (isset($this->answers))
+      return $this->answers;
+
+    return 0;
   }
 }
