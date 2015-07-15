@@ -33,18 +33,18 @@ require_once 'ykval-synclib.php';
 
 $apiKey = '';
 
-header("content-type: text/plain");
+header('content-type: text/plain');
 
 
 $myLog = new Log('ykval-sync');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
 
-if(empty($_SERVER['QUERY_STRING'])) {
+if (empty($_SERVER['QUERY_STRING'])) {
   sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
   exit;
 }
 
-$myLog->log(LOG_INFO, "Request: " . $_SERVER['QUERY_STRING']);
+$myLog->log(LOG_INFO, 'Request: ' . $_SERVER['QUERY_STRING']);
 
 $sync = new SyncLib('ykval-sync:synclib');
 $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
@@ -74,14 +74,16 @@ if (!$allowed) {
 # Define requirements on protocol
 #
 
-$syncParams=array('modified'=>Null,
-		  'otp'=>Null,
-		  'nonce'=>Null,
-		  'yk_publicname'=>Null,
-		  'yk_counter'=>Null,
-		  'yk_use'=>Null,
-		  'yk_high'=>Null,
-		  'yk_low'=>Null);
+$syncParams = array(
+  'modified' => Null,
+  'otp' => Null,
+  'nonce' => Null,
+  'yk_publicname' => Null,
+  'yk_counter' => Null,
+  'yk_use' => Null,
+  'yk_high' => Null,
+  'yk_low' => Null
+);
 
 #
 # Extract values from HTTP request
@@ -144,8 +146,8 @@ if (!$localParams) {
 /* Conditional update local database */
 $sync->updateDbCounters($syncParams);
 
-$myLog->log(LOG_DEBUG, 'Local params ' , $localParams);
-$myLog->log(LOG_DEBUG, 'Sync request params ' , $syncParams);
+$myLog->log(LOG_DEBUG, 'Local params ', $localParams);
+$myLog->log(LOG_DEBUG, 'Sync request params ', $syncParams);
 
 #
 # Compare sync and local counters and generate warnings according to
@@ -197,12 +199,14 @@ if ($localParams['active'] != 1) {
   exit;
 }
 
-$extra=array('modified'=>$localParams['modified'],
-	     'nonce'=>$localParams['nonce'],
-	     'yk_publicname'=>$yk_publicname,
-	     'yk_counter'=>$localParams['yk_counter'],
-	     'yk_use'=>$localParams['yk_use'],
-	     'yk_high'=>$localParams['yk_high'],
-	     'yk_low'=>$localParams['yk_low']);
+$extra = array(
+  'modified' =>$localParams['modified'],
+  'nonce' => $localParams['nonce'],
+  'yk_publicname' => $yk_publicname,
+  'yk_counter' => $localParams['yk_counter'],
+  'yk_use' => $localParams['yk_use'],
+  'yk_high' => $localParams['yk_high'],
+  'yk_low' => $localParams['yk_low']
+);
 
 sendResp(S_OK, $myLog, $apiKey, $extra);
