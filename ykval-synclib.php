@@ -121,8 +121,9 @@ class SyncLib
   {
     $out=explode(",", $info);
     parse_str($out[1], $params);
-    return array('yk_counter'=>$params['local_counter'],
-		 'yk_use'=>$params['local_use']);
+    return array(
+      'yk_counter'=>$params['local_counter'],
+      'yk_use'=>$params['local_use']);
   }
 
   public function queue($otpParams, $localParams)
@@ -155,7 +156,8 @@ class SyncLib
   public function log($priority, $msg, $params=NULL)
   {
     $logMsg=$msg;
-    if ($params) $logMsg .= ' modified=' . $params['modified'] .
+    if ($params)
+		$logMsg .= ' modified=' . $params['modified'] .
 		   ' nonce=' . $params['nonce'] .
 		   ' yk_publicname=' . $params['yk_publicname'] .
 		   ' yk_counter=' . $params['yk_counter'] .
@@ -207,43 +209,43 @@ class SyncLib
   {
       $i = preg_match("/^modified=(-1|[0-9]+)/m", $str, $out);
       if ($i != 1) {
-	$this->log(LOG_ALERT, "cannot parse modified value: $str");
+        $this->log(LOG_ALERT, "cannot parse modified value: $str");
       }
       $resParams['modified']=$out[1];
 
       $i = preg_match("/^yk_publicname=([cbdefghijklnrtuv]+)/m", $str, $out);
       if ($i != 1) {
-	$this->log(LOG_ALERT, "cannot parse publicname value: $str");
+        $this->log(LOG_ALERT, "cannot parse publicname value: $str");
       }
       $resParams['yk_publicname']=$out[1];
 
       $i = preg_match("/^yk_counter=(-1|[0-9]+)/m", $str, $out);
       if ($i != 1) {
-	$this->log(LOG_ALERT, "cannot parse counter value: $str");
+        $this->log(LOG_ALERT, "cannot parse counter value: $str");
       }
       $resParams['yk_counter']=$out[1];
 
       $i = preg_match("/^yk_use=(-1|[0-9]+)/m", $str, $out);
       if ($i != 1) {
-	$this->log(LOG_ALERT, "cannot parse use value: $str");
+        $this->log(LOG_ALERT, "cannot parse use value: $str");
       }
       $resParams['yk_use']=$out[1];
 
       preg_match("/^yk_high=(-1|[0-9]+)/m", $str, $out);
       if ($i != 1) {
-	$this->log(LOG_ALERT, "cannot parse high value: $str");
+        $this->log(LOG_ALERT, "cannot parse high value: $str");
       }
       $resParams['yk_high']=$out[1];
 
       preg_match("/^yk_low=(-1|[0-9]+)/m", $str, $out);
       if ($i != 1) {
-	$this->log(LOG_ALERT, "cannot parse low value: $str");
+        $this->log(LOG_ALERT, "cannot parse low value: $str");
       }
       $resParams['yk_low']=$out[1];
 
       preg_match("/^nonce=([[:alnum:]]+)/m", $str, $out);
       if ($i != 1) {
-	$this->log(LOG_ALERT, "cannot parse counter value: $str");
+        $this->log(LOG_ALERT, "cannot parse counter value: $str");
       }
       $resParams['nonce']=$out[1];
 
@@ -254,8 +256,7 @@ class SyncLib
   {
 
     if (isset($params['yk_publicname'])) {
-      $condition='('.$params['yk_counter'].'>yk_counter or ('.$params['yk_counter'].'=yk_counter and ' .
-	$params['yk_use'] . '>yk_use))' ;
+      $condition='('.$params['yk_counter'].'>yk_counter or ('.$params['yk_counter'].'=yk_counter and ' . $params['yk_use'] . '>yk_use))' ;
       if(! $this->db->conditionalUpdateBy('yubikeys', 'yk_publicname', $params['yk_publicname'],
 					  array('modified'=>$params['modified'],
 						'yk_counter'=>$params['yk_counter'],
@@ -426,9 +427,9 @@ class SyncLib
     $res=$this->db->findByMultiple('queue', array("modified"=>$this->otpParams['modified'], "server_nonce"=>$this->server_nonce));
     foreach($res as $row) {
       $urls[]=$row['server'] .
-	"?otp=" . $row['otp'] .
-	"&modified=" . $row['modified'] .
-	"&" . $this->otpPartFromInfoString($row['info']);
+        "?otp=" . $row['otp'] .
+        "&modified=" . $row['modified'] .
+        "&" . $this->otpPartFromInfoString($row['info']);
     }
 
     /*
@@ -469,54 +470,44 @@ class SyncLib
       */
 
       if ($this->countersHigherThan($localParams, $resParams)) {
-	$this->log(LOG_NOTICE, "Remote server out of sync");
+        $this->log(LOG_NOTICE, "Remote server out of sync");
       }
 
       if ($this->countersHigherThan($resParams, $localParams)) {
-	$this->log(LOG_NOTICE, "Local server out of sync");
+        $this->log(LOG_NOTICE, "Local server out of sync");
       }
 
       if ($this->countersEqual($resParams, $localParams) &&
-	  $resParams['nonce']!=$localParams['nonce']) {
-	$this->log(LOG_NOTICE, "Servers out of sync. Nonce differs. ");
+          $resParams['nonce']!=$localParams['nonce']) {
+        $this->log(LOG_NOTICE, "Servers out of sync. Nonce differs. ");
       }
 
 
       if ($this->countersEqual($resParams, $localParams) &&
-	  $resParams['modified']!=$localParams['modified']) {
-	$this->log(LOG_NOTICE, "Servers out of sync. Modified differs. ");
+          $resParams['modified']!=$localParams['modified']) {
+        $this->log(LOG_NOTICE, "Servers out of sync. Modified differs. ");
       }
 
       if ($this->countersHigherThan($resParams, $this->otpParams)){
-	  $this->log(LOG_WARNING, 'OTP is replayed. Sync response counters higher than OTP counters.');
-	}
-	elseif ($this->countersEqual($resParams, $this->otpParams) &&
-		$resParams['nonce']!=$this->otpParams['nonce']) {
-	$this->log(LOG_WARNING, 'OTP is replayed. Sync response counters equal to OTP counters and nonce differs.');
-      } else {
-
-	/* The answer is ok since a REPLAY was not indicated */
-
-	$this->valid_answers++;
+        $this->log(LOG_WARNING, 'OTP is replayed. Sync response counters higher than OTP counters.');
       }
-
-
-
+      elseif ($this->countersEqual($resParams, $this->otpParams) &&
+              $resParams['nonce']!=$this->otpParams['nonce']) {
+        $this->log(LOG_WARNING, 'OTP is replayed. Sync response counters equal to OTP counters and nonce differs.');
+      } else {
+        /* The answer is ok since a REPLAY was not indicated */
+        $this->valid_answers++;
+      }
 
       /*  Delete entry from table */
       $this->deleteQueueEntry($answer);
-
-
     }
 
     /*
      NULL queued_time for remaining entries in queue, to allow
      daemon to take care of them as soon as possible. */
 
-    $this->db->updateBy('queue', 'server_nonce', $this->server_nonce,
-			array('queued'=>NULL));
-
-
+    $this->db->updateBy('queue', 'server_nonce', $this->server_nonce, array('queued'=>NULL));
 
     /* Return true if valid answers equals required answers.
      Since we only obtain the required amount of answers from
