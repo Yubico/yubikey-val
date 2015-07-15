@@ -233,6 +233,3 @@ class DbImpl extends Db
     }
   }
 }
-
-
-?>

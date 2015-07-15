@@ -65,5 +65,3 @@ if($response == False) {
 echo $response;
 
 curl_close($ch);
-
-?>

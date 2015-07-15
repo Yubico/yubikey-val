@@ -98,8 +98,3 @@ if ($count = get_count($db, 'clients', 'active=true')) {
 if ($count = get_count($db, 'clients', 'active=false')) {
   echo "clients_disabled.value " . $count . "\n";
 }
-
-
-#%# family=auto
-#%# capabilities=autoconf
-?>

@@ -79,5 +79,3 @@ print substr ($hash, 0, 10) . "\n";
 
 $result=null;
 $db=null;
-
-?>

@@ -88,7 +88,3 @@ foreach ($shortnames as $shortname) {
   }
   echo "queuelength_${shortname}.value $count\n";
 }
-
-#%# family=auto
-#%# capabilities=autoconf
-?>

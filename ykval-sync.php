@@ -206,5 +206,3 @@ $extra=array('modified'=>$localParams['modified'],
 	     'yk_low'=>$localParams['yk_low']);
 
 sendResp(S_OK, $myLog, $apiKey, $extra);
-
-?>

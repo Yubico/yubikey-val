@@ -544,5 +544,3 @@ class SyncLib
   }
 
 }
-
-?>

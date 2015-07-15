@@ -301,6 +301,3 @@ or false on failure.
   }
 
 }
-
-
-?>

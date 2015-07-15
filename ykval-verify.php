@@ -422,5 +422,3 @@ if ($timestamp==1){
  }
 
 sendResp(S_OK, $myLog, $apiKey, $extra);
-
-?>

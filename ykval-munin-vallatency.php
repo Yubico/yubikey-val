@@ -90,7 +90,3 @@ foreach ($urls as $url) {
     echo "$ipv${shortname}_avgwait.value $time\n";
   }
 }
-
-#%# family=auto
-#%# capabilities=autoconf
-?>

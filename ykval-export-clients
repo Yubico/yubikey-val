@@ -61,6 +61,3 @@ $db->disconnect();
 
 $result=null;
 $db=null;
-
-
-?>

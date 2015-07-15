@@ -100,4 +100,3 @@ foreach($yubikeys as $key) {
 
 # We are done
 logdie($myLog, "OK Initiated resync of $yk");
-?>

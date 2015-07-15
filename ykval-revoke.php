@@ -74,4 +74,3 @@ if (!$db->updateBy('yubikeys', 'yk_publicname', $yk,
 
 # We are done
 logdie($myLog, "OK Processed $yk with $do");
-?>

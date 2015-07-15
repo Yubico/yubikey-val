@@ -63,6 +63,3 @@ $db->closeCursor($result);
 $db->disconnect();
 $result=null;
 $db=null;
-
-
-?>

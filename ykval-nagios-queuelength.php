@@ -59,5 +59,3 @@ if($len > $critical) {
   print("OK: $message\n");
   exit (0);
 }
-
-?>
