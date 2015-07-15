@@ -193,14 +193,16 @@ class SyncLib
       $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
     }
     if ($res) {
-      $localParams=array('modified' => $res['modified'],
-			 'nonce' => $res['nonce'],
-			 'active' => $res['active'],
-			 'yk_publicname' => $yk_publicname,
-			 'yk_counter' => $res['yk_counter'],
-			 'yk_use' => $res['yk_use'],
-			 'yk_high' => $res['yk_high'],
-			 'yk_low' => $res['yk_low']);
+      $localParams = array(
+        'modified' => $res['modified'],
+        'nonce' => $res['nonce'],
+        'active' => $res['active'],
+        'yk_publicname' => $yk_publicname,
+        'yk_counter' => $res['yk_counter'],
+        'yk_use' => $res['yk_use'],
+        'yk_high' => $res['yk_high'],
+        'yk_low' => $res['yk_low']
+      );
 
       $this->log(LOG_INFO, "yubikey found in db ", $localParams);
       return $localParams;
@@ -305,16 +307,18 @@ class SyncLib
 
   public function deleteQueueEntry($answer)
   {
-
     preg_match('/url=(.*)\?/', $answer, $out);
     $server=$out[1];
+
     $this->log(LOG_INFO, "deleting server=" . $server .
-	       " modified=" . $this->otpParams['modified'] .
-	       " server_nonce=" . $this->server_nonce);
-    $this->db->deleteByMultiple('queue',
-				array("modified"=>$this->otpParams['modified'],
-				      "server_nonce"=>$this->server_nonce,
-				      'server'=>$server));
+       " modified=" . $this->otpParams['modified'] .
+       " server_nonce=" . $this->server_nonce);
+
+    $this->db->deleteByMultiple('queue', array(
+      'modified' => $this->otpParams['modified'],
+      'server_nonce' => $this->server_nonce,
+      'server' => $server
+    ));
   }
 
   public function reSync($older_than=60, $timeout)
