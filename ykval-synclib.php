@@ -166,16 +166,20 @@ class SyncLib
   public function log($priority, $msg, $params=NULL)
   {
     $logMsg=$msg;
+
     if ($params)
-		$logMsg .= ' modified=' . $params['modified'] .
-		   ' nonce=' . $params['nonce'] .
-		   ' yk_publicname=' . $params['yk_publicname'] .
-		   ' yk_counter=' . $params['yk_counter'] .
-		   ' yk_use=' . $params['yk_use'] .
-		   ' yk_high=' . $params['yk_high'] .
-		   ' yk_low=' . $params['yk_low'];
-    if ($this->myLog) $this->myLog->log($priority, $logMsg);
-    else error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $logMsg);
+      $logMsg .= ' modified=' . $params['modified'] .
+                 ' nonce=' . $params['nonce'] .
+                 ' yk_publicname=' . $params['yk_publicname'] .
+                 ' yk_counter=' . $params['yk_counter'] .
+                 ' yk_use=' . $params['yk_use'] .
+                 ' yk_high=' . $params['yk_high'] .
+                 ' yk_low=' . $params['yk_low'];
+
+    if ($this->myLog)
+      $this->myLog->log($priority, $logMsg);
+    else
+      error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $logMsg);
   }
 
   function getLocalParams($yk_publicname)
@@ -185,18 +189,21 @@ class SyncLib
 
     if (!$res) {
       $this->log(LOG_NOTICE, 'Discovered new identity ' . $yk_publicname);
-      $this->db->save('yubikeys', array('active'=>1,
-					'created'=>time(),
-					'modified'=>-1,
-					'yk_publicname'=>$yk_publicname,
-					'yk_counter'=>-1,
-					'yk_use'=>-1,
-					'yk_low'=>-1,
-					'yk_high'=>-1,
-					'nonce'=> '0000000000000000',
-					'notes'=>''));
+      $this->db->save('yubikeys', array(
+        'active'=>1,
+        'created'=>time(),
+        'modified'=>-1,
+        'yk_publicname'=>$yk_publicname,
+        'yk_counter'=>-1,
+        'yk_use'=>-1,
+        'yk_low'=>-1,
+        'yk_high'=>-1,
+        'nonce'=> '0000000000000000',
+        'notes'=>''
+      ));
       $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
     }
+
     if ($res) {
       $localParams = array(
         'modified' => $res['modified'],
@@ -299,18 +306,16 @@ class SyncLib
 
   public function countersHigherThan($p1, $p2)
   {
-    if ($p1['yk_counter'] > $p2['yk_counter'] ||
-	($p1['yk_counter'] == $p2['yk_counter'] &&
-	 $p1['yk_use'] > $p2['yk_use'])) return true;
+    if ($p1['yk_counter'] > $p2['yk_counter'] || ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] > $p2['yk_use']))
+      return true;
 
     return false;
   }
 
   public function countersHigherThanOrEqual($p1, $p2)
   {
-    if ($p1['yk_counter'] > $p2['yk_counter'] ||
-	($p1['yk_counter'] == $p2['yk_counter'] &&
-	 $p1['yk_use'] >= $p2['yk_use'])) return true;
+    if ($p1['yk_counter'] > $p2['yk_counter'] || ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] >= $p2['yk_use']))
+      return true;
 
     return false;
   }
