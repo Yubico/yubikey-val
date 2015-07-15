@@ -133,22 +133,27 @@ class SyncLib
 
   public function queue($otpParams, $localParams)
   {
-
-    $info=$this->createInfoString($otpParams, $localParams);
+    $info = $this->createInfoString($otpParams, $localParams);
     $this->otpParams = $otpParams;
     $this->localParams = $localParams;
 
     $queued=time();
     $res=True;
-    foreach ($this->syncServers as $server) {
 
-      if(! $this->db->save('queue', array('queued'=>$queued,
-					  'modified'=>$otpParams['modified'],
-					  'otp'=>$otpParams['otp'],
-					  'server'=>$server,
-					  'server_nonce'=>$this->server_nonce,
-					  'info'=>$info))) $res=False;
+    foreach ($this->syncServers as $server) {
+      $arr = array(
+        'queued' => $queued,
+        'modified' => $otpParams['modified'],
+        'otp' => $otpParams['otp'],
+        'server' => $server,
+        'server_nonce' => $this->server_nonce,
+        'info' => $info
+      );
+
+      if (! $this->db->save('queue', $arr))
+        $res=False;
     }
+
     return $res;
   }
 
