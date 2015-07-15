@@ -117,7 +117,7 @@ class DbImpl extends Db
 
   /**
    * function to close the cursor after having fetched rows
-   * 
+   *
    * @param object $result Query result object or null to use the current one
    *
    */

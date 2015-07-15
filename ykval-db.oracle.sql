@@ -1,5 +1,5 @@
 -- I created a new sql file because oracle does not allow boolean type
--- so I used the type NUMBER(1) which is pretty similar 
+-- so I used the type NUMBER(1) which is pretty similar
 
 CREATE TABLE clients (
   id INT NOT NULL,
