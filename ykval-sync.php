@@ -72,14 +72,14 @@ if (!$allowed) {
 #
 
 $syncParams = array(
-  'modified' => Null,
-  'otp' => Null,
-  'nonce' => Null,
-  'yk_publicname' => Null,
-  'yk_counter' => Null,
-  'yk_use' => Null,
-  'yk_high' => Null,
-  'yk_low' => Null
+  'modified' => NULL,
+  'otp' => NULL,
+  'nonce' => NULL,
+  'yk_publicname' => NULL,
+  'yk_counter' => NULL,
+  'yk_use' => NULL,
+  'yk_high' => NULL,
+  'yk_low' => NULL
 );
 
 #
@@ -88,8 +88,8 @@ $syncParams = array(
 
 $tmp_log = "Received ";
 foreach ($syncParams as $param=>$value) {
-  $value = getHttpVal($param, Null);
-  if ($value==Null) {
+  $value = getHttpVal($param, NULL);
+  if ($value==NULL) {
     $myLog->log(LOG_NOTICE, "Received request with parameter[s] (" . $param . ") missing value");
     sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
   }
@@ -192,7 +192,7 @@ if ($localParams['active'] != 1) {
 }
 
 $extra = array(
-  'modified' =>$localParams['modified'],
+  'modified' => $localParams['modified'],
   'nonce' => $localParams['nonce'],
   'yk_publicname' => $yk_publicname,
   'yk_counter' => $localParams['yk_counter'],
