@@ -242,7 +242,7 @@ function sendResp($status, $logger, $apiKey = '', $extra = null) {
 
   // 2008-11-21T06:11:55Z0711
   $t = substr(microtime(false), 2, 3);
-  $t = gmdate('Y-m-d\TH:i:s\Z0', time()) . $t;
+  $t = gmdate('Y-m-d\TH:i:s\Z0') . $t;
 
   $a['t'] = $t;
 
