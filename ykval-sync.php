@@ -31,14 +31,14 @@ require_once 'ykval-common.php';
 require_once 'ykval-config.php';
 require_once 'ykval-synclib.php';
 
-$ipaddr = $_SERVER['REMOTE_ADDR'];
-$allowed = $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'];
-
 header('content-type: text/plain');
 
 if (empty($_SERVER['QUERY_STRING'])) {
   sendResp(S_MISSING_PARAMETER, $myLog);
 }
+
+$ipaddr = $_SERVER['REMOTE_ADDR'];
+$allowed = $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'];
 
 $myLog = new Log('ykval-sync');
 $myLog->addField('ip', $ipaddr);
