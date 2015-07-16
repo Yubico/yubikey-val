@@ -56,22 +56,19 @@ if (! $sync->isConnected()) {
 #
 # Verify that request comes from valid server
 #
-
 $myLog->log(LOG_DEBUG, 'Received request from ' . $ipaddr);
 
 $allowed = in_array($ipaddr, $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']);
 
 if (!$allowed) {
   $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $ipaddr);
-  $myLog->log(LOG_DEBUG, 'Remote IP ' . $ipaddr . ' not listed in allowed sync pool : ' .
-	      implode(', ', $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']));
+  $myLog->log(LOG_DEBUG, 'Remote IP ' . $ipaddr . ' not listed in allowed sync pool : ' . implode(', ', $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']));
   sendResp(S_OPERATION_NOT_ALLOWED, $myLog, $apiKey);
 }
 
 #
 # Define requirements on protocol
 #
-
 $syncParams = array(
   'modified' => NULL,
   'otp' => NULL,
@@ -86,7 +83,6 @@ $syncParams = array(
 #
 # Extract values from HTTP request
 #
-
 $tmp_log = "Received ";
 foreach ($syncParams as $param=>$value) {
   $value = getHttpVal($param, NULL);
@@ -108,7 +104,6 @@ $sync->addField('otp', $syncParams['otp']);
 #
 # Verify correctness of input parameters
 #
-
 foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param)
 {
   // -1 is valid except for modified
@@ -123,11 +118,9 @@ foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param
   sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
 }
 
-
 #
 # Get local counter data
 #
-
 $yk_publicname = $syncParams['yk_publicname'];
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
@@ -141,18 +134,14 @@ $sync->updateDbCounters($syncParams);
 $myLog->log(LOG_DEBUG, 'Local params ', $localParams);
 $myLog->log(LOG_DEBUG, 'Sync request params ', $syncParams);
 
-#
-# Compare sync and local counters and generate warnings according to
-#
-# https://developers.yubico.com/yubikey-val/doc/ServerReplicationProtocol.html
-#
-
-
+/**
+ * Compare sync and local counters and generate warnings according to
+ *	https://developers.yubico.com/yubikey-val/doc/ServerReplicationProtocol.html
+ */
 
 if ($sync->countersHigherThan($localParams, $syncParams)) {
   $myLog->log(LOG_WARNING, 'Remote server out of sync.');
 }
-
 
 if ($sync->countersEqual($localParams, $syncParams)) {
 
@@ -185,8 +174,7 @@ if ($localParams['active'] != 1) {
   /* The remote server has accepted an OTP from a YubiKey which we would not.
    * We still needed to update our counters with the counters from the OTP though.
    */
-  $myLog->log(LOG_WARNING, 'Received sync-request for de-activated Yubikey ' . $yk_publicname .
-	      ' - check database synchronization!!!');
+  $myLog->log(LOG_WARNING, 'Received sync-request for de-activated Yubikey ' . $yk_publicname . ' - check database synchronization!!!');
   sendResp(S_BAD_OTP, $myLog, $apiKey);
 }
 
