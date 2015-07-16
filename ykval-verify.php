@@ -367,7 +367,7 @@ $seenSessionUse = $localParams['yk_use'];
 
 $ad['high']=$localParams['yk_high'];
 $ad['low']=$localParams['yk_low'];
-$ad['accessed']=$sync->unixToDbTime($localParams['modified']);
+$ad['accessed']=date('Y-m-d H:i:s', $localParams['modified']);
 
 //// Check the time stamp
 //

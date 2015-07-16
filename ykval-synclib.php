@@ -63,11 +63,6 @@ class SyncLib
     return $this->isConnected;
   }
 
-  function UnixToDbTime($unix)
-  {
-    return date('Y-m-d H:i:s', $unix);
-  }
-
   function getClientData($client)
   {
     $res = $this->db->customQuery("SELECT id, secret FROM clients WHERE active='1' AND id='" . $client . "'");
