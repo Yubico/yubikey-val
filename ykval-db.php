@@ -59,6 +59,33 @@ abstract class Db
   }
 
   /**
+   * function to convert Db timestamps to unixtime(s)
+   *
+   * @param string $updated Database timestamp
+   * @return int Timestamp in unixtime format
+   *
+   */
+  public function timestampToTime($updated)
+  {
+    $stamp=strptime($updated, '%F %H:%M:%S');
+    return mktime($stamp[tm_hour], $stamp[tm_min], $stamp[tm_sec], $stamp[tm_mon]+1, $stamp[tm_mday], $stamp[tm_year]);
+
+  }
+
+  /**
+   * function to compute delta (s) between 2 Db timestamps
+   *
+   * @param string $first Database timestamp 1
+   * @param string $second Database timestamp 2
+   * @return int Deltatime (s)
+   *
+   */
+  public function timestampDeltaTime($first, $second)
+  {
+    return Db::timestampToTime($second) - Db::timestampToTime($first);
+  }
+
+  /**
    * function to disconnect from database
    *
    * @return boolean True on success, otherwise false.
@@ -79,6 +106,11 @@ abstract class Db
   {
     if ($this->dbh!=NULL) return True;
     else return False;
+  }
+
+  public function truncateTable($name)
+  {
+    $this->query("TRUNCATE TABLE " . $name);
   }
 
   /**
@@ -235,4 +267,37 @@ or false on failure.
   {
     return $this->query($query, true);
   }
+
+  /**
+   * helper function used to get rows from Db table in reversed order.
+   * defaults to obtaining 1 row.
+   *
+   * @param string $table Database table to update row in
+   * @param string $key Column to select rows by
+   * @param string $value Value to select rows by
+   * @param int $nr Number of rows to collect. NULL=>inifinity. Default=1.
+   * @return mixed Array with values from Db row or 2d-array with multiple rows or false on failure.
+   *
+   */
+  public function lastBy($table, $key, $value, $nr=1)
+  {
+    return Db::findBy($table, $key, $value, $nr, 1);
+  }
+
+  /**
+   * helper function used to get rows from Db table in standard order.
+   * defaults to obtaining 1 row.
+   *
+   * @param string $table Database table to update row in
+   * @param string $key Column to select rows by
+   * @param string $value Value to select rows by
+   * @param int $nr Number of rows to collect. NULL=>inifinity. Default=1.
+   * @return mixed Array with values from Db row or 2d-array with multiple rows or false on failure.
+   *
+   */
+  public function firstBy($table, $key, $value, $nr=1)
+  {
+    return Db::findBy($table, $key, $value, $nr);
+  }
+
 }

@@ -126,6 +126,11 @@ class DbImpl extends Db
     if($result) $result->closeCursor();
   }
 
+  public function truncateTable($name)
+  {
+    $this->query("TRUNCATE TABLE " . $name);
+  }
+
   /**
    * main function used to get rows by multiple key=>value pairs from Db table.
    *
