@@ -129,11 +129,6 @@ $sync->updateDbCounters($syncParams);
 $myLog->log(LOG_DEBUG, 'Local params ', $localParams);
 $myLog->log(LOG_DEBUG, 'Sync request params ', $syncParams);
 
-/**
- * Compare sync and local counters and generate warnings according to
- *	https://developers.yubico.com/yubikey-val/doc/ServerReplicationProtocol.html
- */
-
 if ($sync->countersHigherThan($localParams, $syncParams))
 {
 	$myLog->log(LOG_WARNING, 'Remote server out of sync.');
