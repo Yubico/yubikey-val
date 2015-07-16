@@ -61,9 +61,7 @@ if (! $sync->isConnected()) {
 	sendResp(S_BACKEND_ERROR, $myLog);
 }
 
-#
-# Define requirements on protocol
-#
+// define requirements on protocol
 $syncParams = array(
 	'modified' => NULL,
 	'otp' => NULL,
@@ -75,9 +73,7 @@ $syncParams = array(
 	'yk_low' => NULL
 );
 
-#
-# Extract values from HTTP request
-#
+// extract values from HTTP request
 $tmp_log = "Received ";
 foreach ($syncParams as $param=>$value) {
 	$value = getHttpVal($param, NULL);
@@ -90,15 +86,13 @@ foreach ($syncParams as $param=>$value) {
 }
 $myLog->log(LOG_INFO, $tmp_log);
 
-#
-# At this point we should have the otp so let's add it to the logging module
-#
+
+// at this point we should have the otp so let's add it to the logging module
 $myLog->addField('otp', $syncParams['otp']);
 $sync->addField('otp', $syncParams['otp']);
 
-#
-# Verify correctness of input parameters
-#
+
+// verify correctness of input parameters
 foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param)
 {
 	// -1 is valid except for modified
@@ -113,9 +107,7 @@ foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
-#
-# Get local counter data
-#
+// get local counter data
 $yk_publicname = $syncParams['yk_publicname'];
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
@@ -123,7 +115,7 @@ if (!$localParams) {
 	sendResp(S_BACKEND_ERROR, $myLog);
 }
 
-/* Conditional update local database */
+// conditional update local database
 $sync->updateDbCounters($syncParams);
 
 $myLog->log(LOG_DEBUG, 'Local params ', $localParams);
