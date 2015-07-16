@@ -109,26 +109,19 @@ $sync->addField('otp', $syncParams['otp']);
 # Verify correctness of input parameters
 #
 
-foreach (array('modified') as $param) {
+foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param)
+{
+  // -1 is valid except for modified
+  if ($param !== 'modified' && $syncParams[$param] === '-1')
+    continue;
+
+  // [0-9]+
   if ($syncParams[$param] !== '' && ctype_digit($syncParams[$param]))
     continue;
 
   $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
   sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
 }
-
-foreach (array('yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param) {
-  if ($syncParams[$param] === '-1')
-    continue;
-
-  if ($syncParams[$param] !== '' && ctype_digit($syncParams[$param]))
-    continue;
-
-  $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
-  sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
-}
-
-
 
 
 #
