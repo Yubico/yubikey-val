@@ -41,7 +41,6 @@ $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
 
 if (empty($_SERVER['QUERY_STRING'])) {
   sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
-  exit;
 }
 
 $myLog->log(LOG_INFO, 'Request: ' . $_SERVER['QUERY_STRING']);
@@ -51,7 +50,6 @@ $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
 
 if (! $sync->isConnected()) {
   sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
-  exit;
 }
 
 #
@@ -67,7 +65,6 @@ if (!$allowed) {
   $myLog->log(LOG_DEBUG, 'Remote IP ' . $_SERVER['REMOTE_ADDR'] . ' not listed in allowed sync pool : ' .
 	      implode(', ', $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']));
   sendResp(S_OPERATION_NOT_ALLOWED, $myLog, $apiKey);
-  exit;
 }
 
 #
@@ -95,7 +92,6 @@ foreach ($syncParams as $param=>$value) {
   if ($value==Null) {
     $myLog->log(LOG_NOTICE, "Received request with parameter[s] (" . $param . ") missing value");
     sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
-    exit;
   }
   $syncParams[$param]=$value;
   $tmp_log .= "$param=$value ";
@@ -116,7 +112,6 @@ foreach (array('modified') as $param) {
   if (preg_match("/^[0-9]+$/", $syncParams[$param])==0) {
     $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
     sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
-    exit;
   }
 }
 
@@ -124,7 +119,6 @@ foreach (array('yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param) {
   if (preg_match("/^(-1|[0-9]+)$/", $syncParams[$param])==0) {
     $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
     sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
-    exit;
   }
 }
 
@@ -140,7 +134,6 @@ $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
   $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
   sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
-  exit;
 }
 
 /* Conditional update local database */
@@ -196,7 +189,6 @@ if ($localParams['active'] != 1) {
   $myLog->log(LOG_WARNING, 'Received sync-request for de-activated Yubikey ' . $yk_publicname .
 	      ' - check database synchronization!!!');
   sendResp(S_BAD_OTP, $myLog, $apiKey);
-  exit;
 }
 
 $extra = array(

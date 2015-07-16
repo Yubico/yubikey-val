@@ -271,6 +271,7 @@ function sendResp($status, $logger, $apiKey = '', $extra = null) {
     " (at " . date("c") . " " . microtime() . ")");
 
   echo $str;
+  exit;
 }
 
 // backport from PHP 5.6
