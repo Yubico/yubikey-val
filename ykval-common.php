@@ -104,45 +104,49 @@ function sign($a, $apiKey, $logger) {
 
 } // sign an array of query string
 
-function curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts) {
-  //configure "hard" options
-  $logger->log(LOG_DEBUG, $ident . " adding URL : " . $url);
-  curl_setopt($handle, CURLOPT_URL, $url);
-  curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
-  curl_setopt($handle, CURLOPT_USERAGENT, "YK-VAL");
-  curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
-  curl_setopt($handle, CURLOPT_FAILONERROR, TRUE);
+function curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts)
+{
+	$logger->log(LOG_DEBUG, $ident . ' adding URL : ' . $url);
 
-  if (!is_array($curlopts)) {
-    $logger->log(LOG_WARN, $ident . "curl options must be an array");
-    return;
-  }
+	curl_setopt($handle, CURLOPT_URL, $url);
+	curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
+	curl_setopt($handle, CURLOPT_USERAGENT, 'YK-VAL');
+	curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
+	curl_setopt($handle, CURLOPT_FAILONERROR, TRUE);
 
-  foreach($curlopts as $key => $val) {
-    if (curl_setopt($handle, $key, $val) === FALSE) {
-      $logger->log(LOG_WARN, $ident . " failed to set " . curl_opt_name($key));
-      continue;
-    }
-  }
+	if (is_array($curlopts) === FALSE)
+	{
+		$logger->log(LOG_WARN, $ident . 'curl options must be an array');
+		return;
+	}
+
+	foreach ($curlopts as $key => $val)
+	{
+		if (curl_setopt($handle, $key, $val) === FALSE)
+		{
+			$logger->log(LOG_WARN, $ident . ' failed to set ' . curl_opt_name($key));
+			continue;
+		}
+	}
 }
 
-//returns the string name of a curl constant,
+// returns the string name of a curl constant,
 //	or "curl option" if constant not found.
 // e.g.
 //  curl_opt_name(CURLOPT_URL) returns "CURLOPT_URL"
 //  curl_opt_name(CURLOPT_BLABLA) returns "curl option"
-function curl_opt_name($opt) {
-  $consts = get_defined_constants(true);
-  $consts = $consts['curl'];
+function curl_opt_name($opt)
+{
+	$consts = get_defined_constants(true);
+	$consts = $consts['curl'];
 
-  $name = array_search($opt, $consts, TRUE);
+	$name = array_search($opt, $consts, TRUE);
 
-  //array_search may return either on failure...
-  if ($name === FALSE || $name === NULL) {
-    return "curl option";
-  }
+	// array_search may return either on failure...
+	if ($name === FALSE || $name === NULL)
+		return 'curl option';
 
-  return $name;
+	return $name;
 }
 
 // This function takes a list of URLs.  It will return the content of
@@ -219,7 +223,6 @@ function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $re
   return $str;
 }
 
-// $otp: A yubikey OTP
 function KSMdecryptOTP($urls, $logger, $curlopts) {
   $ret = array();
   if (!is_array($urls)) {
@@ -240,7 +243,7 @@ function KSMdecryptOTP($urls, $logger, $curlopts) {
     return false;
   }
   return $ret;
-} // End decryptOTP
+}
 
 function sendResp($status, $logger, $apiKey = '', $extra = null) {
   if ($status == null) {
