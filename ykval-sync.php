@@ -85,7 +85,7 @@ foreach ($syncParams as $param=>$value) {
     $myLog->log(LOG_NOTICE, "Received request with parameter[s] (" . $param . ") missing value");
     sendResp(S_MISSING_PARAMETER, $myLog);
   }
-  $syncParams[$param]=$value;
+  $syncParams[$param] = $value;
   $tmp_log .= "$param=$value ";
 }
 $myLog->log(LOG_INFO, $tmp_log);
@@ -140,8 +140,7 @@ if ($sync->countersHigherThan($localParams, $syncParams)) {
 
 if ($sync->countersEqual($localParams, $syncParams)) {
 
-  if ($syncParams['modified']==$localParams['modified'] &&
-      $syncParams['nonce']==$localParams['nonce']) {
+  if ($syncParams['modified'] == $localParams['modified'] && $syncParams['nonce'] == $localParams['nonce']) {
     /* This is not an error. When the remote server received an OTP to verify, it would
      * have sent out sync requests immediately. When the required number of responses had
      * been received, the current implementation discards all additional responses (to
@@ -152,15 +151,14 @@ if ($sync->countersEqual($localParams, $syncParams)) {
     $myLog->log(LOG_INFO, 'Sync request unnecessarily sent');
   }
 
-  if ($syncParams['modified']!=$localParams['modified'] &&
-      $syncParams['nonce']==$localParams['nonce']) {
+  if ($syncParams['modified'] != $localParams['modified'] && $syncParams['nonce'] == $localParams['nonce']) {
     $deltaModified = $syncParams['modified'] - $localParams['modified'];
-    if($deltaModified < -1 || $deltaModified > 1) {
+    if ($deltaModified < -1 || $deltaModified > 1) {
       $myLog->log(LOG_WARNING, 'We might have a replay. 2 events at different times have generated the same counters. The time difference is ' . $deltaModified . ' seconds');
     }
   }
 
-  if ($syncParams['nonce']!=$localParams['nonce']) {
+  if ($syncParams['nonce'] != $localParams['nonce']) {
     $myLog->log(LOG_WARNING, 'Remote server has received a request to validate an already validated OTP ');
   }
 }
