@@ -43,13 +43,13 @@ $allowed = $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'];
 $myLog = new Log('ykval-sync');
 $myLog->addField('ip', $ipaddr);
 $myLog->log(LOG_INFO, 'Request: ' . $_SERVER['QUERY_STRING']);
-$myLog->log(LOG_DEBUG, 'Received request from ' . $ipaddr);
+$myLog->log(LOG_DEBUG, "Received request from $ipaddr");
 
 
 // verify request sent by whitelisted address
 if (in_array($ipaddr, $allowed, TRUE) === FALSE) {
-	$myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $ipaddr);
-	$myLog->log(LOG_DEBUG, 'Remote IP ' . $ipaddr . ' not listed in allowed sync pool : ' . implode(', ', $allowed));
+	$myLog->log(LOG_NOTICE, "Operation not allowed from IP $ipaddr");
+	$myLog->log(LOG_DEBUG, "Remote IP $ipaddr not listed in allowed sync pool : " . implode(', ', $allowed));
 	sendResp(S_OPERATION_NOT_ALLOWED, $myLog);
 }
 
@@ -67,11 +67,11 @@ $syncParams = array(
 );
 
 // extract values from HTTP request
-$tmp_log = "Received ";
+$tmp_log = 'Received ';
 foreach ($syncParams as $param=>$value) {
 	$value = getHttpVal($param, NULL);
 	if ($value==NULL) {
-		$myLog->log(LOG_NOTICE, "Received request with parameter[s] (" . $param . ") missing value");
+		$myLog->log(LOG_NOTICE, "Received request with parameter[s] ($param) missing value");
 		sendResp(S_MISSING_PARAMETER, $myLog);
 	}
 	$syncParams[$param] = $value;
@@ -103,7 +103,7 @@ foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param
 	if ($syncParams[$param] !== '' && ctype_digit($syncParams[$param]))
 		continue;
 
-	$myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
+	$myLog->log(LOG_NOTICE, "Input parameters $param  not correct");
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
@@ -146,7 +146,7 @@ if ($sync->countersEqual($localParams, $syncParams)) {
 	if ($syncParams['modified'] != $localParams['modified'] && $syncParams['nonce'] == $localParams['nonce']) {
 		$deltaModified = $syncParams['modified'] - $localParams['modified'];
 		if ($deltaModified < -1 || $deltaModified > 1) {
-			$myLog->log(LOG_WARNING, 'We might have a replay. 2 events at different times have generated the same counters. The time difference is ' . $deltaModified . ' seconds');
+			$myLog->log(LOG_WARNING, "We might have a replay. 2 events at different times have generated the same counters. The time difference is $deltaModified seconds");
 		}
 	}
 
@@ -159,7 +159,7 @@ if ($localParams['active'] != 1) {
 	/* The remote server has accepted an OTP from a YubiKey which we would not.
 	 * We still needed to update our counters with the counters from the OTP though.
 	 */
-	$myLog->log(LOG_WARNING, 'Received sync-request for de-activated Yubikey ' . $yk_publicname . ' - check database synchronization!!!');
+	$myLog->log(LOG_WARNING, "Received sync-request for de-activated Yubikey $yk_publicname - check database synchronization!!!");
 	sendResp(S_BAD_OTP, $myLog);
 }
 
