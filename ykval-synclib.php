@@ -34,7 +34,7 @@ require_once 'ykval-log.php';
 
 class SyncLib
 {
-  public $syncServers = null;
+  public $syncServers = array();
   public $dbConn = null;
   public $curlopts = array();
 
@@ -145,8 +145,7 @@ class SyncLib
 
   public function getNumberOfServers()
   {
-    if (is_array($this->syncServers)) return count($this->syncServers);
-    else return 0;
+    return count($this->syncServers);
   }
 
   public function log($priority, $msg, $params=NULL)
