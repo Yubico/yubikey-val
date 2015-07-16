@@ -36,18 +36,17 @@ $allowed = $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'];
 
 header('content-type: text/plain');
 
-
-$myLog = new Log('ykval-sync');
-$myLog->addField('ip', $ipaddr);
-
 if (empty($_SERVER['QUERY_STRING'])) {
   sendResp(S_MISSING_PARAMETER, $myLog);
 }
+
+$myLog = new Log('ykval-sync');
+$myLog->addField('ip', $ipaddr);
 $myLog->log(LOG_INFO, 'Request: ' . $_SERVER['QUERY_STRING']);
+$myLog->log(LOG_DEBUG, 'Received request from ' . $ipaddr);
 
 
 // verify request sent by whitelisted address
-$myLog->log(LOG_DEBUG, 'Received request from ' . $ipaddr);
 if (in_array($ipaddr, $allowed, TRUE) === FALSE) {
   $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $ipaddr);
   $myLog->log(LOG_DEBUG, 'Remote IP ' . $ipaddr . ' not listed in allowed sync pool : ' . implode(', ', $allowed));
