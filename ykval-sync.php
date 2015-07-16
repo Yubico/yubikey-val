@@ -32,12 +32,13 @@ require_once 'ykval-config.php';
 require_once 'ykval-synclib.php';
 
 $apiKey = '';
+$ipaddr = $_SERVER['REMOTE_ADDR'];
 
 header('content-type: text/plain');
 
 
 $myLog = new Log('ykval-sync');
-$myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
+$myLog->addField('ip', $ipaddr);
 
 if (empty($_SERVER['QUERY_STRING'])) {
   sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
@@ -46,7 +47,7 @@ if (empty($_SERVER['QUERY_STRING'])) {
 $myLog->log(LOG_INFO, 'Request: ' . $_SERVER['QUERY_STRING']);
 
 $sync = new SyncLib('ykval-sync:synclib');
-$sync->addField('ip', $_SERVER['REMOTE_ADDR']);
+$sync->addField('ip', $ipaddr);
 
 if (! $sync->isConnected()) {
   sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
@@ -56,13 +57,13 @@ if (! $sync->isConnected()) {
 # Verify that request comes from valid server
 #
 
-$myLog->log(LOG_DEBUG, 'Received request from ' . $_SERVER['REMOTE_ADDR']);
+$myLog->log(LOG_DEBUG, 'Received request from ' . $ipaddr);
 
-$allowed = in_array($_SERVER['REMOTE_ADDR'], $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']);
+$allowed = in_array($ipaddr, $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']);
 
 if (!$allowed) {
-  $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $_SERVER['REMOTE_ADDR']);
-  $myLog->log(LOG_DEBUG, 'Remote IP ' . $_SERVER['REMOTE_ADDR'] . ' not listed in allowed sync pool : ' .
+  $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $ipaddr);
+  $myLog->log(LOG_DEBUG, 'Remote IP ' . $ipaddr . ' not listed in allowed sync pool : ' .
 	      implode(', ', $baseParams['__YKVAL_ALLOWED_SYNC_POOL__']));
   sendResp(S_OPERATION_NOT_ALLOWED, $myLog, $apiKey);
 }
