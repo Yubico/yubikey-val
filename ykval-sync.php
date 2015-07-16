@@ -110,17 +110,22 @@ $sync->addField('otp', $syncParams['otp']);
 #
 
 foreach (array('modified') as $param) {
-  if (preg_match("/^[0-9]+$/", $syncParams[$param])==0) {
-    $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
-    sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
-  }
+  if ($syncParams[$param] !== '' && ctype_digit($syncParams[$param]))
+    continue;
+
+  $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
+  sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
 }
 
 foreach (array('yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param) {
-  if (preg_match("/^(-1|[0-9]+)$/", $syncParams[$param])==0) {
-    $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
-    sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
-  }
+  if ($syncParams[$param] === '-1')
+    continue;
+
+  if ($syncParams[$param] !== '' && ctype_digit($syncParams[$param]))
+    continue;
+
+  $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
+  sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
 }
 
 
