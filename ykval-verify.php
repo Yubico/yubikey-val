@@ -123,6 +123,7 @@ if (isset($sl) && strcasecmp($sl, 'secure')==0) {
 if (!isset($sl) || $sl == '') {
   $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
 }
+
 if (!isset($timeout) || $timeout == '') {
   $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
 }
@@ -132,13 +133,11 @@ if ($otp == '') {
   sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
-
 if (strlen($otp) < TOKEN_LEN || strlen ($otp) > OTP_MAX_LEN) {
   $myLog->log(LOG_NOTICE, 'Incorrect OTP length: ' . $otp);
   sendResp(S_BAD_OTP, $myLog);
   exit;
 }
-
 if (preg_match("/^[cbdefghijklnrtuv]+$/", $otp)==0) {
   $myLog->log(LOG_NOTICE, 'Invalid OTP: ' . $otp);
   sendResp(S_BAD_OTP, $myLog);
@@ -147,6 +146,11 @@ if (preg_match("/^[cbdefghijklnrtuv]+$/", $otp)==0) {
 
 if (preg_match("/^[0-9]+$/", $client)==0){
   $myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
+  sendResp(S_MISSING_PARAMETER, $myLog);
+  exit;
+}
+if ($client <= 0) {
+  $myLog->log(LOG_NOTICE, 'Client ID is missing');
   sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
@@ -162,7 +166,6 @@ if (isset($nonce) && preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
   sendResp(S_MISSING_PARAMETER, $myLog);
   exit;
 }
-
 if (isset($nonce) && (strlen($nonce) < 16 || strlen($nonce) > 40)) {
   $myLog->log(LOG_NOTICE, 'Nonce too short or too long');
   sendResp(S_MISSING_PARAMETER, $myLog);
@@ -175,17 +178,10 @@ if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100))) {
   exit;
 }
 
-// NOTE: Timestamp parameter is not checked since current protocol says that 1 means request timestamp
-// and anything else is discarded.
-
-//// Get Client info from DB
-//
-if ($client <= 0) {
-  $myLog->log(LOG_NOTICE, 'Client ID is missing');
-  sendResp(S_MISSING_PARAMETER, $myLog);
-  exit;
-}
-
+/**
+ * Timestamp parameter is not checked since current protocol
+ *	says that 1 means request timestamp and anything else is discarded.
+ */
 
 
 /* Initialize the sync library. Strive to use this instead of custom
