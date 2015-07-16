@@ -259,13 +259,14 @@ function sendResp($status, $logger, $apiKey = '', $extra = null) {
 
   $h = sign($a, $apiKey, $logger);
 
-  $str = "h=" . $h . "\r\n";
+  $str = "";
+  $str .= "h=" . $h . "\r\n";
   $str .= "t=" . $a['t'] . "\r\n";
-  if ($extra){
-    foreach ($extra as $param => $value) {
+
+  if ($extra)
+    foreach ($extra as $param => $value)
       $str .= $param . "=" . $value . "\r\n";
-    }
-  }
+
   $str .= "status=" . $a['status'] . "\r\n";
   $str .= "\r\n";
 
