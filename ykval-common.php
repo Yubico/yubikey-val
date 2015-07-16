@@ -80,14 +80,6 @@ function log_format() {
   return $str;
 }
 
-// Return eg. 2008-11-21T06:11:55Z0711
-//
-function getUTCTimeStamp() {
-	date_default_timezone_set('UTC');
-	$tiny = substr(microtime(false), 2, 3);
-	return date('Y-m-d\TH:i:s\Z0', time()) . $tiny;
-}
-
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
 function sign($a, $apiKey, $logger) {
@@ -247,7 +239,12 @@ function KSMdecryptOTP($urls, $logger, $curlopts) {
 
 function sendResp($status, $logger, $apiKey = '', $extra = null) {
   $a['status'] = $status;
-  $a['t'] = getUTCTimeStamp();
+
+  // 2008-11-21T06:11:55Z0711
+  $t = substr(microtime(false), 2, 3);
+  $t = gmdate('Y-m-d\TH:i:s\Z0', time()) . $t;
+
+  $a['t'] = $t;
 
   if ($extra)
     foreach ($extra as $param => $value)
@@ -266,7 +263,7 @@ function sendResp($status, $logger, $apiKey = '', $extra = null) {
   $str .= "status=" . $a['status'] . "\r\n";
   $str .= "\r\n";
 
-  $logger->log(LOG_INFO, "Response: " . $str . " (at " . date("c") . " " . microtime() . ")");
+  $logger->log(LOG_INFO, "Response: " . $str . " (at " . gmdate("c") . " " . microtime() . ")");
 
   echo $str;
   exit;
