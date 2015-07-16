@@ -246,10 +246,6 @@ function KSMdecryptOTP($urls, $logger, $curlopts) {
 }
 
 function sendResp($status, $logger, $apiKey = '', $extra = null) {
-  if ($status == null) {
-    $status = S_BACKEND_ERROR;
-  }
-
   $a['status'] = $status;
   $a['t'] = getUTCTimeStamp();
 
