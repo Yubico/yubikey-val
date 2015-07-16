@@ -68,12 +68,15 @@ $syncParams = array(
 
 // extract values from HTTP request
 $tmp_log = 'Received ';
-foreach ($syncParams as $param=>$value) {
+foreach ($syncParams as $param => $value)
+{
 	$value = getHttpVal($param, NULL);
-	if ($value==NULL) {
+
+	if ($value == NULL) {
 		$myLog->log(LOG_NOTICE, "Received request with parameter[s] ($param) missing value");
 		sendResp(S_MISSING_PARAMETER, $myLog);
 	}
+
 	$syncParams[$param] = $value;
 	$tmp_log .= "$param=$value ";
 }
