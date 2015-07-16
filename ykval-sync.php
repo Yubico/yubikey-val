@@ -43,25 +43,23 @@ $myLog->addField('ip', $ipaddr);
 if (empty($_SERVER['QUERY_STRING'])) {
   sendResp(S_MISSING_PARAMETER, $myLog);
 }
-
 $myLog->log(LOG_INFO, 'Request: ' . $_SERVER['QUERY_STRING']);
+
+
+// verify request sent by whitelisted address
+$myLog->log(LOG_DEBUG, 'Received request from ' . $ipaddr);
+if (in_array($ipaddr, $allowed, TRUE) === FALSE) {
+  $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $ipaddr);
+  $myLog->log(LOG_DEBUG, 'Remote IP ' . $ipaddr . ' not listed in allowed sync pool : ' . implode(', ', $allowed));
+  sendResp(S_OPERATION_NOT_ALLOWED, $myLog);
+}
+
 
 $sync = new SyncLib('ykval-sync:synclib');
 $sync->addField('ip', $ipaddr);
 
 if (! $sync->isConnected()) {
   sendResp(S_BACKEND_ERROR, $myLog);
-}
-
-#
-# Verify that request comes from valid server
-#
-$myLog->log(LOG_DEBUG, 'Received request from ' . $ipaddr);
-
-if (in_array($ipaddr, $allowed, TRUE) === FALSE) {
-  $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $ipaddr);
-  $myLog->log(LOG_DEBUG, 'Remote IP ' . $ipaddr . ' not listed in allowed sync pool : ' . implode(', ', $allowed));
-  sendResp(S_OPERATION_NOT_ALLOWED, $myLog);
 }
 
 #
