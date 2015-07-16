@@ -270,17 +270,21 @@ function sendResp($status, $logger, $apiKey = '', $extra = null) {
   echo $str;
 }
 
-// hash_equals is introduced in PHP 5.6
-if(!function_exists('hash_equals')) {
-  function hash_equals($a, $b) {
-    if(strlen($a) != strlen($b)) { //Hashes are a (known) fixed length, so this doesn't leak anything.
-      return false;
-    }
+// backport from PHP 5.6
+if (function_exists('hash_equals') === FALSE)
+{
+	function hash_equals($a, $b)
+	{
+		// hashes are a (known) fixed length,
+		//	so this doesn't leak anything.
+		if (strlen($a) != strlen($b))
+			return false;
 
-    $result = 0;
-    for ($i = 0; $i < strlen($a); $i++) {
-          $result |= ord($a[$i]) ^ ord($b[$i]);
-    }
-    return 0 === $result;
-  }
+		$result = 0;
+
+		for ($i = 0; $i < strlen($a); $i++)
+			$result |= ord($a[$i]) ^ ord($b[$i]);
+
+		return (0 === $result);
+	}
 }
