@@ -91,19 +91,6 @@ function getUTCTimeStamp() {
 	return date('Y-m-d\TH:i:s\Z0', time()) . $tiny;
 }
 
-# NOTE: When we evolve to using general DB-interface, this functinality
-# should be moved there.
-function DbTimeToUnix($db_time)
-{
-  $unix=strptime($db_time, '%F %H:%M:%S');
-  return mktime($unix[tm_hour], $unix[tm_min], $unix[tm_sec], $unix[tm_mon]+1, $unix[tm_mday], $unix[tm_year]+1900);
-}
-
-function UnixToDbTime($unix)
-{
-  return date('Y-m-d H:i:s', $unix);
-}
-
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
 function sign($a, $apiKey, $logger) {
@@ -119,16 +106,6 @@ function sign($a, $apiKey, $logger) {
 	return $hmac;
 
 } // sign an array of query string
-
-function hex2b64 ($hex_str) {
-  $bin = pack("H*", $hex_str);
-  return base64_encode($bin);
-}
-
-function modhex2b64 ($modhex_str) {
-  $hex_str = strtr ($modhex_str, "cbdefghijklnrtuv", "0123456789abcdef");
-  return hex2b64($hex_str);
-}
 
 function curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts) {
   //configure "hard" options

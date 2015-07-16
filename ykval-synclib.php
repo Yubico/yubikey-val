@@ -63,25 +63,6 @@ class SyncLib
     return $this->isConnected;
   }
 
-  function DbTimeToUnix($db_time)
-  {
-    $unix=strptime($db_time, '%F %H:%M:%S');
-    return mktime($unix[tm_hour], $unix[tm_min], $unix[tm_sec], $unix[tm_mon]+1, $unix[tm_mday], $unix[tm_year]+1900);
-  }
-
-  function UnixToDbTime($unix)
-  {
-    return date('Y-m-d H:i:s', $unix);
-  }
-
-  function getServer($index)
-  {
-    if (isset($this->syncServers[$index]))
-      return $this->syncServers[$index];
-
-    return "";
-  }
-
   function getClientData($client)
   {
     $res = $this->db->customQuery("SELECT id, secret FROM clients WHERE active='1' AND id='" . $client . "'");
