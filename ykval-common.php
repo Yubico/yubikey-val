@@ -252,23 +252,24 @@ function sendResp($status, $logger, $apiKey = '', $extra = null) {
 
   $a['status'] = $status;
   $a['t'] = getUTCTimeStamp();
-  if ($extra){
-    foreach ($extra as $param => $value) $a[$param] = $value;
-  }
+
+  if ($extra)
+    foreach ($extra as $param => $value)
+      $a[$param] = $value;
+
   $h = sign($a, $apiKey, $logger);
 
   $str = "h=" . $h . "\r\n";
-  $str .= "t=" . ($a['t']) . "\r\n";
+  $str .= "t=" . $a['t'] . "\r\n";
   if ($extra){
     foreach ($extra as $param => $value) {
       $str .= $param . "=" . $value . "\r\n";
     }
   }
-  $str .= "status=" . ($a['status']) . "\r\n";
+  $str .= "status=" . $a['status'] . "\r\n";
   $str .= "\r\n";
 
-  $logger->log(LOG_INFO, "Response: " . $str .
-    " (at " . date("c") . " " . microtime() . ")");
+  $logger->log(LOG_INFO, "Response: " . $str . " (at " . date("c") . " " . microtime() . ")");
 
   echo $str;
   exit;
