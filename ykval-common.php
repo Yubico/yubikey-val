@@ -53,10 +53,6 @@ function logdie ($logger, $str)
   die($str . "\n");
 }
 
-function unescape($s) {
-	return str_replace('\\', "", $s);
-}
-
 function getHttpVal($key, $defaultVal) {
 	$val = $defaultVal;
 	if (array_key_exists($key, $_GET)) {
@@ -64,7 +60,8 @@ function getHttpVal($key, $defaultVal) {
   	} else if (array_key_exists($key, $_POST)) {
   		$val = $_POST[$key];
   	}
-  	$v = unescape(trim($val));
+  	$v = trim($val);
+  	$v = str_replace('\\', "", $val);
   	return $v;
 }
 
