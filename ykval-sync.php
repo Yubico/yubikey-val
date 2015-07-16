@@ -54,13 +54,6 @@ if (in_array($ipaddr, $allowed, TRUE) === FALSE) {
 }
 
 
-$sync = new SyncLib('ykval-sync:synclib');
-$sync->addField('ip', $ipaddr);
-
-if (! $sync->isConnected()) {
-	sendResp(S_BACKEND_ERROR, $myLog);
-}
-
 // define requirements on protocol
 $syncParams = array(
 	'modified' => NULL,
@@ -86,6 +79,13 @@ foreach ($syncParams as $param=>$value) {
 }
 $myLog->log(LOG_INFO, $tmp_log);
 
+
+$sync = new SyncLib('ykval-sync:synclib');
+$sync->addField('ip', $ipaddr);
+
+if (! $sync->isConnected()) {
+	sendResp(S_BACKEND_ERROR, $myLog);
+}
 
 // at this point we should have the otp so let's add it to the logging module
 $myLog->addField('otp', $syncParams['otp']);
