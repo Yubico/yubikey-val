@@ -31,7 +31,6 @@ require_once 'ykval-common.php';
 require_once 'ykval-config.php';
 require_once 'ykval-synclib.php';
 
-$apiKey = '';
 $ipaddr = $_SERVER['REMOTE_ADDR'];
 $allowed = $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'];
 
@@ -42,7 +41,7 @@ $myLog = new Log('ykval-sync');
 $myLog->addField('ip', $ipaddr);
 
 if (empty($_SERVER['QUERY_STRING'])) {
-  sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
+  sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
 $myLog->log(LOG_INFO, 'Request: ' . $_SERVER['QUERY_STRING']);
@@ -51,7 +50,7 @@ $sync = new SyncLib('ykval-sync:synclib');
 $sync->addField('ip', $ipaddr);
 
 if (! $sync->isConnected()) {
-  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
+  sendResp(S_BACKEND_ERROR, $myLog);
 }
 
 #
@@ -62,7 +61,7 @@ $myLog->log(LOG_DEBUG, 'Received request from ' . $ipaddr);
 if (in_array($ipaddr, $allowed, TRUE) === FALSE) {
   $myLog->log(LOG_NOTICE, 'Operation not allowed from IP ' . $ipaddr);
   $myLog->log(LOG_DEBUG, 'Remote IP ' . $ipaddr . ' not listed in allowed sync pool : ' . implode(', ', $allowed));
-  sendResp(S_OPERATION_NOT_ALLOWED, $myLog, $apiKey);
+  sendResp(S_OPERATION_NOT_ALLOWED, $myLog);
 }
 
 #
@@ -87,7 +86,7 @@ foreach ($syncParams as $param=>$value) {
   $value = getHttpVal($param, NULL);
   if ($value==NULL) {
     $myLog->log(LOG_NOTICE, "Received request with parameter[s] (" . $param . ") missing value");
-    sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
+    sendResp(S_MISSING_PARAMETER, $myLog);
   }
   $syncParams[$param]=$value;
   $tmp_log .= "$param=$value ";
@@ -114,7 +113,7 @@ foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param
     continue;
 
   $myLog->log(LOG_NOTICE, 'Input parameters ' . $param . ' not correct');
-  sendResp(S_MISSING_PARAMETER, $myLog, $apiKey);
+  sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
 #
@@ -124,7 +123,7 @@ $yk_publicname = $syncParams['yk_publicname'];
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams) {
   $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
-  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
+  sendResp(S_BACKEND_ERROR, $myLog);
 }
 
 /* Conditional update local database */
@@ -174,7 +173,7 @@ if ($localParams['active'] != 1) {
    * We still needed to update our counters with the counters from the OTP though.
    */
   $myLog->log(LOG_WARNING, 'Received sync-request for de-activated Yubikey ' . $yk_publicname . ' - check database synchronization!!!');
-  sendResp(S_BAD_OTP, $myLog, $apiKey);
+  sendResp(S_BAD_OTP, $myLog);
 }
 
 $extra = array(
@@ -187,4 +186,4 @@ $extra = array(
   'yk_low' => $localParams['yk_low']
 );
 
-sendResp(S_OK, $myLog, $apiKey, $extra);
+sendResp(S_OK, $myLog, '', $extra);
