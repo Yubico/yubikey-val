@@ -108,11 +108,6 @@ abstract class Db
     else return False;
   }
 
-  public function truncateTable($name)
-  {
-    $this->query("TRUNCATE TABLE " . $name);
-  }
-
   /**
    * function to update row in database by a where condition
    *
@@ -267,37 +262,4 @@ or false on failure.
   {
     return $this->query($query, true);
   }
-
-  /**
-   * helper function used to get rows from Db table in reversed order.
-   * defaults to obtaining 1 row.
-   *
-   * @param string $table Database table to update row in
-   * @param string $key Column to select rows by
-   * @param string $value Value to select rows by
-   * @param int $nr Number of rows to collect. NULL=>inifinity. Default=1.
-   * @return mixed Array with values from Db row or 2d-array with multiple rows or false on failure.
-   *
-   */
-  public function lastBy($table, $key, $value, $nr=1)
-  {
-    return Db::findBy($table, $key, $value, $nr, 1);
-  }
-
-  /**
-   * helper function used to get rows from Db table in standard order.
-   * defaults to obtaining 1 row.
-   *
-   * @param string $table Database table to update row in
-   * @param string $key Column to select rows by
-   * @param string $value Value to select rows by
-   * @param int $nr Number of rows to collect. NULL=>inifinity. Default=1.
-   * @return mixed Array with values from Db row or 2d-array with multiple rows or false on failure.
-   *
-   */
-  public function firstBy($table, $key, $value, $nr=1)
-  {
-    return Db::findBy($table, $key, $value, $nr);
-  }
-
 }
