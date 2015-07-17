@@ -177,43 +177,47 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 			{
 				$str = curl_multi_getcontent($info['handle']);
 				$logger->log(LOG_DEBUG, $ident . " curl multi content : " . $str);
-				if (preg_match("/".$match."/", $str)) {
+
+				if (preg_match("/".$match."/", $str))
+				{
 					$logger->log(LOG_DEBUG, $ident . " response matches " . $match);
-					$error = curl_error ($info['handle']);
-					$errno = curl_errno ($info['handle']);
-					$cinfo = curl_getinfo ($info['handle']);
+					$error = curl_error($info['handle']);
+					$errno = curl_errno($info['handle']);
+					$cinfo = curl_getinfo($info['handle']);
 					$logger->log(LOG_INFO, $ident . " errno/error: " . $errno . "/" . $error, $cinfo);
 					$ans_count++;
 					if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
 					else $ans_arr[]=$str;
 				}
 
-				if ($ans_count >= $ans_req) {
-					foreach ($ch as $h) {
-						curl_multi_remove_handle ($mh, $h);
-						curl_close ($h);
+				if ($ans_count >= $ans_req)
+				{
+					foreach ($ch as $h)
+					{
+						curl_multi_remove_handle($mh, $h);
+						curl_close($h);
 					}
-					curl_multi_close ($mh);
+					curl_multi_close($mh);
 
 					return $ans_arr;
 				}
 
-				curl_multi_remove_handle ($mh, $info['handle']);
-				curl_close ($info['handle']);
-				unset ($ch[$info['handle']]);
+				curl_multi_remove_handle($mh, $info['handle']);
+				curl_close($info['handle']);
+				unset($ch[$info['handle']]);
 			}
 
-			curl_multi_select ($mh);
+			curl_multi_select($mh);
 		}
 	}
 	while($active);
 
 	foreach ($ch as $h)
 	{
-		curl_multi_remove_handle ($mh, $h);
-		curl_close ($h);
+		curl_multi_remove_handle($mh, $h);
+		curl_close($h);
 	}
-	curl_multi_close ($mh);
+	curl_multi_close($mh);
 
 	if ($ans_count>0) return $ans_arr;
 	return $str;
