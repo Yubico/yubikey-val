@@ -333,18 +333,24 @@ class SyncLib
 	public function reSync($older_than=60, $timeout)
 	{
 		$this->log(LOG_DEBUG, 'starting resync');
-		/* Loop over all unique servers in queue */
-		$queued_limit=time()-$older_than;
-		$server_res=$this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
 
-		while ($my_server=$this->db->fetchArray($server_res)) {
+		/* Loop over all unique servers in queue */
+		$queued_limit = time()-$older_than;
+		$server_res = $this->db->customQuery("select distinct server from queue WHERE queued < " . $queued_limit . " or queued is null");
+
+		while ($my_server=$this->db->fetchArray($server_res))
+		{
 			$this->log(LOG_DEBUG, "Processing queue for server " . $my_server['server']);
-			$res=$this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
+
+			$res = $this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $my_server['server'] . "'");
+
 			$ch = curl_init();
 
-			while ($entry=$this->db->fetchArray($res)) {
+			while ($entry=$this->db->fetchArray($res))
+			{
 				$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
-				$url=$entry['server'] .
+
+				$url = $entry['server'] .
 					"?otp=" . $entry['otp'] .
 					"&modified=" . $entry['modified'] .
 					"&" . $this->otpPartFromInfoString($entry['info']);
@@ -355,14 +361,15 @@ class SyncLib
 
 				$response = curl_exec($ch);
 
-				if ($response==False) {
+				if ($response == False)
+				{
 					$this->log(LOG_NOTICE, 'Timeout. Stopping queue resync for server ' . $entry['server']);
 					break;
 				}
 
 				if (preg_match("/status=OK/", $response))
 				{
-					$resParams=$this->parseParamsFromMultiLineString($response);
+					$resParams = $this->parseParamsFromMultiLineString($response);
 					$this->log(LOG_DEBUG, "response contains ", $resParams);
 
 					/* Update database counters */
@@ -371,43 +378,52 @@ class SyncLib
 					/* Retrieve info from entry info string */
 
 					/* This is the counter values we had in our database *before* processing the current OTP. */
-					$validationParams=$this->localParamsFromInfoString($entry['info']);
+					$validationParams = $this->localParamsFromInfoString($entry['info']);
+
 					/* This is the data from the current OTP. */
-					$otpParams=$this->otpParamsFromInfoString($entry['info']);
+					$otpParams = $this->otpParamsFromInfoString($entry['info']);
 
 					/* Fetch current information from our database */
-					$localParams=$this->getLocalParams($otpParams['yk_publicname']);
+					$localParams = $this->getLocalParams($otpParams['yk_publicname']);
 
 					$this->log(LOG_DEBUG, "validation params: ", $validationParams);
 					$this->log(LOG_DEBUG, "OTP params: ", $otpParams);
 
 					/* Check for warnings  */
 
-					if ($this->countersHigherThan($validationParams, $resParams)) {
+					if ($this->countersHigherThan($validationParams, $resParams))
+					{
 						$this->log(LOG_NOTICE, "Remote server out of sync compared to counters at validation request time. ");
 					}
 
-					if ($this->countersHigherThan($resParams, $validationParams)) {
-						if ($this->countersEqual($resParams, $otpParams)) {
+					if ($this->countersHigherThan($resParams, $validationParams))
+					{
+						if ($this->countersEqual($resParams, $otpParams))
+						{
 							$this->log(LOG_INFO, "Remote server had received the current counter values already. ");
-						} else {
+						}
+						else
+						{
 							$this->log(LOG_NOTICE, "Local server out of sync compared to counters at validation request time. ");
 						}
 					}
 
-					if ($this->countersHigherThan($localParams, $resParams)) {
+					if ($this->countersHigherThan($localParams, $resParams))
+					{
 						$this->log(LOG_WARNING, "Remote server out of sync compared to current local counters.  ");
 					}
 
-					if ($this->countersHigherThan($resParams, $localParams)) {
+					if ($this->countersHigherThan($resParams, $localParams))
+					{
 						$this->log(LOG_WARNING, "Local server out of sync compared to current local counters. Local server updated. ");
 					}
 
-					if ($this->countersHigherThan($resParams, $otpParams)) {
+					if ($this->countersHigherThan($resParams, $otpParams))
+					{
 						$this->log(LOG_ERR, "Remote server has higher counters than OTP. This response would have marked the OTP as invalid. ");
 					}
-					elseif ($this->countersEqual($resParams, $otpParams)
-						&& $resParams['nonce']!=$otpParams['nonce']) {
+					elseif ($this->countersEqual($resParams, $otpParams) && $resParams['nonce']!=$otpParams['nonce'])
+					{
 						$this->log(LOG_ERR, "Remote server has equal counters as OTP and nonce differs. This response would have marked the OTP as invalid.");
 					}
 
