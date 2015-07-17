@@ -281,8 +281,7 @@ if (($otpinfo = KSMdecryptOTP($urls, $myLog, $curlopts)) === FALSE)
 $myLog->log(LOG_DEBUG, "Decrypted OTP:", $otpinfo);
 
 // get Yubikey from DB
-$devId = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
-$yk_publicname = $devId;
+$yk_publicname = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams)
 {
@@ -293,7 +292,7 @@ if (!$localParams)
 $myLog->log(LOG_DEBUG, "Auth data:", $localParams);
 if ($localParams['active'] != 1)
 {
-	$myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $devId);
+	$myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $yk_publicname);
 	sendResp(S_BAD_OTP, $myLog, $apiKey);
 }
 
@@ -303,7 +302,7 @@ $otpParams = array(
 	'modified' => time(),
 	'otp' => $otp,
 	'nonce' => $nonce,
-	'yk_publicname' => $devId,
+	'yk_publicname' => $yk_publicname,
 	'yk_counter' => $otpinfo['session_counter'],
 	'yk_use' => $otpinfo['session_use'],
 	'yk_high' => $otpinfo['high'],
