@@ -261,44 +261,49 @@ if ($localParams['active'] != 1) {
 
 /* Build OTP params */
 
-$otpParams=array('modified'=>time(),
-		 'otp'=>$otp,
-		 'nonce'=>$nonce,
-		 'yk_publicname'=>$devId,
-		 'yk_counter'=>$otpinfo['session_counter'],
-		 'yk_use'=>$otpinfo['session_use'],
-		 'yk_high'=>$otpinfo['high'],
-		 'yk_low'=>$otpinfo['low']);
+$otpParams = array(
+	'modified' => time(),
+	'otp' => $otp,
+	'nonce' => $nonce,
+	'yk_publicname' => $devId,
+	'yk_counter' => $otpinfo['session_counter'],
+	'yk_use' => $otpinfo['session_use'],
+	'yk_high' => $otpinfo['high'],
+	'yk_low' => $otpinfo['low']
+);
 
 
 /* First check if OTP is seen with the same nonce, in such case we have an replayed request */
-if ($sync->countersEqual($localParams, $otpParams) &&
-    $localParams['nonce']==$otpParams['nonce']) {
-  $myLog->log(LOG_WARNING, 'Replayed request');
-  sendResp(S_REPLAYED_REQUEST, $myLog, $apiKey, $extra);
- }
+if ($sync->countersEqual($localParams, $otpParams) && $localParams['nonce']==$otpParams['nonce'])
+{
+	$myLog->log(LOG_WARNING, 'Replayed request');
+	sendResp(S_REPLAYED_REQUEST, $myLog, $apiKey, $extra);
+}
 
 /* Check the OTP counters against local db */
-if ($sync->countersHigherThanOrEqual($localParams, $otpParams)) {
-  $sync->log(LOG_WARNING, 'replayed OTP: Local counters higher');
-  $sync->log(LOG_WARNING, 'replayed OTP: Local counters ', $localParams);
-  $sync->log(LOG_WARNING, 'replayed OTP: Otp counters ', $otpParams);
-  sendResp(S_REPLAYED_OTP, $myLog, $apiKey, $extra);
- }
+if ($sync->countersHigherThanOrEqual($localParams, $otpParams))
+{
+	$sync->log(LOG_WARNING, 'replayed OTP: Local counters higher');
+	$sync->log(LOG_WARNING, 'replayed OTP: Local counters ', $localParams);
+	$sync->log(LOG_WARNING, 'replayed OTP: Otp counters ', $otpParams);
+	sendResp(S_REPLAYED_OTP, $myLog, $apiKey, $extra);
+}
 
 /* Valid OTP, update database. */
 
-if(!$sync->updateDbCounters($otpParams)) {
-  $myLog->log(LOG_CRIT, "Failed to update yubikey counters in database");
-  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
- }
+if (!$sync->updateDbCounters($otpParams))
+{
+	$myLog->log(LOG_CRIT, "Failed to update yubikey counters in database");
+	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
+}
 
 /* Queue sync requests */
 
-if (!$sync->queue($otpParams, $localParams)) {
-  $myLog->log(LOG_CRIT, "ykval-verify:critical:failed to queue sync requests");
-  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
- }
+if (!$sync->queue($otpParams, $localParams))
+{
+	$myLog->log(LOG_CRIT, "ykval-verify:critical:failed to queue sync requests");
+	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
+}
 
 $nr_servers=$sync->getNumberOfServers();
 $req_answers=ceil($nr_servers*$sl/100.0);
@@ -384,13 +389,16 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
 }
 
 /* Fill up with more respone parameters */
-if ($protocol_version>=2.0) {
-  $extra['sl'] = $sl_success_rate;
- }
-if ($timestamp==1){
-  $extra['timestamp'] = ($otpinfo['high'] << 16) + $otpinfo['low'];
-  $extra['sessioncounter'] = $sessionCounter;
-  $extra['sessionuse'] = $sessionUse;
- }
+if ($protocol_version >= 2.0)
+{
+	$extra['sl'] = $sl_success_rate;
+}
+
+if ($timestamp == 1)
+{
+	$extra['timestamp'] = ($otpinfo['high'] << 16) + $otpinfo['low'];
+	$extra['sessioncounter'] = $sessionCounter;
+	$extra['sessionuse'] = $sessionUse;
+}
 
 sendResp(S_OK, $myLog, $apiKey, $extra);
