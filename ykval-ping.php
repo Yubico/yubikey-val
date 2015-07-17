@@ -27,6 +27,6 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-header("content-type: text/plain");
+header('content-type: text/plain');
 
 echo 'OK' . PHP_EOL;
