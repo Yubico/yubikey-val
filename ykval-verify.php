@@ -38,19 +38,23 @@ header("content-type: text/plain");
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
 $query_string = '';
-if ($_POST) {
-  $kv = array();
-  foreach ($_POST as $key => $value) {
-    $kv[] = "$key=$value";
-  }
-  $query_string = "POST: " . join("&", $kv);
-} else {
-  $query_string = "Request: " . $_SERVER['QUERY_STRING'];
+if ($_POST)
+{
+	$kv = array();
+	foreach ($_POST as $key => $value)
+	{
+		$kv[] = "$key=$value";
+	}
+	$query_string = "POST: " . join("&", $kv);
+}
+else
+{
+	$query_string = "Request: " . $_SERVER['QUERY_STRING'];
 }
 
 $myLog->log(LOG_INFO, $query_string .
-	    " (at " . date("c") . " " . microtime() . ") " .
-	    (isset($_SERVER["HTTPS"])  && $_SERVER["HTTPS"] == "on" ? "HTTPS" : "HTTP"));
+		" (at " . date("c") . " " . microtime() . ") " .
+		(isset($_SERVER["HTTPS"])  && $_SERVER["HTTPS"] == "on" ? "HTTPS" : "HTTP"));
 
 /* Detect protocol version */
 if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out))
@@ -120,59 +124,72 @@ if ($protocol_version >= 2.0)
  */
 
 /* Change default protocol "strings" to numeric values */
-if (isset($sl) && strcasecmp($sl, 'fast')==0) {
-  $sl=$baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
+if (isset($sl) && strcasecmp($sl, 'fast') == 0)
+{
+	$sl = $baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
 }
-if (isset($sl) && strcasecmp($sl, 'secure')==0) {
-  $sl=$baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
+if (isset($sl) && strcasecmp($sl, 'secure') == 0)
+{
+	$sl = $baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
 }
-if (!isset($sl) || $sl == '') {
-  $sl=$baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
-}
-
-if (!isset($timeout) || $timeout == '') {
-  $timeout=$baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
-}
-
-if ($otp == '') {
-  $myLog->log(LOG_NOTICE, 'OTP is missing');
-  sendResp(S_MISSING_PARAMETER, $myLog);
-}
-if (strlen($otp) < TOKEN_LEN || strlen ($otp) > OTP_MAX_LEN) {
-  $myLog->log(LOG_NOTICE, 'Incorrect OTP length: ' . $otp);
-  sendResp(S_BAD_OTP, $myLog);
-}
-if (preg_match("/^[cbdefghijklnrtuv]+$/", $otp)==0) {
-  $myLog->log(LOG_NOTICE, 'Invalid OTP: ' . $otp);
-  sendResp(S_BAD_OTP, $myLog);
+if (!isset($sl) || $sl == '')
+{
+	$sl = $baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
 }
 
-if (preg_match("/^[0-9]+$/", $client)==0){
-  $myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
-  sendResp(S_MISSING_PARAMETER, $myLog);
-}
-if ($client <= 0) {
-  $myLog->log(LOG_NOTICE, 'Client ID is missing');
-  sendResp(S_MISSING_PARAMETER, $myLog);
+if (!isset($timeout) || $timeout == '')
+{
+	$timeout = $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
 }
 
-if ($timeout && preg_match("/^[0-9]+$/", $timeout)==0) {
-  $myLog->log(LOG_NOTICE, 'timeout is provided but not correct');
-  sendResp(S_MISSING_PARAMETER, $myLog);
+if ($otp == '')
+{
+	$myLog->log(LOG_NOTICE, 'OTP is missing');
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
+if (strlen($otp) < TOKEN_LEN || strlen ($otp) > OTP_MAX_LEN)
+{
+	$myLog->log(LOG_NOTICE, 'Incorrect OTP length: ' . $otp);
+	sendResp(S_BAD_OTP, $myLog);
+}
+if (preg_match("/^[cbdefghijklnrtuv]+$/", $otp) == 0)
+{
+	$myLog->log(LOG_NOTICE, 'Invalid OTP: ' . $otp);
+	sendResp(S_BAD_OTP, $myLog);
 }
 
-if (isset($nonce) && preg_match("/^[A-Za-z0-9]+$/", $nonce)==0) {
-  $myLog->log(LOG_NOTICE, 'NONCE is provided but not correct');
-  sendResp(S_MISSING_PARAMETER, $myLog);
+if (preg_match("/^[0-9]+$/", $client) == 0)
+{
+	$myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
+	sendResp(S_MISSING_PARAMETER, $myLog);
 }
-if (isset($nonce) && (strlen($nonce) < 16 || strlen($nonce) > 40)) {
-  $myLog->log(LOG_NOTICE, 'Nonce too short or too long');
-  sendResp(S_MISSING_PARAMETER, $myLog);
+if ($client <= 0)
+{
+	$myLog->log(LOG_NOTICE, 'Client ID is missing');
+	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
-if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100))) {
-  $myLog->log(LOG_NOTICE, 'SL is provided but not correct');
-  sendResp(S_MISSING_PARAMETER, $myLog);
+if ($timeout && preg_match("/^[0-9]+$/", $timeout) == 0)
+{
+	$myLog->log(LOG_NOTICE, 'timeout is provided but not correct');
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
+
+if (isset($nonce) && preg_match("/^[A-Za-z0-9]+$/", $nonce) == 0)
+{
+	$myLog->log(LOG_NOTICE, 'NONCE is provided but not correct');
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
+if (isset($nonce) && (strlen($nonce) < 16 || strlen($nonce) > 40))
+{
+	$myLog->log(LOG_NOTICE, 'Nonce too short or too long');
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
+
+if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100)))
+{
+	$myLog->log(LOG_NOTICE, 'SL is provided but not correct');
+	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
 /**
@@ -338,12 +355,12 @@ else
 }
 
 $myLog->log(LOG_INFO, "ykval-verify:notice:synclevel=" . $sl .
-	    " nr servers=" . $nr_servers .
-	    " req answers=" . $req_answers .
-	    " answers=" . $nr_answers .
-	    " valid answers=" . $nr_valid_answers .
-	    " sl success rate=" . $sl_success_rate .
-	    " timeout=" . $timeout);
+		" nr servers=" . $nr_servers .
+		" req answers=" . $req_answers .
+		" answers=" . $nr_answers .
+		" valid answers=" . $nr_valid_answers .
+		" sl success rate=" . $sl_success_rate .
+		" timeout=" . $timeout);
 
 if ($syncres == False)
 {
