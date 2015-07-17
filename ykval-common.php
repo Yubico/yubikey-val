@@ -186,8 +186,11 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 					$cinfo = curl_getinfo($info['handle']);
 					$logger->log(LOG_INFO, "$ident errno/error: $errno/$error", $cinfo);
 					$ans_count++;
-					if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
-					else $ans_arr[]=$str;
+
+					if ($returl)
+						$ans_arr[] = "url=" . $cinfo['url'] . "\n" . $str;
+					else
+						$ans_arr[] = $str;
 				}
 
 				if ($ans_count >= $ans_req)
@@ -219,7 +222,9 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 	}
 	curl_multi_close($mh);
 
-	if ($ans_count>0) return $ans_arr;
+	if ($ans_count > 0)
+		return $ans_arr;
+
 	return $str;
 }
 
