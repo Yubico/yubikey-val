@@ -218,45 +218,51 @@ if ($h != '') {
 
 /* We need to add necessary parameters not available at earlier protocols after signature is computed.
  */
-if ($protocol_version<2.0) {
-  /* We need to create a nonce manually here */
-  $nonce = md5(uniqid(rand()));
-  $myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
- }
+if ($protocol_version < 2.0)
+{
+	/* We need to create a nonce manually here */
+	$nonce = md5(uniqid(rand()));
+	$myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
+}
 
 //// Which YK-KSM should we talk to?
 //
 $urls = otp2ksmurls ($otp, $client);
-if (!is_array($urls)) {
-  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
+if (!is_array($urls))
+{
+	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
 }
 
 //// Decode OTP from input
 //
 $curlopts = array();
-if (array_key_exists('__YKVAL_KSM_CURL_OPTS__', $baseParams)) {
-  $curlopts = $baseParams['__YKVAL_KSM_CURL_OPTS__'];
+if (array_key_exists('__YKVAL_KSM_CURL_OPTS__', $baseParams))
+{
+	$curlopts = $baseParams['__YKVAL_KSM_CURL_OPTS__'];
 }
 $otpinfo = KSMdecryptOTP($urls, $myLog, $curlopts);
-if (!is_array($otpinfo)) {
-  sendResp(S_BAD_OTP, $myLog, $apiKey);
+if (!is_array($otpinfo))
+{
+	sendResp(S_BAD_OTP, $myLog, $apiKey);
 }
 $myLog->log(LOG_DEBUG, "Decrypted OTP:", $otpinfo);
 
 //// Get Yubikey from DB
 //
 $devId = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
-$yk_publicname=$devId;
+$yk_publicname = $devId;
 $localParams = $sync->getLocalParams($yk_publicname);
-if (!$localParams) {
-  $myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
-  sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
- }
+if (!$localParams)
+{
+	$myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
+	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
+}
 
 $myLog->log(LOG_DEBUG, "Auth data:", $localParams);
-if ($localParams['active'] != 1) {
-  $myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $devId);
-  sendResp(S_BAD_OTP, $myLog, $apiKey);
+if ($localParams['active'] != 1)
+{
+	$myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $devId);
+	sendResp(S_BAD_OTP, $myLog, $apiKey);
 }
 
 /* Build OTP params */
