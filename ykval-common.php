@@ -251,7 +251,7 @@ function KSMdecryptOTP($urls, $logger, $curlopts)
 		$ret['session_counter'],
 		$ret['low'],
 		$ret['high'],
-		$ret['session_use'] !== 4)
+		$ret['session_use']) !== 4)
 	{
 		return false;
 	}
