@@ -437,31 +437,30 @@ class SyncLib
 
 	public function sync($ans_req, $timeout=1)
 	{
-		/*
-			Construct URLs
-		*/
-		$urls=array();
-		$res=$this->db->findByMultiple('queue', array("modified"=>$this->otpParams['modified'], "server_nonce"=>$this->server_nonce));
-		foreach($res as $row) {
-			$urls[]=$row['server'] .
+		// construct URLs
+		$urls = array();
+		$res = $this->db->findByMultiple('queue', array(
+			'modified'     => $this->otpParams['modified'],
+			'server_nonce' => $this->server_nonce
+		));
+		foreach ($res as $row)
+		{
+			$urls[] = $row['server'] .
 				"?otp=" . $row['otp'] .
 				"&modified=" . $row['modified'] .
 				"&" . $this->otpPartFromInfoString($row['info']);
 		}
 
-		/*
-			Send out requests
-		*/
+		// send out requests
 		$ans_arr = retrieveURLasync('YK-VAL sync', $urls, $this->myLog, $ans_req, $match='status=OK', $returl=True, $timeout, $this->curlopts);
 
-		if ($ans_arr === FALSE) {
+		if ($ans_arr === FALSE)
+		{
 			$this->log(LOG_WARNING, 'No responses from validation server pool');
 			$ans_arr = array();
 		}
 
-		/*
-			Parse responses
-		*/
+		// parse responses
 		$localParams = $this->localParams;
 
 		$this->answers = count($ans_arr);
@@ -469,75 +468,78 @@ class SyncLib
 
 		foreach ($ans_arr as $answer)
 		{
-			/* Parse out parameters from each response */
+			// parse out parameters from each response
 			$resParams=$this->parseParamsFromMultiLineString($answer);
-			$this->log(LOG_DEBUG, "local db contains ", $localParams);
-			$this->log(LOG_DEBUG, "response contains ", $resParams);
-			$this->log(LOG_DEBUG, "OTP contains " , $this->otpParams);
+			$this->log(LOG_DEBUG, 'local db contains ', $localParams);
+			$this->log(LOG_DEBUG, 'response contains ', $resParams);
+			$this->log(LOG_DEBUG, 'OTP contains ', $this->otpParams);
 
-			/* Update internal DB (conditional) */
+			// update internal DB (conditional)
 			$this->updateDbCounters($resParams);
 
-			/* Check for warnings
-
-				See https://developers.yubico.com/yubikey-val/doc/ServerReplicationProtocol.html
-
-				NOTE: We use localParams for validationParams comparison since they are actually the
-				same in this situation and we have them at hand.
-			*/
+			/**
+			 * Check for warnings
+			 *
+			 * See https://developers.yubico.com/yubikey-val/doc/ServerReplicationProtocol.html
+			 *
+			 * NOTE: We use localParams for validationParams comparison since they are actually the
+			 *	same in this situation and we have them at hand.
+			 */
 
 			if ($this->countersHigherThan($localParams, $resParams))
 			{
-				$this->log(LOG_NOTICE, "Remote server out of sync");
+				$this->log(LOG_NOTICE, 'Remote server out of sync');
 			}
 
 			if ($this->countersHigherThan($resParams, $localParams))
 			{
-				$this->log(LOG_NOTICE, "Local server out of sync");
+				$this->log(LOG_NOTICE, 'Local server out of sync');
 			}
 
-			if ($this->countersEqual($resParams, $localParams) && $resParams['nonce']!=$localParams['nonce'])
+			if ($this->countersEqual($resParams, $localParams) && $resParams['nonce'] != $localParams['nonce'])
 			{
-				$this->log(LOG_NOTICE, "Servers out of sync. Nonce differs. ");
+				$this->log(LOG_NOTICE, 'Servers out of sync. Nonce differs. ');
 			}
 
-			if ($this->countersEqual($resParams, $localParams) && $resParams['modified']!=$localParams['modified'])
+			if ($this->countersEqual($resParams, $localParams) && $resParams['modified'] != $localParams['modified'])
 			{
-				$this->log(LOG_NOTICE, "Servers out of sync. Modified differs. ");
+				$this->log(LOG_NOTICE, 'Servers out of sync. Modified differs. ');
 			}
 
 			if ($this->countersHigherThan($resParams, $this->otpParams))
 			{
 				$this->log(LOG_WARNING, 'OTP is replayed. Sync response counters higher than OTP counters.');
 			}
-			elseif ($this->countersEqual($resParams, $this->otpParams) && $resParams['nonce']!=$this->otpParams['nonce'])
+			elseif ($this->countersEqual($resParams, $this->otpParams) && $resParams['nonce'] != $this->otpParams['nonce'])
 			{
 				$this->log(LOG_WARNING, 'OTP is replayed. Sync response counters equal to OTP counters and nonce differs.');
 			}
 			else
 			{
-				/* The answer is ok since a REPLAY was not indicated */
+				// the answer is ok since a REPLAY was not indicated
 				$this->valid_answers++;
 			}
 
-			/*  Delete entry from table */
+			// delete entry from table
 			$this->deleteQueueEntry($answer);
 		}
 
-		/*
-			NULL queued_time for remaining entries in queue, to allow
-			daemon to take care of them as soon as possible. */
-
+		/**
+		 * NULL queued_time for remaining entries in queue, to allow
+		 *	daemon to take care of them as soon as possible.
+		 */
 		$this->db->updateBy('queue', 'server_nonce', $this->server_nonce, array('queued'=>NULL));
 
-		/* Return true if valid answers equals required answers.
-			Since we only obtain the required amount of answers from
-			retrieveAsync this indicates that all answers were actually valid.
-			Otherwise, return false. */
-		if ($this->valid_answers==$ans_req)
-			return True;
+		/**
+		 * Return true if valid answers equals required answers.
+		 *	Since we only obtain the required amount of answers from
+		 *	retrieveAsync this indicates that all answers were actually valid.
+		 *	Otherwise, return false.
+		 */
+		if ($this->valid_answers == $ans_req)
+			return true;
 
-		return False;
+		return false;
 	}
 
   public function getNumberOfValidAnswers()
