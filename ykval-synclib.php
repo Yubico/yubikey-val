@@ -64,6 +64,27 @@ class SyncLib
 		return $this->isConnected;
 	}
 
+	public function getNumberOfServers()
+	{
+		return count($this->syncServers);
+	}
+
+	public function getNumberOfValidAnswers()
+	{
+		if (isset($this->valid_answers))
+			return $this->valid_answers;
+
+		return 0;
+	}
+
+	public function getNumberOfAnswers()
+	{
+		if (isset($this->answers))
+			return $this->answers;
+
+		return 0;
+	}
+
 	public function getClientData($client)
 	{
 		$res = $this->db->customQuery("SELECT id, secret FROM clients WHERE active='1' AND id='" . $client . "'");
@@ -79,43 +100,6 @@ class SyncLib
 	public function getQueueLength()
 	{
 		return count($this->db->findBy('queue', null, null, null));
-	}
-
-	private function createInfoString($otpParams, $localParams)
-	{
-		# FIXME &local_counter
-		return 'yk_publicname=' . $otpParams['yk_publicname'] .
-			'&yk_counter=' . $otpParams['yk_counter'] .
-			'&yk_use=' . $otpParams['yk_use'] .
-			'&yk_high=' . $otpParams['yk_high'] .
-			'&yk_low=' . $otpParams['yk_low'] .
-			'&nonce=' . $otpParams['nonce'] .
-			',local_counter=' . $localParams['yk_counter'] .
-			'&local_use=' . $localParams['yk_use'];
-	}
-
-	private function otpParamsFromInfoString($info)
-	{
-		$out = explode(',', $info);
-		parse_str($out[0], $params);
-		return $params;
-	}
-
-	private function otpPartFromInfoString($info)
-	{
-		$out = explode(',', $info);
-		return $out[0];
-	}
-
-	private function localParamsFromInfoString($info)
-	{
-		$out = explode(',', $info);
-		parse_str($out[1], $params);
-
-		return array(
-			'yk_counter' => $params['local_counter'],
-			'yk_use' => $params['local_use']
-		);
 	}
 
 	public function queue($otpParams, $localParams)
@@ -143,11 +127,6 @@ class SyncLib
 		}
 
 		return $res;
-	}
-
-	public function getNumberOfServers()
-	{
-		return count($this->syncServers);
 	}
 
 	public function log($priority, $msg, $params=NULL)
@@ -214,53 +193,6 @@ class SyncLib
 		return false;
 	}
 
-	private function parseParamsFromMultiLineString($str)
-	{
-		$i = preg_match("/^modified=(-1|[0-9]+)/m", $str, $out);
-		if ($i != 1) {
-			$this->log(LOG_ALERT, "cannot parse modified value: $str");
-		}
-		$resParams['modified']=$out[1];
-
-		$i = preg_match("/^yk_publicname=([cbdefghijklnrtuv]+)/m", $str, $out);
-		if ($i != 1) {
-			$this->log(LOG_ALERT, "cannot parse publicname value: $str");
-		}
-		$resParams['yk_publicname']=$out[1];
-
-		$i = preg_match("/^yk_counter=(-1|[0-9]+)/m", $str, $out);
-		if ($i != 1) {
-			$this->log(LOG_ALERT, "cannot parse counter value: $str");
-		}
-		$resParams['yk_counter']=$out[1];
-
-		$i = preg_match("/^yk_use=(-1|[0-9]+)/m", $str, $out);
-		if ($i != 1) {
-			$this->log(LOG_ALERT, "cannot parse use value: $str");
-		}
-		$resParams['yk_use']=$out[1];
-
-		$i = preg_match("/^yk_high=(-1|[0-9]+)/m", $str, $out);
-		if ($i != 1) {
-			$this->log(LOG_ALERT, "cannot parse high value: $str");
-		}
-		$resParams['yk_high']=$out[1];
-
-		$i = preg_match("/^yk_low=(-1|[0-9]+)/m", $str, $out);
-		if ($i != 1) {
-			$this->log(LOG_ALERT, "cannot parse low value: $str");
-		}
-		$resParams['yk_low']=$out[1];
-
-		$i = preg_match("/^nonce=([[:alnum:]]+)/m", $str, $out);
-		if ($i != 1) {
-			$this->log(LOG_ALERT, "cannot parse nonce value: $str");
-		}
-		$resParams['nonce']=$out[1];
-
-		return $resParams;
-	}
-
 	public function updateDbCounters($params)
 	{
 		if (isset($params['yk_publicname']))
@@ -312,22 +244,6 @@ class SyncLib
 	public function countersEqual($p1, $p2)
 	{
 		return ($p1['yk_counter'] == $p2['yk_counter']) && ($p1['yk_use'] == $p2['yk_use']);
-	}
-
-	private function deleteQueueEntry($answer)
-	{
-		preg_match('/url=(.*)\?/', $answer, $out);
-		$server = $out[1];
-
-		$this->log(LOG_INFO, "deleting server=" . $server .
-				" modified=" . $this->otpParams['modified'] .
-				" server_nonce=" . $this->server_nonce);
-
-		$this->db->deleteByMultiple('queue', array(
-			'modified' => $this->otpParams['modified'],
-			'server_nonce' => $this->server_nonce,
-			'server' => $server
-		));
 	}
 
 	public function reSync($older_than=60, $timeout)
@@ -571,19 +487,103 @@ class SyncLib
 		return false;
 	}
 
-	public function getNumberOfValidAnswers()
+	private function createInfoString($otpParams, $localParams)
 	{
-		if (isset($this->valid_answers))
-			return $this->valid_answers;
-
-		return 0;
+		# FIXME &local_counter
+		return 'yk_publicname=' . $otpParams['yk_publicname'] .
+			'&yk_counter=' . $otpParams['yk_counter'] .
+			'&yk_use=' . $otpParams['yk_use'] .
+			'&yk_high=' . $otpParams['yk_high'] .
+			'&yk_low=' . $otpParams['yk_low'] .
+			'&nonce=' . $otpParams['nonce'] .
+			',local_counter=' . $localParams['yk_counter'] .
+			'&local_use=' . $localParams['yk_use'];
 	}
 
-	public function getNumberOfAnswers()
+	private function otpParamsFromInfoString($info)
 	{
-		if (isset($this->answers))
-			return $this->answers;
+		$out = explode(',', $info);
+		parse_str($out[0], $params);
+		return $params;
+	}
 
-		return 0;
+	private function otpPartFromInfoString($info)
+	{
+		$out = explode(',', $info);
+		return $out[0];
+	}
+
+	private function localParamsFromInfoString($info)
+	{
+		$out = explode(',', $info);
+		parse_str($out[1], $params);
+
+		return array(
+			'yk_counter' => $params['local_counter'],
+			'yk_use' => $params['local_use']
+		);
+	}
+
+	private function parseParamsFromMultiLineString($str)
+	{
+		$i = preg_match("/^modified=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse modified value: $str");
+		}
+		$resParams['modified']=$out[1];
+
+		$i = preg_match("/^yk_publicname=([cbdefghijklnrtuv]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse publicname value: $str");
+		}
+		$resParams['yk_publicname']=$out[1];
+
+		$i = preg_match("/^yk_counter=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse counter value: $str");
+		}
+		$resParams['yk_counter']=$out[1];
+
+		$i = preg_match("/^yk_use=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse use value: $str");
+		}
+		$resParams['yk_use']=$out[1];
+
+		$i = preg_match("/^yk_high=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse high value: $str");
+		}
+		$resParams['yk_high']=$out[1];
+
+		$i = preg_match("/^yk_low=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse low value: $str");
+		}
+		$resParams['yk_low']=$out[1];
+
+		$i = preg_match("/^nonce=([[:alnum:]]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse nonce value: $str");
+		}
+		$resParams['nonce']=$out[1];
+
+		return $resParams;
+	}
+
+	private function deleteQueueEntry($answer)
+	{
+		preg_match('/url=(.*)\?/', $answer, $out);
+		$server = $out[1];
+
+		$this->log(LOG_INFO, "deleting server=" . $server .
+				" modified=" . $this->otpParams['modified'] .
+				" server_nonce=" . $this->server_nonce);
+
+		$this->db->deleteByMultiple('queue', array(
+			'modified' => $this->otpParams['modified'],
+			'server_nonce' => $this->server_nonce,
+			'server' => $server
+		));
 	}
 }
