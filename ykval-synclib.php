@@ -81,7 +81,7 @@ class SyncLib
 		return count($this->db->findBy('queue', null, null, null));
 	}
 
-	public function createInfoString($otpParams, $localParams)
+	private function createInfoString($otpParams, $localParams)
 	{
 		# FIXME &local_counter
 		return 'yk_publicname=' . $otpParams['yk_publicname'] .
@@ -94,20 +94,20 @@ class SyncLib
 			'&local_use=' . $localParams['yk_use'];
 	}
 
-	public function otpParamsFromInfoString($info)
+	private function otpParamsFromInfoString($info)
 	{
 		$out = explode(',', $info);
 		parse_str($out[0], $params);
 		return $params;
 	}
 
-	public function otpPartFromInfoString($info)
+	private function otpPartFromInfoString($info)
 	{
 		$out = explode(',', $info);
 		return $out[0];
 	}
 
-	public function localParamsFromInfoString($info)
+	private function localParamsFromInfoString($info)
 	{
 		$out = explode(',', $info);
 		parse_str($out[1], $params);
@@ -314,7 +314,7 @@ class SyncLib
 		return ($p1['yk_counter'] == $p2['yk_counter']) && ($p1['yk_use'] == $p2['yk_use']);
 	}
 
-	public function deleteQueueEntry($answer)
+	private function deleteQueueEntry($answer)
 	{
 		preg_match('/url=(.*)\?/', $answer, $out);
 		$server = $out[1];
