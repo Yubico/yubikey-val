@@ -169,11 +169,12 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 
 		while ($info = curl_multi_info_read($mh))
 		{
-			$logger->log(LOG_DEBUG, $ident . " curl multi info : ", $info);
+			$logger->log(LOG_DEBUG, "$ident curl multi info : ", $info);
 
 			if ($info['result'] == CURLE_OK)
 			{
 				$str = curl_multi_getcontent($info['handle']);
+
 				$logger->log(LOG_DEBUG, "$ident curl multi content : $str");
 
 				if (preg_match("/$match/", $str))
@@ -227,8 +228,6 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 
 function KSMdecryptOTP($urls, $logger, $curlopts)
 {
-	$ret = array();
-
 	if (!is_array($urls))
 	{
 		$urls = array($urls);
@@ -244,6 +243,8 @@ function KSMdecryptOTP($urls, $logger, $curlopts)
 	$response = array_shift($response);
 
 	$logger->log(LOG_DEBUG, log_format('YK-KSM response: ', $response));
+
+	$ret = array();
 
 	if (sscanf($response,
 		'OK counter=%04x low=%04x high=%02x use=%02x',
