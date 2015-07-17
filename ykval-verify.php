@@ -235,6 +235,7 @@ if ($h != '')
 	}
 	else
 	{
+		// FIXME sendResp
 		sendRest(S_BACKEND_ERROR);
 		exit;
 	}
@@ -432,6 +433,7 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 	{
 		$myLog->log(LOG_NOTICE, "OTP failed phishing test");
 
+		# FIXME nuke?
 		if (0)
 		{
 			sendResp(S_DELAYED_OTP, $myLog, $apiKey, $extra);
