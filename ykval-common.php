@@ -61,7 +61,7 @@ function getHttpVal($key, $defaultVal) {
   		$val = $_POST[$key];
   	}
   	$v = trim($val);
-  	$v = str_replace('\\', "", $val);
+  	$v = str_replace('\\', "", $v);
   	return $v;
 }
 
