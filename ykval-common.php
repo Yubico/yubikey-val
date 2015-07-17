@@ -224,7 +224,7 @@ function KSMdecryptOTP($urls, $logger, $curlopts)
 		$urls = array($urls);
 	}
 
-	$response = retrieveURLasync("YK-KSM", $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10, $curlopts);
+	$response = retrieveURLasync('YK-KSM', $urls, $logger, $ans_req=1, $match='^OK', $returl=False, $timeout=10, $curlopts);
 
 	if (is_array($response))
 	{
@@ -233,10 +233,15 @@ function KSMdecryptOTP($urls, $logger, $curlopts)
 
 	if ($response)
 	{
-		$logger->log(LOG_DEBUG, log_format("YK-KSM response: ", $response));
+		$logger->log(LOG_DEBUG, log_format('YK-KSM response: ', $response));
 	}
 
-	if (sscanf($response, "OK counter=%04x low=%04x high=%02x use=%02x", $ret["session_counter"], $ret["low"], $ret["high"], $ret["session_use"]) != 4)
+	if (sscanf($response,
+		'OK counter=%04x low=%04x high=%02x use=%02x',
+		$ret['session_counter'],
+		$ret['low'],
+		$ret['high'],
+		$ret['session_use'] !== 4)
 	{
 		return false;
 	}
