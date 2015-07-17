@@ -209,8 +209,7 @@ if (! $sync->isConnected())
 	sendResp(S_BACKEND_ERROR, $myLog);
 }
 
-$cd = $sync->getClientData($client);
-if (!$cd)
+if (($cd = $sync->getClientData($client)) === FALSE)
 {
 	$myLog->log(LOG_NOTICE, 'Invalid client id ' . $client);
 	sendResp(S_NO_SUCH_CLIENT, $myLog);
