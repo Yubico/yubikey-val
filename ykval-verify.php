@@ -320,20 +320,23 @@ if (!$sync->queue($otpParams, $localParams))
 	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
 }
 
-$nr_servers=$sync->getNumberOfServers();
-$req_answers=ceil($nr_servers*$sl/100.0);
-if ($req_answers>0) {
-  $syncres=$sync->sync($req_answers, $timeout);
-  $nr_answers=$sync->getNumberOfAnswers();
-  $nr_valid_answers=$sync->getNumberOfValidAnswers();
-  $sl_success_rate=floor(100.0 * $nr_valid_answers / $nr_servers);
+$nr_servers = $sync->getNumberOfServers();
+$req_answers = ceil($nr_servers * $sl / 100.0);
+if ($req_answers > 0)
+{
+	$syncres = $sync->sync($req_answers, $timeout);
+	$nr_answers = $sync->getNumberOfAnswers();
+	$nr_valid_answers = $sync->getNumberOfValidAnswers();
+	$sl_success_rate = floor(100.0 * $nr_valid_answers / $nr_servers);
+}
+else
+{
+	$syncres = true;
+	$nr_answers = 0;
+	$nr_valid_answers = 0;
+	$sl_success_rate = 0;
+}
 
- } else {
-  $syncres=true;
-  $nr_answers=0;
-  $nr_valid_answers=0;
-  $sl_success_rate=0;
- }
 $myLog->log(LOG_INFO, "ykval-verify:notice:synclevel=" . $sl .
 	    " nr servers=" . $nr_servers .
 	    " req answers=" . $req_answers .
@@ -342,18 +345,23 @@ $myLog->log(LOG_INFO, "ykval-verify:notice:synclevel=" . $sl .
 	    " sl success rate=" . $sl_success_rate .
 	    " timeout=" . $timeout);
 
-if($syncres==False) {
-  /* sync returned false, indicating that
-   either at least 1 answer marked OTP as invalid or
-   there were not enough answers */
-  $myLog->log(LOG_WARNING, "ykval-verify:notice:Sync failed");
-  if ($nr_valid_answers!=$nr_answers) {
-    sendResp(S_REPLAYED_OTP, $myLog, $apiKey, $extra);
-  } else {
-    $extra['sl']=$sl_success_rate;
-    sendResp(S_NOT_ENOUGH_ANSWERS, $myLog, $apiKey, $extra);
-  }
- }
+if ($syncres == False)
+{
+	/* sync returned false, indicating that
+		either at least 1 answer marked OTP as invalid or
+		there were not enough answers */
+	$myLog->log(LOG_WARNING, "ykval-verify:notice:Sync failed");
+
+	if ($nr_valid_answers != $nr_answers)
+	{
+		sendResp(S_REPLAYED_OTP, $myLog, $apiKey, $extra);
+	}
+	else
+	{
+		$extra['sl'] = $sl_success_rate;
+		sendResp(S_NOT_ENOUGH_ANSWERS, $myLog, $apiKey, $extra);
+	}
+}
 
 /* Recreate parameters to make phising test work out
  TODO: use timefunctionality in deltatime library instead */
@@ -362,9 +370,9 @@ $sessionUse = $otpParams['yk_use'];
 $seenSessionCounter = $localParams['yk_counter'];
 $seenSessionUse = $localParams['yk_use'];
 
-$ad['high']=$localParams['yk_high'];
-$ad['low']=$localParams['yk_low'];
-$ad['accessed']=date('Y-m-d H:i:s', $localParams['modified']);
+$ad['high'] = $localParams['yk_high'];
+$ad['low'] = $localParams['yk_low'];
+$ad['accessed'] = date('Y-m-d H:i:s', $localParams['modified']);
 
 //// Check the time stamp
 //
