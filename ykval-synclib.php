@@ -233,19 +233,19 @@ class SyncLib
 		}
 		$resParams['yk_use']=$out[1];
 
-		preg_match("/^yk_high=(-1|[0-9]+)/m", $str, $out);
+		$i = preg_match("/^yk_high=(-1|[0-9]+)/m", $str, $out);
 		if ($i != 1) {
 			$this->log(LOG_ALERT, "cannot parse high value: $str");
 		}
 		$resParams['yk_high']=$out[1];
 
-		preg_match("/^yk_low=(-1|[0-9]+)/m", $str, $out);
+		$i = preg_match("/^yk_low=(-1|[0-9]+)/m", $str, $out);
 		if ($i != 1) {
 			$this->log(LOG_ALERT, "cannot parse low value: $str");
 		}
 		$resParams['yk_low']=$out[1];
 
-		preg_match("/^nonce=([[:alnum:]]+)/m", $str, $out);
+		$i = preg_match("/^nonce=([[:alnum:]]+)/m", $str, $out);
 		if ($i != 1) {
 			$this->log(LOG_ALERT, "cannot parse counter value: $str");
 		}
