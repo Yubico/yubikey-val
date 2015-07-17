@@ -176,15 +176,15 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 			if ($info['result'] == CURLE_OK)
 			{
 				$str = curl_multi_getcontent($info['handle']);
-				$logger->log(LOG_DEBUG, $ident . " curl multi content : " . $str);
+				$logger->log(LOG_DEBUG, "$ident curl multi content : $str");
 
-				if (preg_match("/".$match."/", $str))
+				if (preg_match("/$match/", $str))
 				{
-					$logger->log(LOG_DEBUG, $ident . " response matches " . $match);
+					$logger->log(LOG_DEBUG, "$ident response matches $match");
 					$error = curl_error($info['handle']);
 					$errno = curl_errno($info['handle']);
 					$cinfo = curl_getinfo($info['handle']);
-					$logger->log(LOG_INFO, $ident . " errno/error: " . $errno . "/" . $error, $cinfo);
+					$logger->log(LOG_INFO, "$ident errno/error: $errno/$error", $cinfo);
 					$ans_count++;
 					if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
 					else $ans_arr[]=$str;
