@@ -307,21 +307,21 @@ class SyncLib
 		return ($p1['yk_counter'] == $p2['yk_counter']) && ($p1['yk_use'] == $p2['yk_use']);
 	}
 
-  public function deleteQueueEntry($answer)
-  {
-    preg_match('/url=(.*)\?/', $answer, $out);
-    $server=$out[1];
+	public function deleteQueueEntry($answer)
+	{
+		preg_match('/url=(.*)\?/', $answer, $out);
+		$server = $out[1];
 
-    $this->log(LOG_INFO, "deleting server=" . $server .
-       " modified=" . $this->otpParams['modified'] .
-       " server_nonce=" . $this->server_nonce);
+		$this->log(LOG_INFO, "deleting server=" . $server .
+				" modified=" . $this->otpParams['modified'] .
+				" server_nonce=" . $this->server_nonce);
 
-    $this->db->deleteByMultiple('queue', array(
-      'modified' => $this->otpParams['modified'],
-      'server_nonce' => $this->server_nonce,
-      'server' => $server
-    ));
-  }
+		$this->db->deleteByMultiple('queue', array(
+			'modified' => $this->otpParams['modified'],
+			'server_nonce' => $this->server_nonce,
+			'server' => $server
+		));
+	}
 
   public function reSync($older_than=60, $timeout)
   {
