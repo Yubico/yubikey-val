@@ -285,14 +285,14 @@ $yk_publicname = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
 $localParams = $sync->getLocalParams($yk_publicname);
 if (!$localParams)
 {
-	$myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
+	$myLog->log(LOG_NOTICE, "Invalid Yubikey $yk_publicname");
 	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
 }
 
 $myLog->log(LOG_DEBUG, "Auth data:", $localParams);
 if ($localParams['active'] != 1)
 {
-	$myLog->log(LOG_NOTICE, 'De-activated Yubikey ' . $yk_publicname);
+	$myLog->log(LOG_NOTICE, "De-activated Yubikey $yk_publicname");
 	sendResp(S_BAD_OTP, $myLog, $apiKey);
 }
 
