@@ -34,114 +34,120 @@ require_once 'ykval-log.php';
 
 class SyncLib
 {
-  public $syncServers = array();
-  public $dbConn = null;
-  public $curlopts = array();
+	public $syncServers = array();
+	public $dbConn = null;
+	public $curlopts = array();
 
-  function __construct($logname='ykval-synclib')
-  {
-    $this->myLog = new Log($logname);
-    global $baseParams;
-    $this->syncServers = $baseParams['__YKVAL_SYNC_POOL__'];
-    $this->db = Db::GetDatabaseHandle($baseParams, $logname);
-    $this->isConnected=$this->db->connect();
-    $this->server_nonce=md5(uniqid(rand()));
+	function __construct($logname='ykval-synclib')
+	{
+		$this->myLog = new Log($logname);
+		global $baseParams;
+		$this->syncServers = $baseParams['__YKVAL_SYNC_POOL__'];
+		$this->db = Db::GetDatabaseHandle($baseParams, $logname);
+		$this->isConnected=$this->db->connect();
+		$this->server_nonce=md5(uniqid(rand()));
 
-    if (array_key_exists('__YKVAL_SYNC_CURL_OPTS__', $baseParams)) {
-      $this->curlopts = $baseParams['__YKVAL_SYNC_CURL_OPTS__'];
-    }
-  }
+		if (array_key_exists('__YKVAL_SYNC_CURL_OPTS__', $baseParams))
+		{
+			$this->curlopts = $baseParams['__YKVAL_SYNC_CURL_OPTS__'];
+		}
+	}
 
-  function addField($name, $value)
-  {
-    $this->myLog->addField($name, $value);
-    $this->db->addField($name, $value);
-  }
+	function addField($name, $value)
+	{
+		$this->myLog->addField($name, $value);
+		$this->db->addField($name, $value);
+	}
 
-  function isConnected()
-  {
-    return $this->isConnected;
-  }
+	function isConnected()
+	{
+		return $this->isConnected;
+	}
 
-  function getClientData($client)
-  {
-    $res = $this->db->customQuery("SELECT id, secret FROM clients WHERE active='1' AND id='" . $client . "'");
-    $r = $this->db->fetchArray($res);
-    $this->db->closeCursor($res);
+	function getClientData($client)
+	{
+		$res = $this->db->customQuery("SELECT id, secret FROM clients WHERE active='1' AND id='" . $client . "'");
+		$r = $this->db->fetchArray($res);
+		$this->db->closeCursor($res);
 
-    if ($r)
-      return $r;
+		if ($r)
+			return $r;
 
-    return false;
-  }
+		return false;
+	}
 
-  public function getQueueLength()
-  {
-    return count($this->db->findBy('queue', null, null, null));
-  }
+	public function getQueueLength()
+	{
+		return count($this->db->findBy('queue', null, null, null));
+	}
 
-  public function createInfoString($otpParams, $localParams)
-  {
-    return 'yk_publicname=' . $otpParams['yk_publicname'] .
-      '&yk_counter=' . $otpParams['yk_counter'] .
-      '&yk_use=' . $otpParams['yk_use'] .
-      '&yk_high=' . $otpParams['yk_high'] .
-      '&yk_low=' . $otpParams['yk_low'] .
-      '&nonce=' . $otpParams['nonce'] .
-      ',local_counter=' . $localParams['yk_counter'] .
-      '&local_use=' . $localParams['yk_use'];
-  }
+	public function createInfoString($otpParams, $localParams)
+	{
+		return 'yk_publicname=' . $otpParams['yk_publicname'] .
+			'&yk_counter=' . $otpParams['yk_counter'] .
+			'&yk_use=' . $otpParams['yk_use'] .
+			'&yk_high=' . $otpParams['yk_high'] .
+			'&yk_low=' . $otpParams['yk_low'] .
+			'&nonce=' . $otpParams['nonce'] .
+			',local_counter=' . $localParams['yk_counter'] .
+			'&local_use=' . $localParams['yk_use'];
+	}
 
-  public function otpParamsFromInfoString($info) {
-    $out=explode(",", $info);
-    parse_str($out[0], $params);
-    return $params;
-  }
+	public function otpParamsFromInfoString($info)
+	{
+		$out = explode(',', $info);
+		parse_str($out[0], $params);
+		return $params;
+	}
 
-  public function otpPartFromInfoString($info) {
-    $out=explode(",", $info);
-    return $out[0];
-  }
+	public function otpPartFromInfoString($info)
+	{
+		$out = explode(',', $info);
+		return $out[0];
+	}
 
-  public function localParamsFromInfoString($info)
-  {
-    $out=explode(",", $info);
-    parse_str($out[1], $params);
-    return array(
-      'yk_counter'=>$params['local_counter'],
-      'yk_use'=>$params['local_use']);
-  }
+	public function localParamsFromInfoString($info)
+	{
+		$out = explode(',', $info);
+		parse_str($out[1], $params);
 
-  public function queue($otpParams, $localParams)
-  {
-    $info = $this->createInfoString($otpParams, $localParams);
-    $this->otpParams = $otpParams;
-    $this->localParams = $localParams;
+		return array(
+			'yk_counter' => $params['local_counter'],
+			'yk_use' => $params['local_use']
+		);
+	}
 
-    $queued=time();
-    $res=True;
+	public function queue($otpParams, $localParams)
+	{
+		$info = $this->createInfoString($otpParams, $localParams);
+		$this->otpParams = $otpParams;
+		$this->localParams = $localParams;
 
-    foreach ($this->syncServers as $server) {
-      $arr = array(
-        'queued' => $queued,
-        'modified' => $otpParams['modified'],
-        'otp' => $otpParams['otp'],
-        'server' => $server,
-        'server_nonce' => $this->server_nonce,
-        'info' => $info
-      );
+		$queued = time();
+		$res = True;
 
-      if (! $this->db->save('queue', $arr))
-        $res=False;
-    }
+		foreach ($this->syncServers as $server)
+		{
+			$arr = array(
+				'queued' => $queued,
+				'modified' => $otpParams['modified'],
+				'otp' => $otpParams['otp'],
+				'server' => $server,
+				'server_nonce' => $this->server_nonce,
+				'info' => $info
+			);
 
-    return $res;
-  }
+			if (! $this->db->save('queue', $arr))
+				$res = False;
+		}
 
-  public function getNumberOfServers()
-  {
-    return count($this->syncServers);
-  }
+		return $res;
+	}
+
+	public function getNumberOfServers()
+	{
+		return count($this->syncServers);
+	}
 
 	public function log($priority, $msg, $params=NULL)
 	{
