@@ -38,7 +38,7 @@ class SyncLib
 	public $dbConn = null;
 	public $curlopts = array();
 
-	function __construct($logname='ykval-synclib')
+	public function __construct($logname='ykval-synclib')
 	{
 		$this->myLog = new Log($logname);
 		global $baseParams;
@@ -53,18 +53,18 @@ class SyncLib
 		}
 	}
 
-	function addField($name, $value)
+	public function addField($name, $value)
 	{
 		$this->myLog->addField($name, $value);
 		$this->db->addField($name, $value);
 	}
 
-	function isConnected()
+	public function isConnected()
 	{
 		return $this->isConnected;
 	}
 
-	function getClientData($client)
+	public function getClientData($client)
 	{
 		$res = $this->db->customQuery("SELECT id, secret FROM clients WHERE active='1' AND id='" . $client . "'");
 		$r = $this->db->fetchArray($res);
