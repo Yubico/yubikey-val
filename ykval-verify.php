@@ -374,41 +374,48 @@ $ad['high'] = $localParams['yk_high'];
 $ad['low'] = $localParams['yk_low'];
 $ad['accessed'] = date('Y-m-d H:i:s', $localParams['modified']);
 
-//// Check the time stamp
-//
-if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse) {
-  $ts = ($otpinfo['high'] << 16) + $otpinfo['low'];
-  $seenTs = ($ad['high'] << 16) + $ad['low'];
-  $tsDiff = $ts - $seenTs;
-  $tsDelta = $tsDiff * TS_SEC;
+// check the time stamp
+if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
+{
+	$ts = ($otpinfo['high'] << 16) + $otpinfo['low'];
+	$seenTs = ($ad['high'] << 16) + $ad['low'];
+	$tsDiff = $ts - $seenTs;
+	$tsDelta = $tsDiff * TS_SEC;
 
-  //// Check the real time
-  //
-  $lastTime = strtotime($ad['accessed']);
-  $now = time();
-  $elapsed = $now - $lastTime;
-  $deviation = abs($elapsed - $tsDelta);
+	// check the real time
+	$lastTime = strtotime($ad['accessed']);
+	$now = time();
+	$elapsed = $now - $lastTime;
+	$deviation = abs($elapsed - $tsDelta);
 
-  // Time delta server might verify multiple OTPS in a row. In such case validation server doesn't
-  // have time to tick a whole second and we need to avoid division by zero.
-  if ($elapsed != 0) {
-    $percent = $deviation/$elapsed;
-  } else {
-    $percent = 1;
-  }
-  $myLog->log(LOG_INFO, "Timestamp seen=" . $seenTs . " this=" . $ts .
-	      " delta=" . $tsDiff . ' secs=' . $tsDelta .
-	      ' accessed=' . $lastTime .' (' . $ad['accessed'] . ') now='
-	      . $now . ' (' . strftime("%Y-%m-%d %H:%M:%S", $now)
-	      . ') elapsed=' . $elapsed .
-	      ' deviation=' . $deviation . ' secs or '.
-	      round(100*$percent) . '%');
-  if ($deviation > TS_ABS_TOLERANCE && $percent > TS_REL_TOLERANCE) {
-    $myLog->log(LOG_NOTICE, "OTP failed phishing test");
-    if (0) {
-      sendResp(S_DELAYED_OTP, $myLog, $apiKey, $extra);
-    }
-  }
+	// Time delta server might verify multiple OTPS in a row. In such case validation server doesn't
+	// have time to tick a whole second and we need to avoid division by zero.
+	if ($elapsed != 0)
+	{
+		$percent = $deviation/$elapsed;
+	}
+	else
+	{
+		$percent = 1;
+	}
+
+	$myLog->log(LOG_INFO, "Timestamp seen=" . $seenTs . " this=" . $ts .
+			" delta=" . $tsDiff . ' secs=' . $tsDelta .
+			' accessed=' . $lastTime .' (' . $ad['accessed'] . ') now='
+			. $now . ' (' . strftime("%Y-%m-%d %H:%M:%S", $now)
+			. ') elapsed=' . $elapsed .
+			' deviation=' . $deviation . ' secs or '.
+			round(100*$percent) . '%');
+
+	if ($deviation > TS_ABS_TOLERANCE && $percent > TS_REL_TOLERANCE)
+	{
+		$myLog->log(LOG_NOTICE, "OTP failed phishing test");
+
+		if (0)
+		{
+			sendResp(S_DELAYED_OTP, $myLog, $apiKey, $extra);
+		}
+	}
 }
 
 /* Fill up with more respone parameters */
