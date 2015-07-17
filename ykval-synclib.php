@@ -204,11 +204,9 @@ class SyncLib
 			$this->log(LOG_INFO, "yubikey found in db ", $localParams);
 			return $localParams;
 		}
-		else
-		{
-			$this->log(LOG_NOTICE, "params for yk_publicname $yk_publicname not found in database");
-			return false;
-		}
+
+		$this->log(LOG_NOTICE, "params for yk_publicname $yk_publicname not found in database");
+		return false;
 	}
 
   private function parseParamsFromMultiLineString($str)
