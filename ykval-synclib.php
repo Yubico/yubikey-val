@@ -246,6 +246,7 @@ class SyncLib
 		return ($p1['yk_counter'] == $p2['yk_counter']) && ($p1['yk_use'] == $p2['yk_use']);
 	}
 
+	// queue daemon
 	public function reSync($older_than=60, $timeout)
 	{
 		$this->log(LOG_DEBUG, 'starting resync');
@@ -380,6 +381,7 @@ class SyncLib
 		return true;
 	}
 
+	// blocks verify requests
 	public function sync($ans_req, $timeout=1)
 	{
 		// construct URLs
