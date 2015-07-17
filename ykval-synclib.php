@@ -247,7 +247,7 @@ class SyncLib
 
 		$i = preg_match("/^nonce=([[:alnum:]]+)/m", $str, $out);
 		if ($i != 1) {
-			$this->log(LOG_ALERT, "cannot parse counter value: $str");
+			$this->log(LOG_ALERT, "cannot parse nonce value: $str");
 		}
 		$resParams['nonce']=$out[1];
 
