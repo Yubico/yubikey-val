@@ -274,15 +274,13 @@ class SyncLib
 				$this->log(LOG_CRIT, 'failed to update internal DB with new counters');
 				return false;
 			}
-			else
-			{
-				if ($this->db->rowCount() > 0)
-					$this->log(LOG_INFO, 'updated database ', $params);
-				else
-					$this->log(LOG_INFO, 'database not updated', $params);
 
-				return true;
-			}
+			if ($this->db->rowCount() > 0)
+				$this->log(LOG_INFO, 'updated database ', $params);
+			else
+				$this->log(LOG_INFO, 'database not updated', $params);
+
+			return true;
 		}
 
 		return false;
