@@ -54,7 +54,7 @@ else
 
 $myLog->log(LOG_INFO, $query_string .
 		" (at " . date("c") . " " . microtime() . ") " .
-		(isset($_SERVER["HTTPS"])  && $_SERVER["HTTPS"] == "on" ? "HTTPS" : "HTTP"));
+		(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? "HTTPS" : "HTTP"));
 
 /* Detect protocol version */
 if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out))
@@ -199,7 +199,7 @@ if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100)))
 
 
 /* Initialize the sync library. Strive to use this instead of custom
-   DB requests, custom comparisons etc */
+	DB requests, custom comparisons etc */
 $sync = new SyncLib('ykval-verify:synclib');
 $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
 $sync->addField('otp', $otp);
@@ -221,25 +221,33 @@ $myLog->log(LOG_DEBUG,"Client data:", $cd);
 //
 $apiKey = base64_decode($cd['secret']);
 
-if ($h != '') {
-  // Create the signature using the API key
-  $a;
-  if($_GET) {
-    $a = $_GET;
-  } elseif($_POST) {
-    $a = $_POST;
-  } else {
-    sendRest(S_BACKEND_ERROR);
-    exit;
-  }
-  unset($a['h']);
+if ($h != '')
+{
+	// Create the signature using the API key
+	$a;
+	if ($_GET)
+	{
+		$a = $_GET;
+	}
+	elseif ($_POST)
+	{
+		$a = $_POST;
+	}
+	else
+	{
+		sendRest(S_BACKEND_ERROR);
+		exit;
+	}
+	unset($a['h']);
 
-  $hmac = sign($a, $apiKey, $myLog);
-  // Compare it
-  if (!hash_equals($hmac, $h)) {
-    $myLog->log(LOG_DEBUG, 'client hmac=' . $h . ', server hmac=' . $hmac);
-    sendResp(S_BAD_SIGNATURE, $myLog, $apiKey);
-  }
+	$hmac = sign($a, $apiKey, $myLog);
+
+	// Compare it
+	if (!hash_equals($hmac, $h))
+	{
+		$myLog->log(LOG_DEBUG, 'client hmac=' . $h . ', server hmac=' . $hmac);
+		sendResp(S_BAD_SIGNATURE, $myLog, $apiKey);
+	}
 }
 
 /* We need to add necessary parameters not available at earlier protocols after signature is computed.
