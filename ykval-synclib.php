@@ -143,24 +143,24 @@ class SyncLib
     return count($this->syncServers);
   }
 
-  public function log($priority, $msg, $params=NULL)
-  {
-    $logMsg=$msg;
+	public function log($priority, $msg, $params=NULL)
+	{
+		$logMsg = $msg;
 
-    if ($params)
-      $logMsg .= ' modified=' . $params['modified'] .
-                 ' nonce=' . $params['nonce'] .
-                 ' yk_publicname=' . $params['yk_publicname'] .
-                 ' yk_counter=' . $params['yk_counter'] .
-                 ' yk_use=' . $params['yk_use'] .
-                 ' yk_high=' . $params['yk_high'] .
-                 ' yk_low=' . $params['yk_low'];
+		if ($params)
+			$logMsg .= ' modified=' . $params['modified'] .
+						' nonce=' . $params['nonce'] .
+						' yk_publicname=' . $params['yk_publicname'] .
+						' yk_counter=' . $params['yk_counter'] .
+						' yk_use=' . $params['yk_use'] .
+						' yk_high=' . $params['yk_high'] .
+						' yk_low=' . $params['yk_low'];
 
-    if ($this->myLog)
-      $this->myLog->log($priority, $logMsg);
-    else
-      error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $logMsg);
-  }
+		if ($this->myLog)
+			$this->myLog->log($priority, $logMsg);
+		else
+			error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $logMsg);
+	}
 
 	public function getLocalParams($yk_publicname)
 	{
