@@ -162,7 +162,7 @@ class SyncLib
       error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $logMsg);
   }
 
-	function getLocalParams($yk_publicname)
+	public function getLocalParams($yk_publicname)
 	{
 		$this->log(LOG_DEBUG, "searching for yk_publicname $yk_publicname in local db");
 
