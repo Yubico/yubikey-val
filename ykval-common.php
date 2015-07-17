@@ -148,71 +148,75 @@ function curl_opt_name($opt)
 // long as one of the URLs given work, data will be returned.  If all
 // URLs fail, data from some URL that did not match parameter $match
 // (defaults to ^OK) is returned, or if all URLs failed, false.
-function retrieveURLasync ($ident, $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10, $curlopts) {
-  $mh = curl_multi_init();
+function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10, $curlopts)
+{
+	$mh = curl_multi_init();
+	$ch = array();
 
-  $ch = array();
-  foreach ($urls as $id => $url) {
-    $handle = curl_init();
-
-    curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts);
-
-    curl_multi_add_handle($mh, $handle);
-
-    $ch[$handle] = $handle;
-  }
-
-  $str = false;
-  $ans_count = 0;
-  $ans_arr = array();
-
-  do {
-    while (($mrc = curl_multi_exec($mh, $active)) == CURLM_CALL_MULTI_PERFORM)
-      ;
-
-    while ($info = curl_multi_info_read($mh)) {
-      $logger->log(LOG_DEBUG, $ident . " curl multi info : ", $info);
-      if ($info['result'] == CURLE_OK) {
-	$str = curl_multi_getcontent($info['handle']);
-	$logger->log(LOG_DEBUG, $ident . " curl multi content : " . $str);
-	if (preg_match("/".$match."/", $str)) {
-	  $logger->log(LOG_DEBUG, $ident . " response matches " . $match);
-	  $error = curl_error ($info['handle']);
-	  $errno = curl_errno ($info['handle']);
-	  $cinfo = curl_getinfo ($info['handle']);
-	  $logger->log(LOG_INFO, $ident . " errno/error: " . $errno . "/" . $error, $cinfo);
-	  $ans_count++;
-	  if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
-	  else $ans_arr[]=$str;
+	foreach ($urls as $id => $url)
+	{
+		$handle = curl_init();
+		curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts);
+		curl_multi_add_handle($mh, $handle);
+		$ch[$handle] = $handle;
 	}
 
-	if ($ans_count >= $ans_req) {
-	  foreach ($ch as $h) {
-	    curl_multi_remove_handle ($mh, $h);
-	    curl_close ($h);
-	  }
-	  curl_multi_close ($mh);
+	$str = false;
+	$ans_count = 0;
+	$ans_arr = array();
 
-	  return $ans_arr;
+	do
+	{
+		while (($mrc = curl_multi_exec($mh, $active)) == CURLM_CALL_MULTI_PERFORM);
+
+		while ($info = curl_multi_info_read($mh))
+		{
+			$logger->log(LOG_DEBUG, $ident . " curl multi info : ", $info);
+
+			if ($info['result'] == CURLE_OK)
+			{
+				$str = curl_multi_getcontent($info['handle']);
+				$logger->log(LOG_DEBUG, $ident . " curl multi content : " . $str);
+				if (preg_match("/".$match."/", $str)) {
+					$logger->log(LOG_DEBUG, $ident . " response matches " . $match);
+					$error = curl_error ($info['handle']);
+					$errno = curl_errno ($info['handle']);
+					$cinfo = curl_getinfo ($info['handle']);
+					$logger->log(LOG_INFO, $ident . " errno/error: " . $errno . "/" . $error, $cinfo);
+					$ans_count++;
+					if ($returl) $ans_arr[]="url=" . $cinfo['url'] . "\n" . $str;
+					else $ans_arr[]=$str;
+				}
+
+				if ($ans_count >= $ans_req) {
+					foreach ($ch as $h) {
+						curl_multi_remove_handle ($mh, $h);
+						curl_close ($h);
+					}
+					curl_multi_close ($mh);
+
+					return $ans_arr;
+				}
+
+				curl_multi_remove_handle ($mh, $info['handle']);
+				curl_close ($info['handle']);
+				unset ($ch[$info['handle']]);
+			}
+
+			curl_multi_select ($mh);
+		}
 	}
+	while($active);
 
-	curl_multi_remove_handle ($mh, $info['handle']);
-	curl_close ($info['handle']);
-	unset ($ch[$info['handle']]);
-      }
+	foreach ($ch as $h)
+	{
+		curl_multi_remove_handle ($mh, $h);
+		curl_close ($h);
+	}
+	curl_multi_close ($mh);
 
-      curl_multi_select ($mh);
-    }
-  } while($active);
-
-  foreach ($ch as $h) {
-    curl_multi_remove_handle ($mh, $h);
-    curl_close ($h);
-  }
-  curl_multi_close ($mh);
-
-  if ($ans_count>0) return $ans_arr;
-  return $str;
+	if ($ans_count>0) return $ans_arr;
+	return $str;
 }
 
 function KSMdecryptOTP($urls, $logger, $curlopts)
