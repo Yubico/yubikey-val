@@ -153,7 +153,7 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 	$mh = curl_multi_init();
 	$ch = array();
 
-	foreach ($urls as $id => $url)
+	foreach ($urls as $url)
 	{
 		$handle = curl_init();
 		curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts);
