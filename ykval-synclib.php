@@ -227,7 +227,10 @@ class SyncLib
 
 	public function countersHigherThan($p1, $p2)
 	{
-		if ($p1['yk_counter'] > $p2['yk_counter'] || ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] > $p2['yk_use']))
+		if ($p1['yk_counter'] > $p2['yk_counter'])
+			return true;
+
+		if ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] > $p2['yk_use'])
 			return true;
 
 		return false;
@@ -235,7 +238,10 @@ class SyncLib
 
 	public function countersHigherThanOrEqual($p1, $p2)
 	{
-		if ($p1['yk_counter'] > $p2['yk_counter'] || ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] >= $p2['yk_use']))
+		if ($p1['yk_counter'] > $p2['yk_counter'])
+			return true;
+
+		if ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] >= $p2['yk_use'])
 			return true;
 
 		return false;
@@ -243,7 +249,7 @@ class SyncLib
 
 	public function countersEqual($p1, $p2)
 	{
-		return ($p1['yk_counter'] == $p2['yk_counter']) && ($p1['yk_use'] == $p2['yk_use']);
+		return ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] == $p2['yk_use']);
 	}
 
 	// queue daemon
