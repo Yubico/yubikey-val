@@ -116,8 +116,7 @@ foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param
 
 // get local counter data
 $yk_publicname = $syncParams['yk_publicname'];
-$localParams = $sync->getLocalParams($yk_publicname);
-if (!$localParams)
+if (($localParams = $sync->getLocalParams($yk_publicname)) === FALSE)
 {
 	$myLog->log(LOG_NOTICE, 'Invalid Yubikey ' . $yk_publicname);
 	sendResp(S_BACKEND_ERROR, $myLog);

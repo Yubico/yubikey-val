@@ -282,8 +282,7 @@ $myLog->log(LOG_DEBUG, "Decrypted OTP:", $otpinfo);
 
 // get Yubikey from DB
 $yk_publicname = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
-$localParams = $sync->getLocalParams($yk_publicname);
-if (!$localParams)
+if (($localParams = $sync->getLocalParams($yk_publicname)) === FALSE)
 {
 	$myLog->log(LOG_NOTICE, "Invalid Yubikey $yk_publicname");
 	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
