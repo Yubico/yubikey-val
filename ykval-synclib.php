@@ -286,25 +286,26 @@ class SyncLib
 		return false;
 	}
 
-  public function countersHigherThan($p1, $p2)
-  {
-    if ($p1['yk_counter'] > $p2['yk_counter'] || ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] > $p2['yk_use']))
-      return true;
+	public function countersHigherThan($p1, $p2)
+	{
+		if ($p1['yk_counter'] > $p2['yk_counter'] || ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] > $p2['yk_use']))
+			return true;
 
-    return false;
-  }
+		return false;
+	}
 
-  public function countersHigherThanOrEqual($p1, $p2)
-  {
-    if ($p1['yk_counter'] > $p2['yk_counter'] || ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] >= $p2['yk_use']))
-      return true;
+	public function countersHigherThanOrEqual($p1, $p2)
+	{
+		if ($p1['yk_counter'] > $p2['yk_counter'] || ($p1['yk_counter'] == $p2['yk_counter'] && $p1['yk_use'] >= $p2['yk_use']))
+			return true;
 
-    return false;
-  }
+		return false;
+	}
 
-  public function countersEqual($p1, $p2) {
-    return ($p1['yk_counter']==$p2['yk_counter']) && ($p1['yk_use']==$p2['yk_use']);
-  }
+	public function countersEqual($p1, $p2)
+	{
+		return ($p1['yk_counter'] == $p2['yk_counter']) && ($p1['yk_use'] == $p2['yk_use']);
+	}
 
   public function deleteQueueEntry($answer)
   {
@@ -544,19 +545,19 @@ class SyncLib
 		return false;
 	}
 
-  public function getNumberOfValidAnswers()
-  {
-    if (isset($this->valid_answers))
-      return $this->valid_answers;
+	public function getNumberOfValidAnswers()
+	{
+		if (isset($this->valid_answers))
+			return $this->valid_answers;
 
-    return 0;
-  }
+		return 0;
+	}
 
-  public function getNumberOfAnswers()
-  {
-    if (isset($this->answers))
-      return $this->answers;
+	public function getNumberOfAnswers()
+	{
+		if (isset($this->answers))
+			return $this->answers;
 
-    return 0;
-  }
+		return 0;
+	}
 }
