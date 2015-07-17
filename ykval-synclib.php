@@ -454,9 +454,9 @@ class SyncLib
     */
     $ans_arr = retrieveURLasync('YK-VAL sync', $urls, $this->myLog, $ans_req, $match='status=OK', $returl=True, $timeout, $this->curlopts);
 
-    if (!is_array($ans_arr)) {
+    if ($ans_arr === FALSE) {
       $this->log(LOG_WARNING, 'No responses from validation server pool');
-      $ans_arr=array();
+      $ans_arr = array();
     }
 
     /*
