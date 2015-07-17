@@ -167,7 +167,7 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 
 	do
 	{
-		while (($mrc = curl_multi_exec($mh, $active)) == CURLM_CALL_MULTI_PERFORM);
+		while (curl_multi_exec($mh, $active) == CURLM_CALL_MULTI_PERFORM);
 
 		while ($info = curl_multi_info_read($mh))
 		{
