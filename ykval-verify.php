@@ -53,11 +53,14 @@ $myLog->log(LOG_INFO, $query_string .
 	    (isset($_SERVER["HTTPS"])  && $_SERVER["HTTPS"] == "on" ? "HTTPS" : "HTTP"));
 
 /* Detect protocol version */
-if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out)) {
-  $protocol_version=$out[1]+$out[2]*0.1;
- } else {
-  $protocol_version=1.0;
- }
+if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out))
+{
+	$protocol_version=$out[1]+$out[2]*0.1;
+}
+else
+{
+	$protocol_version=1.0;
+}
 
 $myLog->log(LOG_DEBUG, "found protocol version " . $protocol_version);
 
@@ -67,36 +70,40 @@ $h = getHttpVal('h', '');
 $client = getHttpVal('id', 0);
 $otp = getHttpVal('otp', '');
 $otp = strtolower($otp);
-if (preg_match("/^[jxe.uidchtnbpygk]+$/", $otp)) {
-  $new_otp = strtr($otp, "jxe.uidchtnbpygk", "cbdefghijklnrtuv");
-  $myLog->log(LOG_INFO, 'Dvorak OTP converting ' . $otp . ' to ' . $new_otp);
-  $otp = $new_otp;
+if (preg_match("/^[jxe.uidchtnbpygk]+$/", $otp))
+{
+	$new_otp = strtr($otp, "jxe.uidchtnbpygk", "cbdefghijklnrtuv");
+	$myLog->log(LOG_INFO, 'Dvorak OTP converting ' . $otp . ' to ' . $new_otp);
+	$otp = $new_otp;
 }
 $timestamp = getHttpVal('timestamp', 0);
 
 /* Construct response parameters */
-$extra=array();
-if ($protocol_version>=2.0) {
-  $extra['otp']=$otp;
+$extra = array();
+if ($protocol_version >= 2.0)
+{
+	$extra['otp']=$otp;
 }
 
 
 /* We have the OTP now, so let's add it to the logging */
 $myLog->addField('otp', $otp);
 
-if ($protocol_version>=2.0) {
-  $sl = getHttpVal('sl', '');
-  $timeout = getHttpVal('timeout', '');
-  $nonce = getHttpVal('nonce', '');
+if ($protocol_version >= 2.0)
+{
+	$sl = getHttpVal('sl', '');
+	$timeout = getHttpVal('timeout', '');
+	$nonce = getHttpVal('nonce', '');
 
-  /* Add nonce to response parameters */
-  $extra['nonce']= $nonce;
+	/* Add nonce to response parameters */
+	$extra['nonce']= $nonce;
 
-  /* Nonce is required from protocol 2.0 */
-  if(!$nonce) {
-    $myLog->log(LOG_NOTICE, 'Nonce is missing and protocol version >= 2.0');
-    sendResp(S_MISSING_PARAMETER, $myLog);
-  }
+	/* Nonce is required from protocol 2.0 */
+	if (!$nonce)
+	{
+		$myLog->log(LOG_NOTICE, 'Nonce is missing and protocol version >= 2.0');
+		sendResp(S_MISSING_PARAMETER, $myLog);
+	}
 }
 
 
@@ -180,15 +187,17 @@ $sync = new SyncLib('ykval-verify:synclib');
 $sync->addField('ip', $_SERVER['REMOTE_ADDR']);
 $sync->addField('otp', $otp);
 
-if (! $sync->isConnected()) {
-  sendResp(S_BACKEND_ERROR, $myLog);
- }
+if (! $sync->isConnected())
+{
+	sendResp(S_BACKEND_ERROR, $myLog);
+}
 
-$cd=$sync->getClientData($client);
-if(!$cd) {
-  $myLog->log(LOG_NOTICE, 'Invalid client id ' . $client);
-  sendResp(S_NO_SUCH_CLIENT, $myLog);
- }
+$cd = $sync->getClientData($client);
+if (!$cd)
+{
+	$myLog->log(LOG_NOTICE, 'Invalid client id ' . $client);
+	sendResp(S_NO_SUCH_CLIENT, $myLog);
+}
 $myLog->log(LOG_DEBUG,"Client data:", $cd);
 
 //// Check client signature
