@@ -162,47 +162,54 @@ class SyncLib
       error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $logMsg);
   }
 
-  function getLocalParams($yk_publicname)
-  {
-    $this->log(LOG_DEBUG, "searching for yk_publicname $yk_publicname in local db");
-    $res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname, 1);
+	function getLocalParams($yk_publicname)
+	{
+		$this->log(LOG_DEBUG, "searching for yk_publicname $yk_publicname in local db");
 
-    if (!$res) {
-      $this->log(LOG_NOTICE, "Discovered new identity $yk_publicname");
-      $this->db->save('yubikeys', array(
-        'active'=>1,
-        'created'=>time(),
-        'modified'=>-1,
-        'yk_publicname'=>$yk_publicname,
-        'yk_counter'=>-1,
-        'yk_use'=>-1,
-        'yk_low'=>-1,
-        'yk_high'=>-1,
-        'nonce'=> '0000000000000000',
-        'notes'=>''
-      ));
-      $res=$this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname,1);
-    }
+		$res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname, 1);
 
-    if ($res) {
-      $localParams = array(
-        'modified' => $res['modified'],
-        'nonce' => $res['nonce'],
-        'active' => $res['active'],
-        'yk_publicname' => $yk_publicname,
-        'yk_counter' => $res['yk_counter'],
-        'yk_use' => $res['yk_use'],
-        'yk_high' => $res['yk_high'],
-        'yk_low' => $res['yk_low']
-      );
+		if (!$res)
+		{
+			$this->log(LOG_NOTICE, "Discovered new identity $yk_publicname");
 
-      $this->log(LOG_INFO, "yubikey found in db ", $localParams);
-      return $localParams;
-    } else {
-      $this->log(LOG_NOTICE, "params for yk_publicname $yk_publicname not found in database");
-      return false;
-    }
-  }
+			$this->db->save('yubikeys', array(
+				'active' => 1,
+				'created' => time(),
+				'modified' => -1,
+				'yk_publicname' => $yk_publicname,
+				'yk_counter' => -1,
+				'yk_use' => -1,
+				'yk_low' => -1,
+				'yk_high' => -1,
+				'nonce' => '0000000000000000',
+				'notes' => ''
+			));
+
+			$res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname, 1);
+		}
+
+		if ($res)
+		{
+			$localParams = array(
+				'modified' => $res['modified'],
+				'nonce' => $res['nonce'],
+				'active' => $res['active'],
+				'yk_publicname' => $yk_publicname,
+				'yk_counter' => $res['yk_counter'],
+				'yk_use' => $res['yk_use'],
+				'yk_high' => $res['yk_high'],
+				'yk_low' => $res['yk_low']
+			);
+
+			$this->log(LOG_INFO, "yubikey found in db ", $localParams);
+			return $localParams;
+		}
+		else
+		{
+			$this->log(LOG_NOTICE, "params for yk_publicname $yk_publicname not found in database");
+			return false;
+		}
+	}
 
   private function parseParamsFromMultiLineString($str)
   {
