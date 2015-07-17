@@ -164,11 +164,11 @@ class SyncLib
 
   function getLocalParams($yk_publicname)
   {
-    $this->log(LOG_DEBUG, "searching for yk_publicname " . $yk_publicname . " in local db");
+    $this->log(LOG_DEBUG, "searching for yk_publicname $yk_publicname in local db");
     $res = $this->db->findBy('yubikeys', 'yk_publicname', $yk_publicname, 1);
 
     if (!$res) {
-      $this->log(LOG_NOTICE, 'Discovered new identity ' . $yk_publicname);
+      $this->log(LOG_NOTICE, "Discovered new identity $yk_publicname");
       $this->db->save('yubikeys', array(
         'active'=>1,
         'created'=>time(),
@@ -199,7 +199,7 @@ class SyncLib
       $this->log(LOG_INFO, "yubikey found in db ", $localParams);
       return $localParams;
     } else {
-      $this->log(LOG_NOTICE, 'params for yk_publicname ' . $yk_publicname . ' not found in database');
+      $this->log(LOG_NOTICE, "params for yk_publicname $yk_publicname not found in database");
       return false;
     }
   }
