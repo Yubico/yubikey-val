@@ -145,10 +145,8 @@ class SyncLib
 
 	public function log($priority, $msg, $params=NULL)
 	{
-		$logMsg = $msg;
-
 		if ($params)
-			$logMsg .= ' modified=' . $params['modified'] .
+			$msg .= ' modified=' . $params['modified'] .
 						' nonce=' . $params['nonce'] .
 						' yk_publicname=' . $params['yk_publicname'] .
 						' yk_counter=' . $params['yk_counter'] .
@@ -157,9 +155,9 @@ class SyncLib
 						' yk_low=' . $params['yk_low'];
 
 		if ($this->myLog)
-			$this->myLog->log($priority, $logMsg);
+			$this->myLog->log($priority, $msg);
 		else
-			error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $logMsg);
+			error_log("Warning: myLog uninitialized in ykval-synclib.php. Message is " . $msg);
 	}
 
 	public function getLocalParams($yk_publicname)
