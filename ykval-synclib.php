@@ -83,6 +83,7 @@ class SyncLib
 
 	public function createInfoString($otpParams, $localParams)
 	{
+		# FIXME &local_counter
 		return 'yk_publicname=' . $otpParams['yk_publicname'] .
 			'&yk_counter=' . $otpParams['yk_counter'] .
 			'&yk_use=' . $otpParams['yk_use'] .
