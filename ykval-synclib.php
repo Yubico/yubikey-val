@@ -207,52 +207,52 @@ class SyncLib
 		return false;
 	}
 
-  private function parseParamsFromMultiLineString($str)
-  {
-      $i = preg_match("/^modified=(-1|[0-9]+)/m", $str, $out);
-      if ($i != 1) {
-        $this->log(LOG_ALERT, "cannot parse modified value: $str");
-      }
-      $resParams['modified']=$out[1];
+	private function parseParamsFromMultiLineString($str)
+	{
+		$i = preg_match("/^modified=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse modified value: $str");
+		}
+		$resParams['modified']=$out[1];
 
-      $i = preg_match("/^yk_publicname=([cbdefghijklnrtuv]+)/m", $str, $out);
-      if ($i != 1) {
-        $this->log(LOG_ALERT, "cannot parse publicname value: $str");
-      }
-      $resParams['yk_publicname']=$out[1];
+		$i = preg_match("/^yk_publicname=([cbdefghijklnrtuv]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse publicname value: $str");
+		}
+		$resParams['yk_publicname']=$out[1];
 
-      $i = preg_match("/^yk_counter=(-1|[0-9]+)/m", $str, $out);
-      if ($i != 1) {
-        $this->log(LOG_ALERT, "cannot parse counter value: $str");
-      }
-      $resParams['yk_counter']=$out[1];
+		$i = preg_match("/^yk_counter=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse counter value: $str");
+		}
+		$resParams['yk_counter']=$out[1];
 
-      $i = preg_match("/^yk_use=(-1|[0-9]+)/m", $str, $out);
-      if ($i != 1) {
-        $this->log(LOG_ALERT, "cannot parse use value: $str");
-      }
-      $resParams['yk_use']=$out[1];
+		$i = preg_match("/^yk_use=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse use value: $str");
+		}
+		$resParams['yk_use']=$out[1];
 
-      preg_match("/^yk_high=(-1|[0-9]+)/m", $str, $out);
-      if ($i != 1) {
-        $this->log(LOG_ALERT, "cannot parse high value: $str");
-      }
-      $resParams['yk_high']=$out[1];
+		preg_match("/^yk_high=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse high value: $str");
+		}
+		$resParams['yk_high']=$out[1];
 
-      preg_match("/^yk_low=(-1|[0-9]+)/m", $str, $out);
-      if ($i != 1) {
-        $this->log(LOG_ALERT, "cannot parse low value: $str");
-      }
-      $resParams['yk_low']=$out[1];
+		preg_match("/^yk_low=(-1|[0-9]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse low value: $str");
+		}
+		$resParams['yk_low']=$out[1];
 
-      preg_match("/^nonce=([[:alnum:]]+)/m", $str, $out);
-      if ($i != 1) {
-        $this->log(LOG_ALERT, "cannot parse counter value: $str");
-      }
-      $resParams['nonce']=$out[1];
+		preg_match("/^nonce=([[:alnum:]]+)/m", $str, $out);
+		if ($i != 1) {
+			$this->log(LOG_ALERT, "cannot parse counter value: $str");
+		}
+		$resParams['nonce']=$out[1];
 
-      return $resParams;
-  }
+		return $resParams;
+	}
 
 	public function updateDbCounters($params)
 	{
