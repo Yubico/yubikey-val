@@ -40,6 +40,8 @@ if (file_exists($dbfile) && @is_readable($dbfile))
 }
 else
 {
+	// FIXME hostname
+	// FIXME port
 	// 'oci:oracledb' for Oracle DB (with OCI library)
 	$dbtype = 'mysql';
 	$dbuser = 'ykval_verifier';
