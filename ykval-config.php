@@ -36,10 +36,7 @@ else
 {
 	$dbuser='ykval_verifier';
 	$dbpass='yourpassword';
-	$basepath='';
 	$dbname='ykval';
-	$dbserver='';
-	$dbport='';
 	$dbtype='mysql';
 }
 
