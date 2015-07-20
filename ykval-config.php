@@ -41,58 +41,58 @@ else
 	$dbname = 'ykval';
 }
 
-# for the validation interface.
+// for the validation interface.
 $baseParams = array ();
 $baseParams['__YKVAL_DB_DSN__'] = "$dbtype:dbname=$dbname;host=127.0.0.1";
 $baseParams['__YKVAL_DB_USER__'] = $dbuser;
 $baseParams['__YKVAL_DB_PW__'] = $dbpass;
 $baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
 
-# for the validation server sync
+// for the validation server sync
 $baseParams['__YKVAL_SYNC_POOL__'] = array(
 	// "https://api2.example.com/wsapi/2.0/sync",
 	// "https://api3.example.com/wsapi/2.0/sync",
 	// "https://api4.example.com/wsapi/2.0/sync",
 );
 
-# An array of IP addresses allowed to issue sync requests
-# NOTE: You must use IP addresses here.
+// an array of IP addresses allowed to issue sync requests
+// NOTE: You must use IP addresses here
 $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array(
 	// "1.2.3.4",
 	// "2.3.4.5",
 	// "3.4.5.6",
 );
 
-# An array of IP addresses allowed to issue YubiKey activation/deactivation
-# requests through ykval-revoke.php. NOTE: You must use IP addresses here.
+// An array of IP addresses allowed to issue YubiKey activation/deactivation
+// requests through ykval-revoke.php. NOTE: You must use IP addresses here.
 $baseParams['__YKREV_IPS__'] = array(/*"127.0.0.1"*/);
-# An array of IP addresses allowed to issue database resync requests through
-# ykval-resync.php. NOTE: You must use IP addresses here.
-#$baseParams['__YKRESYNC_IPS__'] = array("127.0.0.1");
-#Use the same as for issuing sync requests:
+// An array of IP addresses allowed to issue database resync requests through
+// ykval-resync.php. NOTE: You must use IP addresses here.
+// $baseParams['__YKRESYNC_IPS__'] = array("127.0.0.1");
+// Use the same as for issuing sync requests:
 $baseParams['__YKRESYNC_IPS__'] = $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'];
 
-# Specify how often the sync daemon awakens
+// Specify how often the sync daemon awakens
 $baseParams['__YKVAL_SYNC_INTERVAL__'] = 10;
-# Specify how long the sync daemon will wait for response
+// Specify how long the sync daemon will wait for response
 $baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__'] = 30;
-# Specify how old entries in the database should be considered aborted attempts
+// Specify how old entries in the database should be considered aborted attempts
 $baseParams['__YKVAL_SYNC_OLD_LIMIT__'] = 10;
 
-# These are settings for the validation server.
+// These are settings for the validation server.
 $baseParams['__YKVAL_SYNC_FAST_LEVEL__'] = 1;
 $baseParams['__YKVAL_SYNC_SECURE_LEVEL__'] = 40;
 $baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'] = 60;
 $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
 
-# A key -> value array with curl options to set
-#  when calling URLs defined in __YKVAL_SYNC_POOL__
+// A key -> value array with curl options to set
+//  when calling URLs defined in __YKVAL_SYNC_POOL__
 $baseParams['__YKVAL_SYNC_CURL_OPTS__'] = array(
 	//CURLOPT_PROTOCOLS => CURLPROTO_HTTP,
 );
 
-# A key -> value array with curl options to set
-#  when calling URLs returned by otp2ksmurls()
+// A key -> value array with curl options to set
+//  when calling URLs returned by otp2ksmurls()
 $baseParams['__YKVAL_KSM_CURL_OPTS__'] = array(
 	//CURLOPT_PROTOCOLS => CURLPROTO_HTTP,
 );
