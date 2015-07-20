@@ -1,4 +1,4 @@
-<?php                                                             # -*- php -*-
+<?php
 
 # Copyright (c) 2009-2013 Yubico AB
 # All rights reserved.
@@ -35,10 +35,10 @@ if (file_exists('/etc/yubico/val/config-db.php'))
 else
 {
 	// 'oci:oracledb' for Oracle DB (with OCI library)
-	$dbtype='mysql';
-	$dbuser='ykval_verifier';
-	$dbpass='yourpassword';
-	$dbname='ykval';
+	$dbtype = 'mysql';
+	$dbuser = 'ykval_verifier';
+	$dbpass = 'yourpassword';
+	$dbname = 'ykval';
 }
 
 # for the validation interface.
@@ -99,12 +99,13 @@ $baseParams['__YKVAL_KSM_CURL_OPTS__'] = array(
 
 // Returns an array of YK-KSM URLs for decrypting $otp for $client.
 // The URLs must be fully qualified, i.e., containing the OTP itself.
-function otp2ksmurls ($otp, $client) {
+function otp2ksmurls ($otp, $client)
+{
 	//if ($client == 42) {
 	//  return array("https://another-ykkms.example.com/wsapi/decrypt?otp=$otp");
 	//}
 
-	//if (preg_match ("/^dteffujehknh/", $otp)) {
+	//if (preg_match("/^dteffujehknh/", $otp)) {
 	//  return array("https://different-ykkms.example.com/wsapi/decrypt?otp=$otp");
 	//}
 
