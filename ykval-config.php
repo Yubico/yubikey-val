@@ -27,10 +27,16 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// ykval will use the configuration stored in /etc/yubico/val/config-db.php, if that file exists. If it does not exist, the below values will be used.
-if (file_exists('/etc/yubico/val/config-db.php'))
+
+/**
+ * Load database configuration settings from config-db.php if available,
+ *	otherwise default to values specified below.
+ */
+$dbfile = '/etc/yubico/val/config-db.php';
+
+if (file_exists($dbfile) && @is_readable($dbfile))
 {
-	include '/etc/yubico/val/config-db.php';
+	require_once $dbfile;
 }
 else
 {
