@@ -195,34 +195,32 @@ class SyncLib
 
 	public function updateDbCounters($params)
 	{
-		if (isset($params['yk_publicname']))
+		if (!isset($params['yk_publicname']))
+			return false;
+
+		$arr = array(
+			'modified' => $params['modified'],
+			'yk_counter' => $params['yk_counter'],
+			'yk_use' => $params['yk_use'],
+			'yk_low' => $params['yk_low'],
+			'yk_high' => $params['yk_high'],
+			'nonce' => $params['nonce']
+		);
+
+		$condition = '('.$params['yk_counter'].'>yk_counter or ('.$params['yk_counter'].'=yk_counter and ' . $params['yk_use'] . '>yk_use))';
+
+		if (! $this->db->conditionalUpdateBy('yubikeys', 'yk_publicname', $params['yk_publicname'], $arr, $condition))
 		{
-			$condition = '('.$params['yk_counter'].'>yk_counter or ('.$params['yk_counter'].'=yk_counter and ' . $params['yk_use'] . '>yk_use))';
-
-			$arr = array(
-				'modified' => $params['modified'],
-				'yk_counter' => $params['yk_counter'],
-				'yk_use' => $params['yk_use'],
-				'yk_low' => $params['yk_low'],
-				'yk_high' => $params['yk_high'],
-				'nonce' => $params['nonce']
-			);
-
-			if (! $this->db->conditionalUpdateBy('yubikeys', 'yk_publicname', $params['yk_publicname'], $arr, $condition))
-			{
-				$this->log(LOG_CRIT, 'failed to update internal DB with new counters');
-				return false;
-			}
-
-			if ($this->db->rowCount() > 0)
-				$this->log(LOG_INFO, 'updated database ', $params);
-			else
-				$this->log(LOG_INFO, 'database not updated', $params);
-
-			return true;
+			$this->log(LOG_CRIT, 'failed to update internal DB with new counters');
+			return false;
 		}
 
-		return false;
+		if ($this->db->rowCount() > 0)
+			$this->log(LOG_INFO, 'updated database ', $params);
+		else
+			$this->log(LOG_INFO, 'database not updated', $params);
+
+		return true;
 	}
 
 	public function countersHigherThan($p1, $p2)
