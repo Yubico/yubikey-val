@@ -109,7 +109,7 @@ class SyncLib
 		$this->localParams = $localParams;
 
 		$queued = time();
-		$res = True;
+		$result = true;
 
 		foreach ($this->syncServers as $server)
 		{
@@ -123,10 +123,10 @@ class SyncLib
 			);
 
 			if (! $this->db->save('queue', $arr))
-				$res = False;
+				$result = false;
 		}
 
-		return $res;
+		return $result;
 	}
 
 	public function log($priority, $msg, $params=NULL)
