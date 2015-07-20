@@ -61,12 +61,19 @@ $baseParams['__YKVAL_SYNC_POOL__'] = array(
 	// "https://api4.example.com/wsapi/2.0/sync",
 );
 
-// an array of IP addresses allowed to issue sync requests
-// NOTE: You must use IP addresses here
+/**
+ * An array of IP addresses which are allowed to issue sync requests to us.
+ *
+ * NOTE: You must use IP addreseses here. Hostnames will be ignored!
+ *	Both IPv4 and IPv6 are supported.
+ */
 $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array(
 	// "1.2.3.4",
 	// "2.3.4.5",
 	// "3.4.5.6",
+	// "fc00:aaaa::",
+	// "fc00:bbbb::",
+	// "fc00:cccc::",
 );
 
 // An array of IP addresses allowed to issue YubiKey activation/deactivation
