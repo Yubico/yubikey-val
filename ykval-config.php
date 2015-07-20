@@ -34,10 +34,10 @@ if (file_exists('/etc/yubico/val/config-db.php'))
 }
 else
 {
+	$dbtype='mysql';
 	$dbuser='ykval_verifier';
 	$dbpass='yourpassword';
 	$dbname='ykval';
-	$dbtype='mysql';
 }
 
 # for the validation interface.
