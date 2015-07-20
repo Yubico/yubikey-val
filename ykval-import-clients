@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-# Copyright (c) 2012-2013 Yubico AB
+# Copyright (c) 2012-2015 Yubico AB
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without

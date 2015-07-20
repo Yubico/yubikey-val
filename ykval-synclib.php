@@ -1,6 +1,6 @@
 <?php
 
-# Copyright (c) 2009-2014 Yubico AB
+# Copyright (c) 2009-2015 Yubico AB
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
