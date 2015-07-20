@@ -34,6 +34,7 @@ if (file_exists('/etc/yubico/val/config-db.php'))
 }
 else
 {
+	// 'oci:oracledb' for Oracle DB (with OCI library)
 	$dbtype='mysql';
 	$dbuser='ykval_verifier';
 	$dbpass='yourpassword';
@@ -42,7 +43,7 @@ else
 
 # for the validation interface.
 $baseParams = array ();
-$baseParams['__YKVAL_DB_DSN__'] = "$dbtype:dbname=$dbname;host=127.0.0.1"; # "oci:oracledb" for Oracle DB (with OCI library)
+$baseParams['__YKVAL_DB_DSN__'] = "$dbtype:dbname=$dbname;host=127.0.0.1";
 $baseParams['__YKVAL_DB_USER__'] = $dbuser;
 $baseParams['__YKVAL_DB_PW__'] = $dbpass;
 $baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION);
