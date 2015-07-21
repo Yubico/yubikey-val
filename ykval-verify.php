@@ -35,6 +35,7 @@ header('content-type: text/plain');
 
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
+
 $query_string = '';
 if ($_POST)
 {
@@ -57,11 +58,11 @@ $myLog->log(LOG_INFO, $query_string .
 /* Detect protocol version */
 if (preg_match('/\/wsapi\/([0-9]+)\.([0-9]+)\//', $_SERVER['REQUEST_URI'], $out))
 {
-	$protocol_version=$out[1]+$out[2]*0.1;
+	$protocol_version = $out[1] + $out[2] * 0.1;
 }
 else
 {
-	$protocol_version=1.0;
+	$protocol_version = 1.0;
 }
 
 $myLog->log(LOG_DEBUG, "found protocol version $protocol_version");
@@ -77,7 +78,7 @@ $otp = strtolower($otp);
 if (preg_match('/^[jxe.uidchtnbpygk]+$/', $otp))
 {
 	$new_otp = strtr($otp, 'jxe.uidchtnbpygk', 'cbdefghijklnrtuv');
-	$myLog->log(LOG_INFO, 'Dvorak OTP converting ' . $otp . ' to ' . $new_otp);
+	$myLog->log(LOG_INFO, "Dvorak OTP converting $otp to $new_otp");
 	$otp = $new_otp;
 }
 
@@ -87,9 +88,10 @@ $timestamp = getHttpVal('timestamp', 0);
  * Construct response parameters
  */
 $extra = array();
+
 if ($protocol_version >= 2.0)
 {
-	$extra['otp']=$otp;
+	$extra['otp'] = $otp;
 }
 
 
@@ -103,7 +105,7 @@ if ($protocol_version >= 2.0)
 	$nonce = getHttpVal('nonce', '');
 
 	/* Add nonce to response parameters */
-	$extra['nonce']= $nonce;
+	$extra['nonce'] = $nonce;
 
 	/* Nonce is required from protocol 2.0 */
 	if (!$nonce)
@@ -219,8 +221,10 @@ if (($cd = $sync->getClientData($client)) === FALSE)
 }
 $myLog->log(LOG_DEBUG, 'Client data:', $cd);
 
-//// Check client signature
-//
+
+/**
+ * Check client signature
+ */
 $apiKey = base64_decode($cd['secret']);
 
 if ($h != '')
@@ -443,7 +447,10 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 	}
 }
 
-/* Fill up with more respone parameters */
+/**
+ * Fill up with more response parameters
+ */
+
 if ($protocol_version >= 2.0)
 {
 	$extra['sl'] = $sl_success_rate;
