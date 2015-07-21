@@ -41,6 +41,7 @@ $https = (array_key_exists('HTTPS', $_SERVER) === TRUE
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $ipaddr);
 
+// FIXME clean
 $query_string = '';
 if ($_POST)
 {
@@ -55,9 +56,9 @@ else
 {
 	$query_string = 'Request: ' . $_SERVER['QUERY_STRING'];
 }
+$myLog->log(LOG_INFO, $query_string . ' (at ' . date('c') . ' ' . microtime() . ') HTTP' . ($https ? 'S' : ''));
+unset($query_string);
 
-$myLog->log(LOG_INFO, $query_string .
-		" (at " . date("c") . " " . microtime() . ") HTTP" . ($https ? "S" : ""));
 
 /* Detect protocol version */
 if (preg_match('/\/wsapi\/([0-9]+)\.([0-9]+)\//', $_SERVER['REQUEST_URI'], $out))
