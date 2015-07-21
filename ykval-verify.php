@@ -76,6 +76,7 @@ $myLog->log(LOG_DEBUG, "found protocol version $protocol_version");
  */
 $h = getHttpVal('h', '');
 $client = getHttpVal('id', 0);
+$timestamp = getHttpVal('timestamp', 0);
 $otp = getHttpVal('otp', '');
 
 $otp = strtolower($otp);
@@ -86,7 +87,6 @@ if (preg_match('/^[jxe.uidchtnbpygk]+$/', $otp))
 	$otp = $new_otp;
 }
 
-$timestamp = getHttpVal('timestamp', 0);
 
 /**
  * Construct response parameters
