@@ -236,7 +236,9 @@ $myLog->log(LOG_DEBUG, 'Client data:', $cd);
 /**
  * Check client signature
  */
-$apiKey = base64_decode($cd['secret']);
+$apiKey = $cd['secret'];
+$apiKey = base64_decode($apiKey);
+unset($cd);
 
 if ($h != '')
 {
