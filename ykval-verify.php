@@ -42,7 +42,7 @@ $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $ipaddr);
 
 // FIXME clean
-$query_string = '';
+$message = '';
 if ($_POST)
 {
 	$kv = array();
@@ -50,14 +50,15 @@ if ($_POST)
 	{
 		$kv[] = "$key=$value";
 	}
-	$query_string = 'POST: ' . join('&', $kv);
+	$message = 'POST: ' . join('&', $kv);
 }
 else
 {
-	$query_string = 'Request: ' . $_SERVER['QUERY_STRING'];
+	$message = 'Request: ' . $_SERVER['QUERY_STRING'];
 }
-$myLog->log(LOG_INFO, $query_string . ' (at ' . date('c') . ' ' . microtime() . ') HTTP' . ($https ? 'S' : ''));
-unset($query_string);
+$message .= ' (at ' . date('c') . ' ' . microtime() . ') HTTP' . ($https ? 'S' : '');
+$myLog->log(LOG_INFO, $message);
+unset($message);
 
 
 /* Detect protocol version */
