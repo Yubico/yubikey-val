@@ -53,16 +53,25 @@ function logdie ($logger, $str)
   die($str . "\n");
 }
 
-function getHttpVal($key, $defaultVal) {
-	$val = $defaultVal;
-	if (array_key_exists($key, $_GET)) {
+function getHttpVal ($key, $default)
+{
+	if (array_key_exists($key, $_GET))
+	{
 		$val = $_GET[$key];
-  	} else if (array_key_exists($key, $_POST)) {
-  		$val = $_POST[$key];
-  	}
-  	$v = trim($val);
-  	$v = str_replace('\\', "", $v);
-  	return $v;
+	}
+	elseif (array_key_exists($key, $_POST))
+	{
+		$val = $_POST[$key];
+	}
+	else
+	{
+		$val = $default;
+	}
+
+	$val = trim($val);
+	$val = str_replace('\\', '', $val);
+
+	return $val;
 }
 
 function log_format() {
