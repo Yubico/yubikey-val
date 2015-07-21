@@ -68,11 +68,13 @@ else
 
 $myLog->log(LOG_DEBUG, "found protocol version $protocol_version");
 
-/* Extract values from HTTP request
+/**
+ * Extract values from HTTP request
  */
 $h = getHttpVal('h', '');
 $client = getHttpVal('id', 0);
 $otp = getHttpVal('otp', '');
+
 $otp = strtolower($otp);
 if (preg_match('/^[jxe.uidchtnbpygk]+$/', $otp))
 {
@@ -80,9 +82,12 @@ if (preg_match('/^[jxe.uidchtnbpygk]+$/', $otp))
 	$myLog->log(LOG_INFO, 'Dvorak OTP converting ' . $otp . ' to ' . $new_otp);
 	$otp = $new_otp;
 }
+
 $timestamp = getHttpVal('timestamp', 0);
 
-/* Construct response parameters */
+/**
+ * Construct response parameters
+ */
 $extra = array();
 if ($protocol_version >= 2.0)
 {
@@ -147,14 +152,14 @@ if ($otp == '')
 	$myLog->log(LOG_NOTICE, 'OTP is missing');
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
-if (strlen($otp) < TOKEN_LEN || strlen ($otp) > OTP_MAX_LEN)
+if (strlen($otp) < TOKEN_LEN || strlen($otp) > OTP_MAX_LEN)
 {
-	$myLog->log(LOG_NOTICE, 'Incorrect OTP length: ' . $otp);
+	$myLog->log(LOG_NOTICE, "Incorrect OTP length: $otp");
 	sendResp(S_BAD_OTP, $myLog);
 }
 if (preg_match('/^[cbdefghijklnrtuv]+$/', $otp) == 0)
 {
-	$myLog->log(LOG_NOTICE, 'Invalid OTP: ' . $otp);
+	$myLog->log(LOG_NOTICE, "Invalid OTP: $otp");
 	sendResp(S_BAD_OTP, $myLog);
 }
 
@@ -211,7 +216,7 @@ if (! $sync->isConnected())
 
 if (($cd = $sync->getClientData($client)) === FALSE)
 {
-	$myLog->log(LOG_NOTICE, 'Invalid client id ' . $client);
+	$myLog->log(LOG_NOTICE, "Invalid client id $client");
 	sendResp(S_NO_SUCH_CLIENT, $myLog);
 }
 $myLog->log(LOG_DEBUG, 'Client data:', $cd);
@@ -245,7 +250,7 @@ if ($h != '')
 	// Compare it
 	if (!hash_equals($hmac, $h))
 	{
-		$myLog->log(LOG_DEBUG, 'client hmac=' . $h . ', server hmac=' . $hmac);
+		$myLog->log(LOG_DEBUG, "client hmac=$h, server hmac=$hmac");
 		sendResp(S_BAD_SIGNATURE, $myLog, $apiKey);
 	}
 }
@@ -258,7 +263,7 @@ if ($protocol_version < 2.0)
 {
 	// we need to create a nonce manually here
 	$nonce = md5(uniqid(rand()));
-	$myLog->log(LOG_INFO, 'protocol version below 2.0. Created nonce ' . $nonce);
+	$myLog->log(LOG_INFO, "protocol version below 2.0. Created nonce $nonce");
 }
 
 // which YK-KSM should we talk to?
