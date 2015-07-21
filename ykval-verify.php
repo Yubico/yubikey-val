@@ -109,15 +109,15 @@ if ($protocol_version >= 2.0)
 	$timeout = getHttpVal('timeout', '');
 	$nonce = getHttpVal('nonce', '');
 
-	/* Add nonce to response parameters */
-	$extra['nonce'] = $nonce;
-
 	/* Nonce is required from protocol 2.0 */
 	if (!$nonce)
 	{
 		$myLog->log(LOG_NOTICE, 'Nonce is missing and protocol version >= 2.0');
 		sendResp(S_MISSING_PARAMETER, $myLog);
 	}
+
+	/* Add nonce to response parameters */
+	$extra['nonce'] = $nonce;
 }
 
 
