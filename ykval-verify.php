@@ -34,7 +34,9 @@ require_once 'ykval-synclib.php';
 header('content-type: text/plain');
 
 $ipaddr = $_SERVER['REMOTE_ADDR'];
-$https = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? TRUE : FALSE);
+
+$https = (array_key_exists('HTTPS', $_SERVER) === TRUE
+			&& strtolower($_SERVER['HTTPS']) !== 'off' ? TRUE : FALSE);
 
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $ipaddr);
