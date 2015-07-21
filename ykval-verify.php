@@ -160,6 +160,11 @@ if (!isset($timeout) || $timeout == '')
 {
 	$timeout = $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
 }
+if ($timeout && preg_match("/^[0-9]+$/", $timeout) == 0)
+{
+	$myLog->log(LOG_NOTICE, 'timeout is provided but not correct');
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
 
 if ($otp == '')
 {
@@ -185,12 +190,6 @@ if (preg_match("/^[0-9]+$/", $client) == 0)
 if ($client <= 0)
 {
 	$myLog->log(LOG_NOTICE, 'Client ID is missing');
-	sendResp(S_MISSING_PARAMETER, $myLog);
-}
-
-if ($timeout && preg_match("/^[0-9]+$/", $timeout) == 0)
-{
-	$myLog->log(LOG_NOTICE, 'timeout is provided but not correct');
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
