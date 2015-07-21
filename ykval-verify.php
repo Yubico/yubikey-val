@@ -33,8 +33,10 @@ require_once 'ykval-synclib.php';
 
 header('content-type: text/plain');
 
+$ipaddr = $_SERVER['REMOTE_ADDR'];
+
 $myLog = new Log('ykval-verify');
-$myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
+$myLog->addField('ip', $ipaddr);
 
 $query_string = '';
 if ($_POST)
@@ -206,7 +208,7 @@ if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100)))
 /* Initialize the sync library. Strive to use this instead of custom
 	DB requests, custom comparisons etc */
 $sync = new SyncLib('ykval-verify:synclib');
-$sync->addField('ip', $_SERVER['REMOTE_ADDR']);
+$sync->addField('ip', $ipaddr);
 $sync->addField('otp', $otp);
 
 if (! $sync->isConnected())
