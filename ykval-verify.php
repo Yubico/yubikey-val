@@ -381,14 +381,10 @@ if ($syncres == False)
 	$myLog->log(LOG_WARNING, 'ykval-verify:notice:Sync failed');
 
 	if ($nr_valid_answers != $nr_answers)
-	{
 		sendResp(S_REPLAYED_OTP, $myLog, $apiKey, $extra);
-	}
-	else
-	{
-		$extra['sl'] = $sl_success_rate;
-		sendResp(S_NOT_ENOUGH_ANSWERS, $myLog, $apiKey, $extra);
-	}
+
+	$extra['sl'] = $sl_success_rate;
+	sendResp(S_NOT_ENOUGH_ANSWERS, $myLog, $apiKey, $extra);
 }
 
 /* Recreate parameters to make phising test work out
