@@ -34,6 +34,7 @@ require_once 'ykval-synclib.php';
 header('content-type: text/plain');
 
 $ipaddr = $_SERVER['REMOTE_ADDR'];
+$https = (isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? TRUE : FALSE);
 
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $ipaddr);
@@ -55,7 +56,7 @@ else
 
 $myLog->log(LOG_INFO, $query_string .
 		" (at " . date("c") . " " . microtime() . ") " .
-		(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? "HTTPS" : "HTTP"));
+		($https ? "HTTPS" : "HTTP"));
 
 /* Detect protocol version */
 if (preg_match('/\/wsapi\/([0-9]+)\.([0-9]+)\//', $_SERVER['REQUEST_URI'], $out))
