@@ -38,10 +38,21 @@ $ipaddr = $_SERVER['REMOTE_ADDR'];
 $https = (array_key_exists('HTTPS', $_SERVER) === TRUE
 			&& strtolower($_SERVER['HTTPS']) !== 'off' ? TRUE : FALSE);
 
+/**
+ * FIXME
+ *
+ * Refactor code which extracts the request arguments,
+ *	pull it up here and avoid sprinlking the following in the "core":
+ *
+ * $_GET, $_POST, $_SERVER['QUERY_STRING'], getHttpVal()
+ *
+ * Avoid ambiguity with urldecode.
+ */
+
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $ipaddr);
 
-// FIXME clean
+// FIXME
 $message = '';
 if ($_POST)
 {
