@@ -55,8 +55,7 @@ else
 }
 
 $myLog->log(LOG_INFO, $query_string .
-		" (at " . date("c") . " " . microtime() . ") " .
-		($https ? "HTTPS" : "HTTP"));
+		" (at " . date("c") . " " . microtime() . ") HTTP" . ($https ? "S" : ""));
 
 /* Detect protocol version */
 if (preg_match('/\/wsapi\/([0-9]+)\.([0-9]+)\//', $_SERVER['REQUEST_URI'], $out))
