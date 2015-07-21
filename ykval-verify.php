@@ -150,6 +150,11 @@ if (!isset($sl) || $sl == '')
 {
 	$sl = $baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
 }
+if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100)))
+{
+	$myLog->log(LOG_NOTICE, 'SL is provided but not correct');
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
 
 if (!isset($timeout) || $timeout == '')
 {
@@ -197,12 +202,6 @@ if (isset($nonce) && preg_match("/^[A-Za-z0-9]+$/", $nonce) == 0)
 if (isset($nonce) && (strlen($nonce) < 16 || strlen($nonce) > 40))
 {
 	$myLog->log(LOG_NOTICE, 'Nonce too short or too long');
-	sendResp(S_MISSING_PARAMETER, $myLog);
-}
-
-if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100)))
-{
-	$myLog->log(LOG_NOTICE, 'SL is provided but not correct');
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
