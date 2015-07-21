@@ -82,19 +82,22 @@ function log_format() {
 
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
-function sign($a, $apiKey, $logger) {
+function sign($a, $apiKey, $logger)
+{
 	ksort($a);
-	$qs = urldecode(http_build_query($a));
 
-	// the TRUE at the end states we want the raw value, not hexadecimal form
-	$hmac = hash_hmac('sha1', utf8_encode($qs), $apiKey, true);
+	$qs = http_build_query($a);
+	$qs = urldecode($qs);
+	$qs = utf8_encode($qs);
+
+	// base64 encoded binary digest
+	$hmac = hash_hmac('sha1', $qs, $apiKey, TRUE);
 	$hmac = base64_encode($hmac);
 
-	$logger->log(LOG_DEBUG, 'SIGN: ' . $qs . ' H=' . $hmac);
+	$logger->log(LOG_DEBUG, "SIGN: $qs H=$hmac");
 
 	return $hmac;
-
-} // sign an array of query string
+}
 
 function curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts)
 {
