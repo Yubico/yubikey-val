@@ -445,11 +445,9 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 	{
 		$myLog->log(LOG_NOTICE, 'OTP failed phishing test');
 
-		# FIXME nuke?
-		if (0)
-		{
-			sendResp(S_DELAYED_OTP, $myLog, $apiKey, $extra);
-		}
+		// FIXME
+		// This was wrapped around if (0). should we nuke or enable?
+		// sendResp(S_DELAYED_OTP, $myLog, $apiKey, $extra);
 	}
 }
 
