@@ -31,8 +31,6 @@ require_once 'ykval-common.php';
 require_once 'ykval-config.php';
 require_once 'ykval-synclib.php';
 
-$apiKey = '';
-
 header('content-type: text/plain');
 
 $myLog = new Log('ykval-verify');
