@@ -99,9 +99,11 @@ if ($protocol_version >= 2.0)
 	$extra['otp'] = $otp;
 }
 
-
-/* We have the OTP now, so let's add it to the logging */
+/**
+ * We have the OTP now, so let's add it to the logging
+ */
 $myLog->addField('otp', $otp);
+
 
 if ($protocol_version >= 2.0)
 {
@@ -121,8 +123,9 @@ if ($protocol_version >= 2.0)
 }
 
 
-/* Sanity check HTTP parameters
-
+/**
+ * Sanity check HTTP parameters
+ *
  * otp: one-time password
  * id: client id
  * timeout: timeout in seconds to wait for external answers, optional: if absent the server decides
@@ -130,7 +133,6 @@ if ($protocol_version >= 2.0)
  * sl: "sync level", percentage of external servers that needs to answer (integer 0 to 100), or "fast" or "secure" to use server-configured values
  * h: signature (optional)
  * timestamp: requests timestamp/counters in response
-
  */
 
 /* Change default protocol "strings" to numeric values */
@@ -208,8 +210,10 @@ if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100)))
  */
 
 
-/* Initialize the sync library. Strive to use this instead of custom
-	DB requests, custom comparisons etc */
+/**
+ * Initialize the sync library. Strive to use this instead of custom
+ *	DB requests, custom comparisons etc.
+ */
 $sync = new SyncLib('ykval-verify:synclib');
 $sync->addField('ip', $ipaddr);
 $sync->addField('otp', $otp);
