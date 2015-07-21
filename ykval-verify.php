@@ -33,7 +33,7 @@ require_once 'ykval-synclib.php';
 
 $apiKey = '';
 
-header("content-type: text/plain");
+header('content-type: text/plain');
 
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
@@ -45,11 +45,11 @@ if ($_POST)
 	{
 		$kv[] = "$key=$value";
 	}
-	$query_string = "POST: " . join("&", $kv);
+	$query_string = 'POST: ' . join('&', $kv);
 }
 else
 {
-	$query_string = "Request: " . $_SERVER['QUERY_STRING'];
+	$query_string = 'Request: ' . $_SERVER['QUERY_STRING'];
 }
 
 $myLog->log(LOG_INFO, $query_string .
@@ -57,7 +57,7 @@ $myLog->log(LOG_INFO, $query_string .
 		(isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? "HTTPS" : "HTTP"));
 
 /* Detect protocol version */
-if (preg_match("/\/wsapi\/([0-9]+)\.([0-9]+)\//", $_SERVER['REQUEST_URI'], $out))
+if (preg_match('/\/wsapi\/([0-9]+)\.([0-9]+)\//', $_SERVER['REQUEST_URI'], $out))
 {
 	$protocol_version=$out[1]+$out[2]*0.1;
 }
@@ -66,7 +66,7 @@ else
 	$protocol_version=1.0;
 }
 
-$myLog->log(LOG_DEBUG, "found protocol version " . $protocol_version);
+$myLog->log(LOG_DEBUG, "found protocol version $protocol_version");
 
 /* Extract values from HTTP request
  */
@@ -74,9 +74,9 @@ $h = getHttpVal('h', '');
 $client = getHttpVal('id', 0);
 $otp = getHttpVal('otp', '');
 $otp = strtolower($otp);
-if (preg_match("/^[jxe.uidchtnbpygk]+$/", $otp))
+if (preg_match('/^[jxe.uidchtnbpygk]+$/', $otp))
 {
-	$new_otp = strtr($otp, "jxe.uidchtnbpygk", "cbdefghijklnrtuv");
+	$new_otp = strtr($otp, 'jxe.uidchtnbpygk', 'cbdefghijklnrtuv');
 	$myLog->log(LOG_INFO, 'Dvorak OTP converting ' . $otp . ' to ' . $new_otp);
 	$otp = $new_otp;
 }
@@ -152,7 +152,7 @@ if (strlen($otp) < TOKEN_LEN || strlen ($otp) > OTP_MAX_LEN)
 	$myLog->log(LOG_NOTICE, 'Incorrect OTP length: ' . $otp);
 	sendResp(S_BAD_OTP, $myLog);
 }
-if (preg_match("/^[cbdefghijklnrtuv]+$/", $otp) == 0)
+if (preg_match('/^[cbdefghijklnrtuv]+$/', $otp) == 0)
 {
 	$myLog->log(LOG_NOTICE, 'Invalid OTP: ' . $otp);
 	sendResp(S_BAD_OTP, $myLog);
@@ -214,7 +214,7 @@ if (($cd = $sync->getClientData($client)) === FALSE)
 	$myLog->log(LOG_NOTICE, 'Invalid client id ' . $client);
 	sendResp(S_NO_SUCH_CLIENT, $myLog);
 }
-$myLog->log(LOG_DEBUG,"Client data:", $cd);
+$myLog->log(LOG_DEBUG, 'Client data:', $cd);
 
 //// Check client signature
 //
@@ -278,7 +278,7 @@ if (($otpinfo = KSMdecryptOTP($urls, $myLog, $curlopts)) === FALSE)
 {
 	sendResp(S_BAD_OTP, $myLog, $apiKey);
 }
-$myLog->log(LOG_DEBUG, "Decrypted OTP:", $otpinfo);
+$myLog->log(LOG_DEBUG, 'Decrypted OTP:', $otpinfo);
 
 // get Yubikey from DB
 $yk_publicname = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
@@ -288,7 +288,7 @@ if (($localParams = $sync->getLocalParams($yk_publicname)) === FALSE)
 	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
 }
 
-$myLog->log(LOG_DEBUG, "Auth data:", $localParams);
+$myLog->log(LOG_DEBUG, 'Auth data:', $localParams);
 if ($localParams['active'] != 1)
 {
 	$myLog->log(LOG_NOTICE, "De-activated Yubikey $yk_publicname");
@@ -310,7 +310,7 @@ $otpParams = array(
 
 
 /* First check if OTP is seen with the same nonce, in such case we have an replayed request */
-if ($sync->countersEqual($localParams, $otpParams) && $localParams['nonce']==$otpParams['nonce'])
+if ($sync->countersEqual($localParams, $otpParams) && $localParams['nonce'] == $otpParams['nonce'])
 {
 	$myLog->log(LOG_WARNING, 'Replayed request');
 	sendResp(S_REPLAYED_REQUEST, $myLog, $apiKey, $extra);
@@ -329,7 +329,7 @@ if ($sync->countersHigherThanOrEqual($localParams, $otpParams))
 
 if (!$sync->updateDbCounters($otpParams))
 {
-	$myLog->log(LOG_CRIT, "Failed to update yubikey counters in database");
+	$myLog->log(LOG_CRIT, 'Failed to update yubikey counters in database');
 	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
 }
 
@@ -337,7 +337,7 @@ if (!$sync->updateDbCounters($otpParams))
 
 if (!$sync->queue($otpParams, $localParams))
 {
-	$myLog->log(LOG_CRIT, "ykval-verify:critical:failed to queue sync requests");
+	$myLog->log(LOG_CRIT, 'ykval-verify:critical:failed to queue sync requests');
 	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
 }
 
@@ -371,7 +371,7 @@ if ($syncres == False)
 	/* sync returned false, indicating that
 		either at least 1 answer marked OTP as invalid or
 		there were not enough answers */
-	$myLog->log(LOG_WARNING, "ykval-verify:notice:Sync failed");
+	$myLog->log(LOG_WARNING, 'ykval-verify:notice:Sync failed');
 
 	if ($nr_valid_answers != $nr_answers)
 	{
@@ -430,7 +430,7 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 
 	if ($deviation > TS_ABS_TOLERANCE && $percent > TS_REL_TOLERANCE)
 	{
-		$myLog->log(LOG_NOTICE, "OTP failed phishing test");
+		$myLog->log(LOG_NOTICE, 'OTP failed phishing test');
 
 		# FIXME nuke?
 		if (0)
