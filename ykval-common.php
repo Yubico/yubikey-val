@@ -117,7 +117,7 @@ function sign($a, $apiKey, $logger)
 
 function curl_settings($logger, $ident, $ch, $url, $timeout, $curlopts)
 {
-	$logger->log(LOG_DEBUG, $ident . ' adding URL : ' . $url);
+	$logger->log(LOG_DEBUG, "$ident adding URL : $url");
 
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
