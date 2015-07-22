@@ -115,15 +115,15 @@ function sign($a, $apiKey, $logger)
 	return $hmac;
 }
 
-function curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts)
+function curl_settings($logger, $ident, $ch, $url, $timeout, $curlopts)
 {
 	$logger->log(LOG_DEBUG, $ident . ' adding URL : ' . $url);
 
-	curl_setopt($handle, CURLOPT_URL, $url);
-	curl_setopt($handle, CURLOPT_TIMEOUT, $timeout);
-	curl_setopt($handle, CURLOPT_USERAGENT, 'YK-VAL');
-	curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($handle, CURLOPT_FAILONERROR, TRUE);
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'YK-VAL');
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+	curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
 
 	if (is_array($curlopts) === FALSE)
 	{
@@ -132,7 +132,7 @@ function curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts)
 	}
 
 	foreach ($curlopts as $key => $val)
-		if (curl_setopt($handle, $key, $val) === FALSE)
+		if (curl_setopt($ch, $key, $val) === FALSE)
 			$logger->log(LOG_WARN, "$ident failed to set " . curl_opt_name($key));
 }
 
