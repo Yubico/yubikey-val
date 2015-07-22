@@ -115,7 +115,7 @@ function sign($a, $apiKey, $logger)
 	return $hmac;
 }
 
-function curl_settings($logger, $ident, $ch, $url, $timeout, $curlopts)
+function curl_settings($logger, $ident, $ch, $url, $timeout, $opts)
 {
 	$logger->log(LOG_DEBUG, "$ident adding URL : $url");
 
@@ -125,13 +125,13 @@ function curl_settings($logger, $ident, $ch, $url, $timeout, $curlopts)
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 	curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
 
-	if (is_array($curlopts) === FALSE)
+	if (is_array($opts) === FALSE)
 	{
 		$logger->log(LOG_WARN, $ident . 'curl options must be an array');
 		return;
 	}
 
-	foreach ($curlopts as $key => $val)
+	foreach ($opts as $key => $val)
 		if (curl_setopt($ch, $key, $val) === FALSE)
 			$logger->log(LOG_WARN, "$ident failed to set " . curl_opt_name($key));
 }
