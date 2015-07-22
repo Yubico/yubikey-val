@@ -49,8 +49,8 @@ define('OTP_MAX_LEN', 48); // TOKEN_LEN plus public identity of 0..16
 
 function logdie ($logger, $str)
 {
-  $logger->log(LOG_INFO, $str);
-  die($str . "\n");
+	$logger->log(LOG_INFO, $str);
+	die($str . "\n");
 }
 
 function getHttpVal ($key, $default)
@@ -74,19 +74,26 @@ function getHttpVal ($key, $default)
 	return $val;
 }
 
-function log_format() {
-  $str = "";
-  foreach (func_get_args() as $msg)
-    {
-      if (is_array($msg)) {
-	foreach($msg as $key => $value){
-	  $str .= "$key=$value ";
+function log_format()
+{
+	$str = "";
+
+	foreach (func_get_args() as $msg)
+	{
+		if (is_array($msg))
+		{
+			foreach ($msg as $key => $value)
+			{
+				$str .= "$key=$value ";
+			}
+		}
+		else
+		{
+			$str .= $msg . " ";
+		}
 	}
-      } else {
-	$str .= $msg . " ";
-      }
-    }
-  return $str;
+
+	return $str;
 }
 
 // Sign a http query string in the array of key-value pairs
