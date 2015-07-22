@@ -271,36 +271,37 @@ function KSMdecryptOTP($urls, $logger, $curlopts)
 	return $ret;
 }
 
-function sendResp($status, $logger, $apiKey = '', $extra = null) {
-  $a['status'] = $status;
+function sendResp($status, $logger, $apiKey = '', $extra = null)
+{
+	$a['status'] = $status;
 
-  // 2008-11-21T06:11:55Z0711
-  $t = substr(microtime(false), 2, 3);
-  $t = gmdate('Y-m-d\TH:i:s\Z0') . $t;
+	// 2008-11-21T06:11:55Z0711
+	$t = substr(microtime(false), 2, 3);
+	$t = gmdate('Y-m-d\TH:i:s\Z0') . $t;
 
-  $a['t'] = $t;
+	$a['t'] = $t;
 
-  if ($extra)
-    foreach ($extra as $param => $value)
-      $a[$param] = $value;
+	if ($extra)
+		foreach ($extra as $param => $value)
+			$a[$param] = $value;
 
-  $h = sign($a, $apiKey, $logger);
+	$h = sign($a, $apiKey, $logger);
 
-  $str = "";
-  $str .= "h=" . $h . "\r\n";
-  $str .= "t=" . $a['t'] . "\r\n";
+	$str = "";
+	$str .= "h=" . $h . "\r\n";
+	$str .= "t=" . $a['t'] . "\r\n";
 
-  if ($extra)
-    foreach ($extra as $param => $value)
-      $str .= $param . "=" . $value . "\r\n";
+	if ($extra)
+		foreach ($extra as $param => $value)
+			$str .= $param . "=" . $value . "\r\n";
 
-  $str .= "status=" . $a['status'] . "\r\n";
-  $str .= "\r\n";
+	$str .= "status=" . $a['status'] . "\r\n";
+	$str .= "\r\n";
 
-  $logger->log(LOG_INFO, "Response: " . $str . " (at " . gmdate("c") . " " . microtime() . ")");
+	$logger->log(LOG_INFO, "Response: " . $str . " (at " . gmdate("c") . " " . microtime() . ")");
 
-  echo $str;
-  exit;
+	echo $str;
+	exit;
 }
 
 // backport from PHP 5.6
