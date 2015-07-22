@@ -132,13 +132,8 @@ function curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts)
 	}
 
 	foreach ($curlopts as $key => $val)
-	{
 		if (curl_setopt($handle, $key, $val) === FALSE)
-		{
-			$logger->log(LOG_WARN, $ident . ' failed to set ' . curl_opt_name($key));
-			continue;
-		}
-	}
+			$logger->log(LOG_WARN, "$ident failed to set " . curl_opt_name($key));
 }
 
 // returns the string name of a curl constant,
