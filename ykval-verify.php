@@ -444,7 +444,7 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 		$percent = 1;
 	}
 
-	$data = array(
+	$myLog->log(LOG_INFO, 'Timestamp', array(
 		'seen' => $seenTs,
 		'this' => $ts,
 		'delta' => $tsDiff,
@@ -453,11 +453,7 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 		'now' => sprintf('%s (%s)'. $now, strftime('%Y-%m-%d %H:%M:%S', $now)),
 		'elapsed' => $elapsed,
 		'deviation' => sprintf('%s secs or %s%%', $deviation, round(100 * $percent)),
-	);
-	$msg = 'Timestamp';
-	foreach ($data as $k => $v) $msg .= " $k=$v";
-	$myLog->log(LOG_INFO, $msg);
-	unset($data, $msg);
+	));
 
 	if ($deviation > TS_ABS_TOLERANCE && $percent > TS_REL_TOLERANCE)
 	{
