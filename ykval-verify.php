@@ -450,7 +450,7 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 		'delta' => $tsDiff,
 		'secs' => $tsDelta,
 		'accessed' => sprintf('%s (%s)', $lastTime, $ad['accessed']),
-		'now' => sprintf('%s (%s)'. $now, strftime('%Y-%m-%d %H:%M:%S', $now)),
+		'now' => sprintf('%s (%s)'. $now, date('%Y-%m-%d %H:%M:%S', $now)),
 		'elapsed' => $elapsed,
 		'deviation' => sprintf('%s secs or %s%%', $deviation, round(100 * $percent)),
 	));
