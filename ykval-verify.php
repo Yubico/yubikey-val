@@ -444,15 +444,18 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 		$percent = 1;
 	}
 
+	$lastTime = $lastTime .' (' . $ad['accessed'] . ')';
+	$now = $now . ' (' . strftime("%Y-%m-%d %H:%M:%S", $now). ')';
+	$dev_s_or_p = $deviation . ' secs or '.round(100*$percent) . '%';
 	$data = array(
 		'seen' => $seenTs,
 		'this' => $ts,
 		'delta' => $tsDiff,
 		'secs' => $tsDelta,
-		'accessed' => $lastTime .' (' . $ad['accessed'] . ')',
-		'now' => $now . ' (' . strftime("%Y-%m-%d %H:%M:%S", $now). ')',
+		'accessed' => $lastTime,
+		'now' => $now,
 		'elapsed' => $elapsed,
-		'deviation' => $deviation . ' secs or '.round(100*$percent) . '%',
+		'deviation' => $dev_s_or_p,
 	);
 	$msg = 'Timestamp';
 	foreach ($data as $k => $v) $msg .= " $k=$v";
