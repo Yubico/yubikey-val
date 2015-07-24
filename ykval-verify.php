@@ -428,7 +428,7 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 	$tsDelta = $tsDiff * TS_SEC;
 
 	// check the real time
-	$lastTime = strtotime($ad['accessed']);
+	$lastTime = $localParams['modified'];
 	$now = time();
 	$elapsed = $now - $lastTime;
 	$deviation = abs($elapsed - $tsDelta);
