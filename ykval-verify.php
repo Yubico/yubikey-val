@@ -445,8 +445,8 @@ if ($sessionCounter == $seenSessionCounter && $sessionUse > $seenSessionUse)
 	}
 
 	$lastTime = $lastTime .' (' . $ad['accessed'] . ')';
-	$now = $now . ' (' . strftime("%Y-%m-%d %H:%M:%S", $now). ')';
-	$dev_s_or_p = $deviation . ' secs or '.round(100*$percent) . '%';
+	$now = $now . ' (' . strftime('%Y-%m-%d %H:%M:%S', $now). ')';
+	$dev_s_or_p = $deviation . ' secs or '.round(100 * $percent) . '%';
 	$data = array(
 		'seen' => $seenTs,
 		'this' => $ts,
