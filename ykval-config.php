@@ -127,6 +127,6 @@ function otp2ksmurls ($otp, $client)
 	return array(
 		// "https://ykkms1.example.com/wsapi/decrypt?otp=$otp",
 		// "https://ykkms2.example.com/wsapi/decrypt?otp=$otp",
-		"http://127.0.0.1/wsapi/decrypt?otp=$otp",
+		"http://127.0.0.1:8002/wsapi/decrypt?otp=$otp",
 	);
 }
