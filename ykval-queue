@@ -34,6 +34,14 @@ require_once 'ykval-synclib.php';
 require_once 'ykval-config.php';
 require_once 'ykval-log.php';
 
+// FIXME
+// if sync pool is empty && db queue is empty:
+//	exit
+
+// FIXME
+// don't die if db connection goes away
+//	(e.g. during mysql restart or upgrade).
+
 $sl = new SyncLib('ykval-queue:synclib');
 
 # Loop forever and resync
