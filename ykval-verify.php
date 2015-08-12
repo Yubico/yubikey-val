@@ -304,6 +304,12 @@ if (array_key_exists('__YKVAL_KSM_CURL_OPTS__', $baseParams))
 }
 if (($otpinfo = KSMdecryptOTP($urls, $myLog, $curlopts)) === FALSE)
 {
+	/**
+	 * FIXME
+	 *
+	 * Return S_BACKEND_ERROR if there are connection issues,
+	 *	e.g. misconfigured otp2ksmurls.
+	 */
 	sendResp(S_BAD_OTP, $myLog, $apiKey);
 }
 $myLog->log(LOG_DEBUG, 'Decrypted OTP:', $otpinfo);
