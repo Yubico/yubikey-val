@@ -126,60 +126,79 @@ class DbImpl extends Db
     if($result) $result->closeCursor();
   }
 
-  /**
-   * main function used to get rows by multiple key=>value pairs from Db table.
-   *
-   * @param string $table Database table to update row in
-   * @param array $where Array with column=>values to select rows by
-   * @param int $nr Number of rows to collect. NULL=>inifinity. Default=NULL.
-   * @param int $rev rev=1 indicates order should be reversed. Default=NULL.
-   * @param string distinct Select rows with distinct columns, Default=NULL
-   * @return mixed Array with values from Db row or 2d-array with multiple rows
-   *
-   */
-  public function findByMultiple($table, $where, $nr=null, $rev=null, $distinct=null)
-  {
-    $value=""; /* quiet the PHP Notice */
-    $match=null; /* quiet the PHP Notice */
-    $query="SELECT";
-    if ($distinct!=null) {
-      $query.= " DISTINCT " . $distinct;
-    } else {
-      $query.= " *";
-    }
-    $query.= " FROM " . $table;
-    if ($where!=null){
-      foreach ($where as $key=>$value) {
-	if ($key!=null) {
-	  if ($value!=null) $match.= " ". $key . " = '" . $value . "' and";
-	  else $match.= " ". $key . " is NULL and";
+	/**
+	 * Main function used to get rows by multiple key=>value pairs from Db table.
+	 *
+	 * @param string $table Database table to update row in
+	 * @param array $where Array with column=>values to select rows by
+	 * @param int $nr Number of rows to collect. NULL=>inifinity. Default=NULL.
+	 * @param int $rev rev=1 indicates order should be reversed. Default=NULL.
+	 * @param string distinct Select rows with distinct columns, Default=NULL
+	 *
+	 * @return mixed Array with values from Db row or 2d-array with multiple rows
+	 */
+	public function findByMultiple($table, $where, $nr=NULL, $rev=NULL, $distinct=NULL)
+	{
+		$value = '';
+		$match = NULL;
+		$query = 'SELECT';
+
+		if ($distinct != NULL)
+			$query.= " DISTINCT " . $distinct;
+		else
+			$query.= " *";
+
+		$query.= " FROM " . $table;
+
+		if ($where != NULL)
+		{
+			foreach ($where as $key => $value)
+			{
+				if ($key != NULL)
+				{
+					if ($value != NULL)
+						$match .= " ". $key . " = '" . $value . "' and";
+					else
+						$match .= " ". $key . " is NULL and";
+				}
+			}
+
+			if ($match != NULL)
+				$query .= " WHERE" . $match;
+
+			$query = rtrim($query, "and");
+			$query = rtrim($query);
+		}
+
+		if ($rev == 1)
+			$query.= " ORDER BY id DESC";
+
+		if ($nr != NULL)
+			$query.= " LIMIT " . $nr;
+
+		$result = $this->query($query, true);
+
+		if (!$result)
+			return false;
+
+		if ($nr == 1)
+		{
+			$row = $this->fetchArray($result);
+			$this->closeCursor($result);
+			return $row;
+		}
+		else
+		{
+			$collection = array();
+
+			while($row = $this->fetchArray($result))
+				$collection[] = $row;
+
+			$this->closeCursor($result);
+
+			return $collection;
+		}
 	}
-      }
-      if ($match!=null) $query .= " WHERE" . $match;
-      $query=rtrim($query, "and");
-      $query=rtrim($query);
-    }
-    if ($rev==1) $query.= " ORDER BY id DESC";
-    if ($nr!=null) $query.= " LIMIT " . $nr;
-
-    $result = $this->query($query, true);
-    if (!$result) return false;
-
-    if ($nr==1) {
-      $row = $this->fetchArray($result);
-      $this->closeCursor($result);
-      return $row;
-    }
-    else {
-      $collection=array();
-      while($row = $this->fetchArray($result)){
-	$collection[]=$row;
-      }
-      $this->closeCursor($result);
-      return $collection;
-    }
-
-  }
 
   /**
    * main function used to delete rows by multiple key=>value pairs from Db table.
