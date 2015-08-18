@@ -187,17 +187,15 @@ class DbImpl extends Db
 			$this->closeCursor($result);
 			return $row;
 		}
-		else
-		{
-			$collection = array();
 
-			while($row = $this->fetchArray($result))
-				$collection[] = $row;
+		$collection = array();
 
-			$this->closeCursor($result);
+		while($row = $this->fetchArray($result))
+			$collection[] = $row;
 
-			return $collection;
-		}
+		$this->closeCursor($result);
+
+		return $collection;
 	}
 
   /**
