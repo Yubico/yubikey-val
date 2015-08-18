@@ -35,14 +35,18 @@ require_once 'ykval-config.php';
 require_once 'ykval-log.php';
 
 // FIXME
-// if sync pool is empty && db queue is empty:
-//	exit
-
-// FIXME
 // don't die if db connection goes away
 //	(e.g. during mysql restart or upgrade).
 
 $sl = new SyncLib('ykval-queue:synclib');
+
+if ($sl->getNumberOfServers() === 0 && $sl->getQueueLength() === 0)
+{
+	$sl->log(LOG_NOTICE, 'server sync pool is empty and sync queue is also empty.');
+	$sl->log(LOG_NOTICE, 'configuration looks like a single node setup.');
+	$sl->log(LOG_NOTICE, 'ykval-queue daemon terminating.');
+	exit(0);
+}
 
 # Loop forever and resync
 do {
