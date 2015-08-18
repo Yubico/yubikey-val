@@ -251,7 +251,7 @@ class SyncLib
 	}
 
 	// queue daemon
-	public function reSync($older_than=60, $timeout)
+	public function reSync($older_than, $timeout)
 	{
 		$this->log(LOG_DEBUG, 'starting resync');
 
