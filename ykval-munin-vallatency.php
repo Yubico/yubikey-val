@@ -82,22 +82,70 @@ echo "multigraph ykval_vallatency\n";
 foreach ($urls as $url)
 {
 	$shortname = url2shortname($url);
-	$cmd = "--user-agent ykval-munin-vallatency/1.0 --silent --write-out '%{time_total}' --max-time 3 '$url' -o /dev/null";
 
 	foreach (array('ipv4', 'ipv6') as $ipv)
 	{
-		$time = `curl --$ipv $cmd`;
+		if (($total_time = total_time($url, $ipv)) === FALSE)
+			$total_time = 'error';
 
-		if (preg_match("/^3\./", $time))
-		{
-			$time = "timeout";
-		}
-
-		if (preg_match("/^0\.000/", $time))
-		{
-			$time = "error";
-		}
-
-		echo "$ipv${shortname}_avgwait.value $time\n";
+		echo "$ipv${shortname}_avgwait.value $total_time\n";
 	}
+}
+
+/**
+ * Return the total time taken to receive a response from a URL.
+ *
+ * @argument $url string
+ * @argument $ipresolve string whatever|ipv4|ipv6
+ *
+ * @return float|bool seconds or false on failure
+ */
+function total_time ($url, $ipresolve = 'whatever')
+{
+	switch ($ipresolve)
+	{
+		case 'whatever':
+			$ipresolve = CURL_IPRESOLVE_WHATEVER;
+			break;
+
+		case 'ipv4':
+			$ipresolve = CURL_IPRESOLVE_V4;
+			break;
+
+		case 'ipv6':
+			$ipresolve = CURL_IPRESOLVE_V6;
+			break;
+
+		default:
+			return false;
+	}
+
+	$opts = array(
+		CURLOPT_URL => $url,
+		CURLOPT_IPRESOLVE => $ipresolve,
+		CURLOPT_TIMEOUT => 3,
+		CURLOPT_FORBID_REUSE => TRUE,
+		CURLOPT_FRESH_CONNECT => TRUE,
+		CURLOPT_RETURNTRANSFER => TRUE,
+		CURLOPT_USERAGENT => 'ykval-munin-vallatency/1.0',
+	);
+
+	if (($ch = curl_init()) === FALSE)
+		return false;
+
+	if (curl_setopt_array($ch, $opts) === FALSE)
+		return false;
+
+	// we don't care about the actual response
+	if (curl_exec($ch) === FALSE)
+		return false;
+
+	$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+
+	curl_close($ch);
+
+	if (is_float($total_time) === FALSE)
+		return false;
+
+	return $total_time;
 }
