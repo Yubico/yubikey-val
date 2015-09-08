@@ -37,17 +37,8 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once 'ykval-config.php';
 require_once 'ykval-common.php';
 
-$urls = $baseParams['__YKVAL_SYNC_POOL__'];
 
-$shortnames = array_map('shortname', $urls);
-foreach($shortnames as $shortname)
-{
-	if ($shortname === FALSE)
-	{
-		echo "Cannot parse URL from sync pool list\n";
-		exit(1);
-	}
-}
+$urls = $baseParams['__YKVAL_SYNC_POOL__'];
 
 if ($argc == 2 && strcmp($argv[1], 'autoconf') == 0)
 {
@@ -61,6 +52,12 @@ if ($argc == 2 && strcmp($argv[1], 'autoconf') == 0)
 	exit(0);
 }
 
+if (($endpoints = endpoints($urls)) === FALSE)
+{
+	echo "Cannot parse URLs from sync pool list";
+	exit(1);
+}
+
 if ($argc == 2 && strcmp($argv[1], 'config') == 0)
 {
 	echo "multigraph ykval_vallatency\n";
@@ -69,25 +66,30 @@ if ($argc == 2 && strcmp($argv[1], 'config') == 0)
 	echo "graph_category ykval\n";
 	echo "graph_width 400\n";
 
-	foreach ($shortnames as $shortname)
+	foreach ($endpoints as $endpoint)
 	{
-		echo "${shortname}_avgwait.label ${shortname}\n";
-		echo "${shortname}_avgwait.type GAUGE\n";
-		echo "${shortname}_avgwait.info Average VAL round-trip latency\n";
-		echo "${shortname}_avgwait.min 0\n";
-		echo "${shortname}_avgwait.draw LINE1\n";
+		list($internal, $label, $url) = $endpoint;
+
+		echo "${internal}_avgwait.label ${label}\n";
+		echo "${internal}_avgwait.type GAUGE\n";
+		echo "${internal}_avgwait.info Average VAL round-trip latency\n";
+		echo "${internal}_avgwait.min 0\n";
+		echo "${internal}_avgwait.draw LINE1\n";
 	}
 
 	exit(0);
 }
 
 echo "multigraph ykval_vallatency\n";
-foreach ($urls as $url)
+
+foreach ($endpoints as $endpoint)
 {
-	$shortname = shortname($url);
+	list ($internal, $label, $url) = $endpoint;
 
 	if (($total_time = total_time($url)) === FALSE)
 		$total_time = 'error';
 
-	echo "${shortname}_avgwait.value ${total_time}\n";
+	echo "${internal}_avgwait.value ${total_time}\n";
 }
+
+exit(0);

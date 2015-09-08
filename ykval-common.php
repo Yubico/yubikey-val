@@ -364,12 +364,57 @@ function total_time ($url)
 }
 
 /**
- * Return the hostname, and if defined the port, for a given URL.
+ * Given a list of urls, create internal and label names for munin.
+ *
+ * @argument $urls
+ * @return array|bool array or false on failure.
+ */
+function endpoints ($urls)
+{
+	$endpoints = array();
+
+	foreach ($urls as $url)
+	{
+		// internal munin name must be a-zA-Z0-9_,
+		//	so sha1 hex should be fine.
+		//
+		// munin also truncates at some length,
+		//	so we just take the first few characters of the hashsum.
+		$internal = substr(sha1($url), 0, 20);
+
+		// actual label name shown for graph values
+		if (($label = hostport($url)) === FALSE)
+		{
+			return false;
+		}
+
+		$endpoints[] = array($internal, $label, $url);
+	}
+
+	// check for truncated sha1 collisions (or actual duplicate URLs!)
+	$internal = array();
+
+	foreach($endpoints as $endpoint)
+	{
+		$internal[] = $endpoint[0];
+	}
+
+	if (count(array_unique($internal)) !== count($endpoints))
+		return false;
+
+	return $endpoints;
+}
+
+/**
+ * Given a URL, return the hostname and port,
+ *	if the port is defined or can be determined from the scheme.
+ *
+ * Otherwise just return the hostname.
  *
  * @argument $url string
  * @return string|bool short name or false on failure
  */
-function shortname ($url)
+function hostport ($url)
 {
 	if (($url = parse_url($url)) === FALSE)
 		return false;
@@ -378,7 +423,15 @@ function shortname ($url)
 		return false;
 
 	if (array_key_exists('port', $url) === TRUE && $url['port'] !== NULL)
-		return $url['host'] . '_' . $url['port'];
+		return $url['host'].':'.$url['port'];
+
+	if (array_key_exists('scheme', $url) === TRUE
+			&& strtolower($url['scheme']) === 'http')
+		return $url['host'].':80';
+
+	if (array_key_exists('scheme', $url) === TRUE
+			&& strtolower($url['scheme']) === 'https')
+		return $url['host'].':443';
 
 	return $url['host'];
 }
