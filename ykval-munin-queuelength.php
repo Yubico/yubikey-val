@@ -37,19 +37,8 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once 'ykval-config.php';
 require_once 'ykval-db.php';
 
-function url2shortname ($url)
-{
-	if (preg_match("/^[^\/]+\/\/([a-z0-9-]+)/", $url, $name)==0)
-	{
-		echo "Cannot match URL hostname: " . $url . "\n";
-		exit(1);
-	}
-
-	return $name[1];
-}
-
 $urls = $baseParams['__YKVAL_SYNC_POOL__'];
-$shortnames = array_map("url2shortname", $urls);
+$shortnames = array_map("short_name", $urls);
 
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
@@ -95,7 +84,7 @@ foreach ($shortnames as $shortname)
 
 	foreach ($r as $result)
 	{
-		if (strpos($result['server'], "$shortname.") !== FALSE)
+		if (short_name($result['server']) === $shortname)
 		{
 			$count = $result['count'];
 			break;
