@@ -48,7 +48,10 @@ function url2shortname ($url)
 	return $name[1];
 }
 
+# FIXME
+# otp and client ID should be moved to a munin environment variable
 $urls = otp2ksmurls ("ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck", 16);
+
 $shortnames = array_map("url2shortname", $urls);
 
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
