@@ -51,7 +51,13 @@ foreach($shortnames as $val)
 
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
-	print "yes\n";
+	if (is_array($urls) && count($urls) > 0)
+	{
+		print "yes\n";
+		exit(0);
+	}
+
+	print "no (sync pool not configured)\n";
 	exit(0);
 }
 
