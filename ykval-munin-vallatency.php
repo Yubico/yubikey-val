@@ -54,7 +54,7 @@ $shortnames = array_map("url2shortname", $urls);
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
 	print "yes\n";
-	exit (0);
+	exit(0);
 }
 
 if ($argc == 2 && strcmp($argv[1], "config") == 0)
