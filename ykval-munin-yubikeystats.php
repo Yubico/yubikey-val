@@ -69,7 +69,7 @@ if (!$db->connect())
 
 function get_count($db, $table, $conditions)
 {
-	$res = $db->customQuery('SELECT count(1) as count FROM ' . $table . ' WHERE ' . $conditions);
+	$res = $db->customQuery("SELECT count(1) as count FROM $table WHERE $conditions");
 
 	if ($res)
 	{
@@ -81,16 +81,16 @@ function get_count($db, $table, $conditions)
 }
 
 if ($count = get_count($db, 'yubikeys', 'active=true'))
-	echo "yubikeys_enabled.value " . $count . "\n";
+	echo "yubikeys_enabled.value $count\n";
 
 if ($count = get_count($db, 'yubikeys', 'active=false'))
-	echo "yubikeys_disabled.value " . $count . "\n";
+	echo "yubikeys_disabled.value $count\n";
 
 if ($count = get_count($db, 'yubikeys', 'modified >= ' . (time() - (31 * 86400))))
-	echo "yubikeys_1month.value " . $count . "\n";
+	echo "yubikeys_1month.value $count\n";
 
 if ($count = get_count($db, 'clients', 'active=true'))
-	echo "clients_enabled.value " . $count . "\n";
+	echo "clients_enabled.value $count\n";
 
 if ($count = get_count($db, 'clients', 'active=false'))
-	echo "clients_disabled.value " . $count . "\n";
+	echo "clients_disabled.value $count\n";
