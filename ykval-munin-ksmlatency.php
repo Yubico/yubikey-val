@@ -31,6 +31,7 @@
 set_include_path(get_include_path() . PATH_SEPARATOR . "/etc/yubico/val:/usr/share/yubikey-val");
 
 require_once 'ykval-config.php';
+require_once 'ykval-common.php';
 
 function url2shortname ($url)
 {
@@ -76,17 +77,9 @@ echo "multigraph ykval_ksmlatency\n";
 foreach ($ksms as $ksm)
 {
 	$shortksm = url2shortname ($ksm);
-	$time = `curl --silent --write-out '%{time_total}' --max-time 3 '$ksm' -o /dev/null`;
 
-	if (preg_match("/^3\./", $time))
-	{
-		$time = "timeout";
-	}
+	if (($total_time = total_time($ksm)) === FALSE)
+		$total_time = 'error';
 
-	if (preg_match("/^0\.000/", $time))
-	{
-		$time = "error";
-	}
-
-	echo "${shortksm}_avgwait.value $time\n";
+	echo "${shortksm}_avgwait.value $total_time\n";
 }
