@@ -324,3 +324,61 @@ if (function_exists('hash_equals') === FALSE)
 		return (0 === $result);
 	}
 }
+
+/**
+ * Return the total time taken to receive a response from a URL.
+ *
+ * @argument $url string
+ * @argument $ipresolve string whatever|ipv4|ipv6
+ *
+ * @return float|bool seconds or false on failure
+ */
+function total_time ($url, $ipresolve = 'whatever')
+{
+	switch ($ipresolve)
+	{
+		case 'whatever':
+			$ipresolve = CURL_IPRESOLVE_WHATEVER;
+			break;
+
+		case 'ipv4':
+			$ipresolve = CURL_IPRESOLVE_V4;
+			break;
+
+		case 'ipv6':
+			$ipresolve = CURL_IPRESOLVE_V6;
+			break;
+
+		default:
+			return false;
+	}
+
+	$opts = array(
+		CURLOPT_URL => $url,
+		CURLOPT_IPRESOLVE => $ipresolve,
+		CURLOPT_TIMEOUT => 3,
+		CURLOPT_FORBID_REUSE => TRUE,
+		CURLOPT_FRESH_CONNECT => TRUE,
+		CURLOPT_RETURNTRANSFER => TRUE,
+		CURLOPT_USERAGENT => 'ykval-munin-vallatency/1.0',
+	);
+
+	if (($ch = curl_init()) === FALSE)
+		return false;
+
+	if (curl_setopt_array($ch, $opts) === FALSE)
+		return false;
+
+	// we don't care about the actual response
+	if (curl_exec($ch) === FALSE)
+		return false;
+
+	$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+
+	curl_close($ch);
+
+	if (is_float($total_time) === FALSE)
+		return false;
+
+	return $total_time;
+}
