@@ -85,5 +85,5 @@ foreach ($urls as $url)
 	if (($total_time = total_time($url)) === FALSE)
 		$total_time = 'error';
 
-	echo "${shortname}_avgwait.value $total_time\n";
+	echo "${shortname}_avgwait.value ${total_time}\n";
 }

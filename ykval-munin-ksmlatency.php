@@ -85,5 +85,5 @@ foreach ($ksms as $ksm)
 	if (($total_time = total_time($ksm)) === FALSE)
 		$total_time = 'error';
 
-	echo "${shortksm}_avgwait.value $total_time\n";
+	echo "${shortksm}_avgwait.value ${total_time}\n";
 }
