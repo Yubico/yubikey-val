@@ -37,22 +37,11 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once 'ykval-config.php';
 require_once 'ykval-common.php';
 
-function url2shortname ($url)
-{
-	if (preg_match("/^[^\/]+\/\/([a-z0-9-]+)/", $url, $name) == 0)
-	{
-		echo "Cannot match URL hostname: " . $url . "\n";
-		exit(1);
-	}
-
-	return $name[1];
-}
-
 # FIXME
 # otp and client ID should be moved to a munin environment variable
 $urls = otp2ksmurls ("ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck", 16);
 
-$shortnames = array_map("url2shortname", $urls);
+$shortnames = array_map('short_name', $urls);
 
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
@@ -83,7 +72,7 @@ if ($argc == 2 && strcmp($argv[1], "config") == 0)
 echo "multigraph ykval_ksmlatency\n";
 foreach ($urls as $url)
 {
-	$shortname = url2shortname($url);
+	$shortname = short_name($url);
 
 	if (($total_time = total_time($url)) === FALSE)
 		$total_time = 'error';
