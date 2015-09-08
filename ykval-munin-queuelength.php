@@ -62,7 +62,7 @@ if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 	exit(0);
 }
 
-if ($argc==2 && strcmp($argv[1], "config") == 0)
+if ($argc == 2 && strcmp($argv[1], "config") == 0)
 {
 	echo "graph_title YK-VAL queue size\n";
 	echo "graph_vlabel sync requests in queue\n";
