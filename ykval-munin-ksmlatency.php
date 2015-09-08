@@ -42,6 +42,14 @@ require_once 'ykval-common.php';
 $urls = otp2ksmurls('ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck', 16);
 
 $shortnames = array_map('shortname', $urls);
+foreach($shortnames as $shortname)
+{
+	if ($shortname === FALSE)
+	{
+		echo "Cannot parse URL from ksm url list\n";
+		exit(1);
+	}
+}
 
 if ($argc == 2 && strcmp($argv[1], 'autoconf') == 0)
 {

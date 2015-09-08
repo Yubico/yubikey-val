@@ -38,7 +38,16 @@ require_once 'ykval-config.php';
 require_once 'ykval-db.php';
 
 $urls = $baseParams['__YKVAL_SYNC_POOL__'];
+
 $shortnames = array_map("shortname", $urls);
+foreach($shortnames as $shortname)
+{
+	if ($shortname === FALSE)
+	{
+		echo "Cannot parse URL from sync pool list\n";
+		exit(1);
+	}
+}
 
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {

@@ -40,9 +40,9 @@ require_once 'ykval-common.php';
 $urls = $baseParams['__YKVAL_SYNC_POOL__'];
 
 $shortnames = array_map('shortname', $urls);
-foreach($shortnames as $val)
+foreach($shortnames as $shortname)
 {
-	if ($val === FALSE)
+	if ($shortname === FALSE)
 	{
 		echo "Cannot parse URL from sync pool list\n";
 		exit(1);
