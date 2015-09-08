@@ -36,6 +36,7 @@ set_include_path(implode(PATH_SEPARATOR, array(
 
 require_once 'ykval-config.php';
 require_once 'ykval-db.php';
+require_once 'ykval-common.php';
 
 $urls = $baseParams['__YKVAL_SYNC_POOL__'];
 
