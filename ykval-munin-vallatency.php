@@ -67,17 +67,11 @@ if ($argc == 2 && strcmp($argv[1], "config") == 0)
 
 	foreach ($shortnames as $shortname)
 	{
-		echo "ipv4${shortname}_avgwait.label IPv4-${shortname}\n";
-		echo "ipv4${shortname}_avgwait.type GAUGE\n";
-		echo "ipv4${shortname}_avgwait.info Average VAL round-trip latency\n";
-		echo "ipv4${shortname}_avgwait.min 0\n";
-		echo "ipv4${shortname}_avgwait.draw LINE1\n";
-
-		echo "ipv6${shortname}_avgwait.label IPv6-${shortname}\n";
-		echo "ipv6${shortname}_avgwait.type GAUGE\n";
-		echo "ipv6${shortname}_avgwait.info Average VAL round-trip latency\n";
-		echo "ipv6${shortname}_avgwait.min 0\n";
-		echo "ipv6${shortname}_avgwait.draw LINE1\n";
+		echo "${shortname}_avgwait.label ${shortname}\n";
+		echo "${shortname}_avgwait.type GAUGE\n";
+		echo "${shortname}_avgwait.info Average VAL round-trip latency\n";
+		echo "${shortname}_avgwait.min 0\n";
+		echo "${shortname}_avgwait.draw LINE1\n";
 	}
 
 	exit(0);
@@ -88,11 +82,8 @@ foreach ($urls as $url)
 {
 	$shortname = url2shortname($url);
 
-	foreach (array('ipv4', 'ipv6') as $ipv)
-	{
-		if (($total_time = total_time($url, $ipv)) === FALSE)
-			$total_time = 'error';
+	if (($total_time = total_time($url)) === FALSE)
+		$total_time = 'error';
 
-		echo "$ipv${shortname}_avgwait.value $total_time\n";
-	}
+	echo "${shortname}_avgwait.value $total_time\n";
 }

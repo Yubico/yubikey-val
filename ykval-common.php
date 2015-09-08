@@ -329,33 +329,13 @@ if (function_exists('hash_equals') === FALSE)
  * Return the total time taken to receive a response from a URL.
  *
  * @argument $url string
- * @argument $ipresolve string whatever|ipv4|ipv6
  *
  * @return float|bool seconds or false on failure
  */
-function total_time ($url, $ipresolve = 'whatever')
+function total_time ($url)
 {
-	switch ($ipresolve)
-	{
-		case 'whatever':
-			$ipresolve = CURL_IPRESOLVE_WHATEVER;
-			break;
-
-		case 'ipv4':
-			$ipresolve = CURL_IPRESOLVE_V4;
-			break;
-
-		case 'ipv6':
-			$ipresolve = CURL_IPRESOLVE_V6;
-			break;
-
-		default:
-			return false;
-	}
-
 	$opts = array(
 		CURLOPT_URL => $url,
-		CURLOPT_IPRESOLVE => $ipresolve,
 		CURLOPT_TIMEOUT => 3,
 		CURLOPT_FORBID_REUSE => TRUE,
 		CURLOPT_FRESH_CONNECT => TRUE,
