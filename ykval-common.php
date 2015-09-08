@@ -378,7 +378,7 @@ function shortname ($url)
 		return false;
 
 	if (array_key_exists('port', $url) === TRUE && $url['port'] !== NULL)
-		return $url['host'] . ':' . $url['port'];
+		return $url['host'] . '_' . $url['port'];
 
 	return $url['host'];
 }
