@@ -39,7 +39,7 @@ require_once 'ykval-common.php';
 
 $urls = $baseParams['__YKVAL_SYNC_POOL__'];
 
-$shortnames = array_map("short_name", $urls);
+$shortnames = array_map('short_name', $urls);
 foreach($shortnames as $val)
 {
 	if ($val === FALSE)
@@ -49,7 +49,7 @@ foreach($shortnames as $val)
 	}
 }
 
-if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
+if ($argc == 2 && strcmp($argv[1], 'autoconf') == 0)
 {
 	if (is_array($urls) && count($urls) > 0)
 	{
@@ -61,7 +61,7 @@ if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 	exit(0);
 }
 
-if ($argc == 2 && strcmp($argv[1], "config") == 0)
+if ($argc == 2 && strcmp($argv[1], 'config') == 0)
 {
 	echo "multigraph ykval_vallatency\n";
 	echo "graph_title VAL latency\n";

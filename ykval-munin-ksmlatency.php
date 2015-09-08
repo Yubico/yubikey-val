@@ -39,17 +39,17 @@ require_once 'ykval-common.php';
 
 # FIXME
 # otp and client ID should be moved to a munin environment variable
-$urls = otp2ksmurls ("ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck", 16);
+$urls = otp2ksmurls('ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck', 16);
 
 $shortnames = array_map('short_name', $urls);
 
-if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
+if ($argc == 2 && strcmp($argv[1], 'autoconf') == 0)
 {
 	echo "yes\n";
 	exit(0);
 }
 
-if ($argc == 2 && strcmp($argv[1], "config") == 0)
+if ($argc == 2 && strcmp($argv[1], 'config') == 0)
 {
 	echo "multigraph ykval_ksmlatency\n";
 	echo "graph_title KSM latency\n";
