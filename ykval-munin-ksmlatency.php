@@ -48,8 +48,8 @@ function url2shortname ($url)
 	return $name[1];
 }
 
-$ksms = otp2ksmurls ("ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck", 16);
-$shortnames = array_map("url2shortname", $ksms);
+$urls = otp2ksmurls ("ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck", 16);
+$shortnames = array_map("url2shortname", $urls);
 
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
@@ -78,11 +78,11 @@ if ($argc == 2 && strcmp($argv[1], "config") == 0)
 }
 
 echo "multigraph ykval_ksmlatency\n";
-foreach ($ksms as $ksm)
+foreach ($urls as $url)
 {
-	$shortname = url2shortname ($ksm);
+	$shortname = url2shortname($url);
 
-	if (($total_time = total_time($ksm)) === FALSE)
+	if (($total_time = total_time($url)) === FALSE)
 		$total_time = 'error';
 
 	echo "${shortname}_avgwait.value ${total_time}\n";
