@@ -38,19 +38,37 @@ require_once 'ykval-config.php';
 require_once 'ykval-db.php';
 require_once 'ykval-common.php';
 
-$urls = $baseParams['__YKVAL_SYNC_POOL__'];
-
-$shortnames = array_map("shortname", $urls);
-foreach($shortnames as $shortname)
+function get_db_counters()
 {
-	if ($shortname === FALSE)
+	$db = Db::GetDatabaseHandle($baseParams, 'ykval-munin-queuelength');
+
+	if (!$db->connect())
+		return false;
+
+	$result = $db->customQuery('
+				SELECT server,
+				COUNT(server) as count
+				FROM queue
+				GROUP BY server');
+
+	if ($result)
+		$result = $result->fetchAll(PDO::FETCH_ASSOC);
+	else
+		return false;
+
+	$counters = array();
+
+	foreach ($result as $row)
 	{
-		echo "Cannot parse URL from sync pool list\n";
-		exit(1);
+		$counters[$row['server']] = $row['count'];
 	}
+
+	return $counters;
 }
 
-if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
+$urls = $baseParams['__YKVAL_SYNC_POOL__'];
+
+if ($argc == 2 && strcmp($argv[1], 'autoconf') == 0)
 {
 	if (is_array($urls) && count($urls) > 0)
 	{
@@ -62,44 +80,46 @@ if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 	exit(0);
 }
 
-if ($argc == 2 && strcmp($argv[1], "config") == 0)
+if (($endpoints = endpoints($urls)) === FALSE)
+{
+	echo "Cannot parse URLs from sync pool list\n";
+	exit(1);
+}
+
+if ($argc == 2 && strcmp($argv[1], 'config') == 0)
 {
 	echo "graph_title YK-VAL queue size\n";
 	echo "graph_vlabel sync requests in queue\n";
 	echo "graph_category ykval\n";
 
-	foreach ($shortnames as $shortname)
+	foreach ($endpoints as $endpoint)
 	{
-		echo "queuelength_${shortname}.label sync ${shortname}\n";
-		echo "queuelength_${shortname}.draw AREASTACK\n";
-		echo "queuelength_${shortname}.type GAUGE\n";
+		list ($internal, $label, $url) = $endpoint;
+
+		echo "${internal}_queuelength.label sync ${label}\n";
+		echo "${internal}_queuelength.draw AREASTACK\n";
+		echo "${internal}_queuelength.type GAUGE\n";
 	}
 
 	exit(0);
 }
 
-$db = Db::GetDatabaseHandle($baseParams, 'ykval-munin-queuelength');
-if (!$db->connect())
-	logdie($myLog, 'ERROR Database connect error (1)');
-
-$res = $db->customQuery('select server,count(server) as count from queue group by server');
-if ($res)
-	$r = $res->fetchAll(PDO::FETCH_ASSOC);
-else
-	logdie($myLog, 'ERROR getting data from db');
-
-foreach ($shortnames as $shortname)
+if (($counters = get_db_counters()) === FALSE)
 {
+	echo "Error fetching data from database\n";
+	exit(1);
+}
+
+foreach ($endpoints as $endpoint)
+{
+	list ($internal, $label, $url) = $endpoint;
+
 	$count = 0;
 
-	foreach ($r as $result)
-	{
-		if (shortname($result['server']) === $shortname)
-		{
-			$count = $result['count'];
-			break;
-		}
-	}
+	if (array_key_exists($url, $counters))
+		$count = $counters[$url];
 
-	echo "queuelength_${shortname}.value $count\n";
+	echo "${internal}_queuelength.value $count\n";
 }
+
+exit(0);
