@@ -41,14 +41,10 @@ require_once 'ykval-common.php';
 # otp and client ID should be moved to a munin environment variable
 $urls = otp2ksmurls('ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck', 16);
 
-$shortnames = array_map('shortname', $urls);
-foreach($shortnames as $shortname)
+if (($endpoints = endpoints($urls)) === FALSE)
 {
-	if ($shortname === FALSE)
-	{
-		echo "Cannot parse URL from ksm url list\n";
-		exit(1);
-	}
+	echo "Cannot parse URLs from ksm url list\n";
+	exit(1);
 }
 
 if ($argc == 2 && strcmp($argv[1], 'autoconf') == 0)
@@ -65,25 +61,30 @@ if ($argc == 2 && strcmp($argv[1], 'config') == 0)
 	echo "graph_category ykval\n";
 	echo "graph_width 400\n";
 
-	foreach ($shortnames as $shortname)
+	foreach ($endpoints as $endpoint)
 	{
-		echo "${shortname}_avgwait.label ${shortname}\n";
-		echo "${shortname}_avgwait.type GAUGE\n";
-		echo "${shortname}_avgwait.info Average wait time for KSM decrypt\n";
-		echo "${shortname}_avgwait.min 0\n";
-		echo "${shortname}_avgwait.draw LINE1\n";
+		list ($internal, $label, $url) = $endpoint;
+
+		echo "${internal}_avgwait.label ${label}\n";
+		echo "${internal}_avgwait.type GAUGE\n";
+		echo "${internal}_avgwait.info Average wait time for KSM decrypt\n";
+		echo "${internal}_avgwait.min 0\n";
+		echo "${internal}_avgwait.draw LINE1\n";
 	}
 
 	exit(0);
 }
 
 echo "multigraph ykval_ksmlatency\n";
-foreach ($urls as $url)
+
+foreach ($endpoints as $endpoint)
 {
-	$shortname = shortname($url);
+	list ($internal, $label, $url) = $endpoint;
 
 	if (($total_time = total_time($url)) === FALSE)
 		$total_time = 'error';
 
-	echo "${shortname}_avgwait.value ${total_time}\n";
+	echo "${internal}_avgwait.value ${total_time}\n";
 }
+
+exit(0);
