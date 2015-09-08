@@ -362,3 +362,23 @@ function total_time ($url)
 
 	return $total_time;
 }
+
+/**
+ * Return the hostname, and if defined the port, for a given URL.
+ *
+ * @argument $url string
+ * @return string|bool short name or false on failure
+ */
+function short_name ($url)
+{
+	if (($url = parse_url($url)) === FALSE)
+		return false;
+
+	if (array_key_exists('host', $url) === FALSE || $url['host'] === NULL)
+		return false;
+
+	if (array_key_exists('port', $url) === TRUE && $url['port'] !== NULL)
+		return $url['host'] . ':' . $url['port'];
+
+	return $url['host'];
+}

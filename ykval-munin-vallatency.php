@@ -37,19 +37,17 @@ set_include_path(implode(PATH_SEPARATOR, array(
 require_once 'ykval-config.php';
 require_once 'ykval-common.php';
 
-function url2shortname ($url)
+$urls = $baseParams['__YKVAL_SYNC_POOL__'];
+
+$shortnames = array_map("short_name", $urls);
+foreach($shortnames as $val)
 {
-	if (preg_match("/^[^\/]+\/\/([a-z0-9-]+)/", $url, $name) == 0)
+	if ($val === FALSE)
 	{
-		echo "Cannot match URL hostname: " . $url . "\n";
+		echo "Cannot parse URL from sync pool list\n";
 		exit(1);
 	}
-
-	return $name[1];
 }
-
-$urls = $baseParams['__YKVAL_SYNC_POOL__'];
-$shortnames = array_map("url2shortname", $urls);
 
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
@@ -80,7 +78,7 @@ if ($argc == 2 && strcmp($argv[1], "config") == 0)
 echo "multigraph ykval_vallatency\n";
 foreach ($urls as $url)
 {
-	$shortname = url2shortname($url);
+	$shortname = short_name($url);
 
 	if (($total_time = total_time($url)) === FALSE)
 		$total_time = 'error';
