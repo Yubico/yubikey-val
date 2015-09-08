@@ -35,36 +35,9 @@ set_include_path(implode(PATH_SEPARATOR, array(
 )));
 
 require_once 'ykval-config.php';
-require_once 'ykval-db.php';
 require_once 'ykval-common.php';
+require_once 'ykval-synclib.php';
 
-function get_db_counters()
-{
-	$db = Db::GetDatabaseHandle($baseParams, 'ykval-munin-queuelength');
-
-	if (!$db->connect())
-		return false;
-
-	$result = $db->customQuery('
-				SELECT server,
-				COUNT(server) as count
-				FROM queue
-				GROUP BY server');
-
-	if ($result)
-		$result = $result->fetchAll(PDO::FETCH_ASSOC);
-	else
-		return false;
-
-	$counters = array();
-
-	foreach ($result as $row)
-	{
-		$counters[$row['server']] = $row['count'];
-	}
-
-	return $counters;
-}
 
 $urls = $baseParams['__YKVAL_SYNC_POOL__'];
 
@@ -104,11 +77,8 @@ if ($argc == 2 && strcmp($argv[1], 'config') == 0)
 	exit(0);
 }
 
-if (($counters = get_db_counters()) === FALSE)
-{
-	echo "Error fetching data from database\n";
-	exit(1);
-}
+$sync = new SyncLib('ykval-synclib:munin');
+$queuelength = $sync->getQueueLengthByServer();
 
 foreach ($endpoints as $endpoint)
 {
@@ -116,8 +86,8 @@ foreach ($endpoints as $endpoint)
 
 	$count = 0;
 
-	if (array_key_exists($url, $counters))
-		$count = $counters[$url];
+	if (array_key_exists($url, $queuelength))
+		$count = $queuelength[$url];
 
 	echo "${internal}_queuelength.value $count\n";
 }

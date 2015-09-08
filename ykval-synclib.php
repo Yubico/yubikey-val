@@ -102,6 +102,27 @@ class SyncLib
 		return count($this->db->findBy('queue', null, null, null));
 	}
 
+	public function getQueueLengthByServer()
+	{
+		$counters = array();
+
+		foreach ($this->syncServers as $server)
+		{
+			$counters[$server] = 0;
+		}
+
+		$result = $this->db->customQuery('SELECT server, COUNT(server) as count FROM queue GROUP BY server');
+
+		while ($row = $this->db->fetchArray($result))
+		{
+			$counters[$row['server']] = $row['count'];
+		}
+
+		$this->db->closeCursor($result);
+
+		return $counters;
+	}
+
 	public function queue($otpParams, $localParams)
 	{
 		$info = $this->createInfoString($otpParams, $localParams);
