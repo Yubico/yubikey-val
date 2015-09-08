@@ -49,7 +49,7 @@ function url2shortname ($url)
 }
 
 $ksms = otp2ksmurls ("ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck", 16);
-$shortksms = array_map("url2shortname", $ksms);
+$shortnames = array_map("url2shortname", $ksms);
 
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
@@ -65,13 +65,13 @@ if ($argc == 2 && strcmp($argv[1], "config") == 0)
 	echo "graph_category ykval\n";
 	echo "graph_width 400\n";
 
-	foreach ($shortksms as $shortksm)
+	foreach ($shortnames as $shortname)
 	{
-		echo "${shortksm}_avgwait.label ${shortksm}\n";
-		echo "${shortksm}_avgwait.type GAUGE\n";
-		echo "${shortksm}_avgwait.info Average wait time for KSM decrypt\n";
-		echo "${shortksm}_avgwait.min 0\n";
-		echo "${shortksm}_avgwait.draw LINE1\n";
+		echo "${shortname}_avgwait.label ${shortname}\n";
+		echo "${shortname}_avgwait.type GAUGE\n";
+		echo "${shortname}_avgwait.info Average wait time for KSM decrypt\n";
+		echo "${shortname}_avgwait.min 0\n";
+		echo "${shortname}_avgwait.draw LINE1\n";
 	}
 
 	exit(0);
@@ -80,10 +80,10 @@ if ($argc == 2 && strcmp($argv[1], "config") == 0)
 echo "multigraph ykval_ksmlatency\n";
 foreach ($ksms as $ksm)
 {
-	$shortksm = url2shortname ($ksm);
+	$shortname = url2shortname ($ksm);
 
 	if (($total_time = total_time($ksm)) === FALSE)
 		$total_time = 'error';
 
-	echo "${shortksm}_avgwait.value ${total_time}\n";
+	echo "${shortname}_avgwait.value ${total_time}\n";
 }
