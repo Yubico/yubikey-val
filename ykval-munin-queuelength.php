@@ -48,14 +48,14 @@ function url2shortname ($url)
 	return $name[1];
 }
 
+$urls = $baseParams['__YKVAL_SYNC_POOL__'];
+$shortnames = array_map("url2shortname", $urls);
+
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
   print "yes\n";
   exit(0);
 }
-
-$urls = $baseParams['__YKVAL_SYNC_POOL__'];
-$shortnames = array_map("url2shortname", $urls);
 
 if ($argc==2 && strcmp($argv[1], "config") == 0)
 {
