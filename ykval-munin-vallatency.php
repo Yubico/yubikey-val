@@ -53,11 +53,11 @@ if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
 	if (is_array($urls) && count($urls) > 0)
 	{
-		print "yes\n";
+		echo "yes\n";
 		exit(0);
 	}
 
-	print "no (sync pool not configured)\n";
+	echo "no (sync pool not configured)\n";
 	exit(0);
 }
 
