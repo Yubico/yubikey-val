@@ -369,7 +369,7 @@ function total_time ($url)
  * @argument $url string
  * @return string|bool short name or false on failure
  */
-function short_name ($url)
+function shortname ($url)
 {
 	if (($url = parse_url($url)) === FALSE)
 		return false;

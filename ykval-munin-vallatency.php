@@ -39,7 +39,7 @@ require_once 'ykval-common.php';
 
 $urls = $baseParams['__YKVAL_SYNC_POOL__'];
 
-$shortnames = array_map('short_name', $urls);
+$shortnames = array_map('shortname', $urls);
 foreach($shortnames as $val)
 {
 	if ($val === FALSE)
@@ -84,7 +84,7 @@ if ($argc == 2 && strcmp($argv[1], 'config') == 0)
 echo "multigraph ykval_vallatency\n";
 foreach ($urls as $url)
 {
-	$shortname = short_name($url);
+	$shortname = shortname($url);
 
 	if (($total_time = total_time($url)) === FALSE)
 		$total_time = 'error';

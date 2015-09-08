@@ -38,7 +38,7 @@ require_once 'ykval-config.php';
 require_once 'ykval-db.php';
 
 $urls = $baseParams['__YKVAL_SYNC_POOL__'];
-$shortnames = array_map("short_name", $urls);
+$shortnames = array_map("shortname", $urls);
 
 if ($argc == 2 && strcmp($argv[1], "autoconf") == 0)
 {
@@ -84,7 +84,7 @@ foreach ($shortnames as $shortname)
 
 	foreach ($r as $result)
 	{
-		if (short_name($result['server']) === $shortname)
+		if (shortname($result['server']) === $shortname)
 		{
 			$count = $result['count'];
 			break;
