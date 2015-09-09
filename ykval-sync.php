@@ -33,11 +33,6 @@ require_once 'ykval-synclib.php';
 
 header('content-type: text/plain');
 
-if (empty($_SERVER['QUERY_STRING']))
-{
-	sendResp(S_MISSING_PARAMETER, $myLog);
-}
-
 $ipaddr = $_SERVER['REMOTE_ADDR'];
 $allowed = $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'];
 
@@ -46,6 +41,10 @@ $myLog->addField('ip', $ipaddr);
 $myLog->log(LOG_INFO, 'Request: ' . $_SERVER['QUERY_STRING']);
 $myLog->log(LOG_DEBUG, "Received request from $ipaddr");
 
+if (empty($_SERVER['QUERY_STRING']))
+{
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
 
 // verify request sent by whitelisted address
 if (in_array($ipaddr, $allowed, TRUE) === FALSE)
