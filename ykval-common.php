@@ -74,28 +74,6 @@ function getHttpVal ($key, $default)
 	return $val;
 }
 
-function log_format()
-{
-	$str = "";
-
-	foreach (func_get_args() as $msg)
-	{
-		if (is_array($msg))
-		{
-			foreach ($msg as $key => $value)
-			{
-				$str .= "$key=$value ";
-			}
-		}
-		else
-		{
-			$str .= $msg . " ";
-		}
-	}
-
-	return $str;
-}
-
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
 function sign($a, $apiKey, $logger)
@@ -249,7 +227,7 @@ function KSMdecryptOTP($urls, $logger, $curlopts)
 
 	$response = array_shift($response);
 
-	$logger->log(LOG_DEBUG, log_format('YK-KSM response: ', $response));
+	$logger->log(LOG_DEBUG, "YK-KSM response: $response");
 
 	$ret = array();
 
