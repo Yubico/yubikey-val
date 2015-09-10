@@ -109,7 +109,7 @@ foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param
 	if ($syncParams[$param] !== '' && ctype_digit($syncParams[$param]))
 		continue;
 
-	$myLog->log(LOG_NOTICE, "Input parameters $param  not correct");
+	$myLog->log(LOG_NOTICE, "Input parameters $param not correct");
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
@@ -161,7 +161,7 @@ if ($sync->countersEqual($localParams, $syncParams))
 
 	if ($syncParams['nonce'] != $localParams['nonce'])
 	{
-		$myLog->log(LOG_WARNING, 'Remote server has received a request to validate an already validated OTP ');
+		$myLog->log(LOG_WARNING, 'Remote server has received a request to validate an already validated OTP');
 	}
 }
 

@@ -371,7 +371,7 @@ if (!$sync->updateDbCounters($otpParams))
 
 if (!$sync->queue($otpParams, $localParams))
 {
-	$myLog->log(LOG_CRIT, 'ykval-verify:critical:failed to queue sync requests');
+	$myLog->log(LOG_CRIT, 'failed to queue sync requests');
 	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
 }
 
@@ -392,7 +392,7 @@ else
 	$sl_success_rate = 0;
 }
 
-$myLog->log(LOG_INFO, "ykval-verify:notice:synclevel=" . $sl .
+$myLog->log(LOG_INFO, "synclevel=" . $sl .
 		" nr servers=" . $nr_servers .
 		" req answers=" . $req_answers .
 		" answers=" . $nr_answers .
@@ -405,7 +405,7 @@ if ($syncres == False)
 	/* sync returned false, indicating that
 		either at least 1 answer marked OTP as invalid or
 		there were not enough answers */
-	$myLog->log(LOG_WARNING, 'ykval-verify:notice:Sync failed');
+	$myLog->log(LOG_WARNING, 'Sync failed');
 
 	if ($nr_valid_answers != $nr_answers)
 		sendResp(S_REPLAYED_OTP, $myLog, $apiKey, $extra);
