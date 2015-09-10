@@ -56,12 +56,14 @@ class Log
 
 	public function log ($priority, $message, $extra = NULL)
 	{
+		$final = '';
+
 		if (is_array($extra)) {
-			foreach($extra as $key => $value){
+			foreach($extra as $key => $value) {
 				if (is_array($value)) {
 					$value = implode(':', $value);
 				}
-				$message .= " $key=$value ";
+				$final .= " $key=$value ";
 			}
 		}
 
@@ -74,6 +76,7 @@ class Log
 			$this->log_levels[$priority] . ':' .
 			$this->name . ':' .
 			$fields .
-			$message);
+			$message .
+			$final);
 	}
 }
