@@ -245,9 +245,7 @@ function KSMdecryptOTP($urls, $logger, $curlopts)
 	$response = retrieveURLasync('YK-KSM', $urls, $logger, $ans_req=1, $match='^OK', $returl=False, $timeout=10, $curlopts);
 
 	if ($response === FALSE)
-	{
 		return false;
-	}
 
 	$response = array_shift($response);
 
