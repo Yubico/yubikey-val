@@ -54,10 +54,10 @@ class Log
 		$this->fields[$name] = $value;
 	}
 
-	public function log ($priority, $message, $arr=null)
+	public function log ($priority, $message, $extra = NULL)
 	{
-		if (is_array($arr)) {
-			foreach($arr as $key => $value){
+		if (is_array($extra)) {
+			foreach($extra as $key => $value){
 				if (is_array($value)) {
 					$value = implode(':', $value);
 				}
