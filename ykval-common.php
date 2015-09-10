@@ -242,11 +242,6 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 
 function KSMdecryptOTP($urls, $logger, $curlopts)
 {
-	if (!is_array($urls))
-	{
-		$urls = array($urls);
-	}
-
 	$response = retrieveURLasync('YK-KSM', $urls, $logger, $ans_req=1, $match='^OK', $returl=False, $timeout=10, $curlopts);
 
 	if ($response === FALSE)
