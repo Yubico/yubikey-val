@@ -65,15 +65,15 @@ class Log
 			}
 		}
 
-		$msg_fields = '';
-		foreach ($this->fields as $field => $value) {
-			$msg_fields .= '[' . $value . '] ';
-		}
+		$fields = '';
+
+		foreach ($this->fields as $val)
+			$fields .= "[$val] ";
 
 		syslog($priority,
 			$this->log_levels[$priority] . ':' .
 			$this->name . ':' .
-			$msg_fields .
+			$fields .
 			$message);
 	}
 }
