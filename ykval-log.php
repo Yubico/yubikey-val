@@ -72,9 +72,12 @@ class Log
 
 		$message = $prefix . $message . $suffix;
 
-		syslog($priority,
-			$this->log_levels[$priority] . ':' .
-			$this->name . ':' .
-			$message);
+		$message = implode(':', array(
+				$this->log_levels[$priority],
+				$this->name,
+				$message
+			));
+
+		syslog($priority, $message);
 	}
 }
