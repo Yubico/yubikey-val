@@ -49,7 +49,7 @@ class Log
 		openlog('ykval', LOG_PID, LOG_LOCAL0);
 	}
 
-	public function addField($name, $value)
+	public function addField ($name, $value)
 	{
 		$this->fields[$name] = $value;
 	}
