@@ -70,11 +70,11 @@ class Log
 			}
 		}
 
+		$message = $prefix . $message . $suffix;
+
 		syslog($priority,
 			$this->log_levels[$priority] . ':' .
 			$this->name . ':' .
-			$prefix.
-			$message .
-			$suffix);
+			$message);
 	}
 }
