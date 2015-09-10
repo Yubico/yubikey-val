@@ -1,4 +1,12 @@
-* Version 2.31 (unreleased)
+* Version 2.31 (2015-09-10)
+
+  * Fix issues introduced in 2.30.
+
+  * PHP Fatal error when receiving an empty sync request,
+    due to not initialising the logging boiler plate early enough.
+
+  * PHP Notice when writing a LOG_INFO message,
+    due to an incorrect sprintf argument passing.
 
 * Version 2.30 (released 2015-09-09)
 
