@@ -322,7 +322,6 @@ if (function_exists('hash_equals') === FALSE)
  * Return the total time taken to receive a response from a URL.
  *
  * @argument $url string
- *
  * @return float|bool seconds or false on failure
  */
 function total_time ($url)
@@ -359,7 +358,7 @@ function total_time ($url)
 /**
  * Given a list of urls, create internal and label names for munin.
  *
- * @argument $urls
+ * @argument $urls array
  * @return array|bool array or false on failure.
  */
 function endpoints ($urls)
@@ -399,13 +398,12 @@ function endpoints ($urls)
 }
 
 /**
- * Given a URL, return the hostname and port,
- *	if the port is defined or can be determined from the scheme.
- *
+ * Given a URL, if the port is defined or can be determined from the scheme,
+ *	return the hostname and port.
  * Otherwise just return the hostname.
  *
  * @argument $url string
- * @return string|bool short name or false on failure
+ * @return string|bool string or false on failure
  */
 function hostport ($url)
 {
