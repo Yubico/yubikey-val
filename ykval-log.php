@@ -56,8 +56,11 @@ class Log
 
 	public function log ($priority, $message, $extra = NULL)
 	{
-		$final = '';
+		$fields = '';
+		foreach ($this->fields as $val)
+			$fields .= "[$val] ";
 
+		$final = '';
 		if (is_array($extra)) {
 			foreach($extra as $key => $value) {
 				if (is_array($value)) {
@@ -66,11 +69,6 @@ class Log
 				$final .= " $key=$value ";
 			}
 		}
-
-		$fields = '';
-
-		foreach ($this->fields as $val)
-			$fields .= "[$val] ";
 
 		syslog($priority,
 			$this->log_levels[$priority] . ':' .
