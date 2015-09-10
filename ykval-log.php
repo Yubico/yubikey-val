@@ -56,9 +56,9 @@ class Log
 
 	public function log ($priority, $message, $extra = NULL)
 	{
-		$fields = '';
+		$prefix = '';
 		foreach ($this->fields as $val)
-			$fields .= "[$val] ";
+			$prefix .= "[$val] ";
 
 		$final = '';
 		if (is_array($extra)) {
@@ -73,7 +73,7 @@ class Log
 		syslog($priority,
 			$this->log_levels[$priority] . ':' .
 			$this->name . ':' .
-			$fields .
+			$prefix.
 			$message .
 			$final);
 	}
