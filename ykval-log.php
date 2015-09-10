@@ -60,13 +60,13 @@ class Log
 		foreach ($this->fields as $val)
 			$prefix .= "[$val] ";
 
-		$final = '';
+		$suffix = '';
 		if (is_array($extra)) {
 			foreach($extra as $key => $value) {
 				if (is_array($value)) {
 					$value = implode(':', $value);
 				}
-				$final .= " $key=$value ";
+				$suffix .= " $key=$value ";
 			}
 		}
 
@@ -75,6 +75,6 @@ class Log
 			$this->name . ':' .
 			$prefix.
 			$message .
-			$final);
+			$suffix);
 	}
 }
