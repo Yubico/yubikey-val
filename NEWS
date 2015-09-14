@@ -1,4 +1,8 @@
-* Version 2.32 (unreleased)
+* Version 2.32 (released 2015-09-14)
+
+  * Fixed erroneous log messages and whitespace output.
+
+  * Refactoring and internal improvements.
 
 * Version 2.31 (released 2015-09-10)
 
