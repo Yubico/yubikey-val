@@ -429,9 +429,8 @@ if ($otpParams['yk_counter'] == $localParams['yk_counter'] && $otpParams['yk_use
 	$tsDelta = $tsDiff * TS_SEC;
 
 	// check the real time
-	$lastTime = $localParams['modified'];
 	$now = time();
-	$elapsed = $now - $lastTime;
+	$elapsed = $now - $localParams['modified'];
 	$deviation = abs($elapsed - $tsDelta);
 
 	// Time delta server might verify multiple OTPS in a row. In such case validation server doesn't
@@ -450,7 +449,7 @@ if ($otpParams['yk_counter'] == $localParams['yk_counter'] && $otpParams['yk_use
 		'this' => $ts,
 		'delta' => $tsDiff,
 		'secs' => $tsDelta,
-		'accessed' => sprintf('%s (%s)', $lastTime, date('Y-m-d H:i:s', $localParams['modified'])),
+		'accessed' => sprintf('%s (%s)', $localParams['modified'], date('Y-m-d H:i:s', $localParams['modified'])),
 		'now' => sprintf('%s (%s)', $now, date('Y-m-d H:i:s', $now)),
 		'elapsed' => $elapsed,
 		'deviation' => sprintf('%s secs or %s%%', $deviation, round(100 * $percent)),
