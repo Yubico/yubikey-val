@@ -418,14 +418,13 @@ if ($syncres == False)
  TODO: use timefunctionality in deltatime library instead */
 
 $ad['high'] = $localParams['yk_high'];
-$ad['low'] = $localParams['yk_low'];
 $ad['accessed'] = date('Y-m-d H:i:s', $localParams['modified']);
 
 // check the time stamp
 if ($otpParams['yk_counter'] == $localParams['yk_counter'] && $otpParams['yk_use'] > $localParams['yk_use'])
 {
 	$ts = ($otpinfo['high'] << 16) + $otpinfo['low'];
-	$seenTs = ($ad['high'] << 16) + $ad['low'];
+	$seenTs = ($ad['high'] << 16) + $localParams['yk_low'];
 	$tsDiff = $ts - $seenTs;
 	$tsDelta = $tsDiff * TS_SEC;
 
