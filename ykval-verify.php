@@ -417,8 +417,6 @@ if ($syncres == False)
 /* Recreate parameters to make phising test work out
  TODO: use timefunctionality in deltatime library instead */
 
-$ad['accessed'] = date('Y-m-d H:i:s', $localParams['modified']);
-
 // check the time stamp
 if ($otpParams['yk_counter'] == $localParams['yk_counter'] && $otpParams['yk_use'] > $localParams['yk_use'])
 {
@@ -449,7 +447,7 @@ if ($otpParams['yk_counter'] == $localParams['yk_counter'] && $otpParams['yk_use
 		'this' => $ts,
 		'delta' => $tsDiff,
 		'secs' => $tsDelta,
-		'accessed' => sprintf('%s (%s)', $lastTime, $ad['accessed']),
+		'accessed' => sprintf('%s (%s)', $lastTime, date('Y-m-d H:i:s', $localParams['modified'])),
 		'now' => sprintf('%s (%s)', $now, date('Y-m-d H:i:s', $now)),
 		'elapsed' => $elapsed,
 		'deviation' => sprintf('%s secs or %s%%', $deviation, round(100 * $percent)),
