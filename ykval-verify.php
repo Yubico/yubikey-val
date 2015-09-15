@@ -392,13 +392,15 @@ else
 	$sl_success_rate = 0;
 }
 
-$myLog->log(LOG_INFO, "synclevel=" . $sl .
-		" nr servers=" . $nr_servers .
-		" req answers=" . $req_answers .
-		" answers=" . $nr_answers .
-		" valid answers=" . $nr_valid_answers .
-		" sl success rate=" . $sl_success_rate .
-		" timeout=" . $timeout);
+$myLog->log(LOG_INFO, '', array(
+	'synclevel' => $sl,
+	'nr servers' => $nr_servers,
+	'req answers' => $req_answers,
+	'answers' => $nr_answers,
+	'valid answers' => $nr_valid_answers,
+	'sl success rate' => $sl_success_rate,
+	'timeout' => $timeout,
+));
 
 if ($syncres == False)
 {
