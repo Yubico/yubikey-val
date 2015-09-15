@@ -417,10 +417,6 @@ if ($syncres == False)
 	sendResp(S_NOT_ENOUGH_ANSWERS, $myLog, $apiKey, $extra);
 }
 
-/* Recreate parameters to make phising test work out
- TODO: use timefunctionality in deltatime library instead */
-
-// check the time stamp
 if ($otpParams['yk_counter'] == $localParams['yk_counter'] && $otpParams['yk_use'] > $localParams['yk_use'])
 {
 	$ts = ($otpParams['yk_high'] << 16) + $otpParams['yk_low'];
@@ -428,7 +424,6 @@ if ($otpParams['yk_counter'] == $localParams['yk_counter'] && $otpParams['yk_use
 	$tsDiff = $ts - $seenTs;
 	$tsDelta = $tsDiff * TS_SEC;
 
-	// check the real time
 	$now = time();
 	$elapsed = $now - $localParams['modified'];
 	$deviation = abs($elapsed - $tsDelta);
