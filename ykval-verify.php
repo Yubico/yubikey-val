@@ -341,6 +341,7 @@ $otpParams = array(
 	'yk_high' => $otpinfo['high'],
 	'yk_low' => $otpinfo['low']
 );
+unset($otpinfo);
 
 
 /* First check if OTP is seen with the same nonce, in such case we have an replayed request */
@@ -422,7 +423,7 @@ if ($syncres == False)
 // check the time stamp
 if ($otpParams['yk_counter'] == $localParams['yk_counter'] && $otpParams['yk_use'] > $localParams['yk_use'])
 {
-	$ts = ($otpinfo['high'] << 16) + $otpinfo['low'];
+	$ts = ($otpParams['yk_high'] << 16) + $otpParams['yk_low'];
 	$seenTs = ($localParams['yk_high'] << 16) + $localParams['yk_low'];
 	$tsDiff = $ts - $seenTs;
 	$tsDelta = $tsDiff * TS_SEC;
@@ -476,7 +477,7 @@ if ($protocol_version >= 2.0)
 
 if ($timestamp == 1)
 {
-	$extra['timestamp'] = ($otpinfo['high'] << 16) + $otpinfo['low'];
+	$extra['timestamp'] = ($otpParams['yk_high'] << 16) + $otpParams['yk_low'];
 	$extra['sessioncounter'] = $otpParams['yk_counter'];
 	$extra['sessionuse'] = $otpParams['yk_use'];
 }
