@@ -1,4 +1,11 @@
-* Version 2.33 (unreleased)
+* Version 2.33
+
+  * Modified a LOG_INFO message,
+    multiple key=val are separated by two spaces instead of one.
+
+  * Added http://127.0.0.1:80 to default ksm service.
+
+  * Refactoring and internal improvements.
 
 * Version 2.32 (released 2015-09-14)
 
