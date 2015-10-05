@@ -1,4 +1,6 @@
-* Version 2.33
+* Version 2.34 (unreleased)
+
+* Version 2.33 (released 2015-10-05)
 
   * Modified a LOG_INFO message,
     multiple key=val are separated by two spaces instead of one.
