@@ -117,16 +117,16 @@ $baseParams['__YKVAL_KSM_CURL_OPTS__'] = array(
 function otp2ksmurls ($otp, $client)
 {
 	//if ($client == 42) {
-	//  return array("https://another-ykkms.example.com/wsapi/decrypt?otp=$otp");
+	//  return array("https://another-ykksm.example.com/wsapi/decrypt?otp=$otp");
 	//}
 
 	//if (preg_match("/^dteffujehknh/", $otp)) {
-	//  return array("https://different-ykkms.example.com/wsapi/decrypt?otp=$otp");
+	//  return array("https://different-ykksm.example.com/wsapi/decrypt?otp=$otp");
 	//}
 
 	return array(
-		// "https://ykkms1.example.com/wsapi/decrypt?otp=$otp",
-		// "https://ykkms2.example.com/wsapi/decrypt?otp=$otp",
+		// "https://ykksm1.example.com/wsapi/decrypt?otp=$otp",
+		// "https://ykksm2.example.com/wsapi/decrypt?otp=$otp",
 		"http://127.0.0.1:80/wsapi/decrypt?otp=$otp",
 		"http://127.0.0.1:8002/wsapi/decrypt?otp=$otp",
 	);
