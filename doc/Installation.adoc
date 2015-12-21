@@ -87,7 +87,7 @@ PostgreSQL or MySQL here.
 ==== Step 3A: MySQL Installation
 
 Install the required packages:
- 
+
 [source, sh]
 user@val:~$ sudo apt-get install mysql-server php5-mysql
 
@@ -103,7 +103,7 @@ user@val:~$ cat > .my.cnf
 user = root
 password = YOURPASSWORD
 user@val:~$ chmod go-r .my.cnf
-user@val:~$ 
+user@val:~$
 ----
 
 Note the 'chmod' to protect your password from non-root users.
@@ -113,8 +113,8 @@ The database needs to be initialized as follows:
 [source, sh]
 ----
 user@val:~$ echo 'create database ykval' | mysql
-user@val:~$ mysql ykval < /usr/share/doc/yubikey-val/ykval-db.sql 
-user@val:~$ 
+user@val:~$ mysql ykval < /usr/share/doc/yubikey-val/ykval-db.sql
+user@val:~$
 ----
 
 You also need to create a database user for the verifier interface,
@@ -130,7 +130,7 @@ GRANT SELECT,INSERT,UPDATE,DELETE ON ykval.queue TO 'ykval_verifier'@'localhost'
 SET PASSWORD FOR 'ykval_verifier'@'localhost' = PASSWORD('yourpassword'); \
 FLUSH PRIVILEGES;
 mysql> \q
-user@val:~$ 
+user@val:~$
 ----
 
 ==== Step 3B: PostgreSQL Installation
@@ -139,9 +139,9 @@ Install the required packages:
 
 [source, sh]
 ----
-user@val:~$ sudo apt-get install postgresql php5-pgsql 
+user@val:~$ sudo apt-get install postgresql php5-pgsql
 ...
-user@val:~$ 
+user@val:~$
 ----
 
 The database needs to be initialized as follows:
@@ -150,7 +150,7 @@ The database needs to be initialized as follows:
 ----
 user@val:~$ sudo su postgres
 postgres@val:~$ createdb ykval
-postgres@val:~$ psql ykval < /usr/share/doc/yubikey-val/ykval-db.sql 
+postgres@val:~$ psql ykval < /usr/share/doc/yubikey-val/ykval-db.sql
 postgres@val:~$
 ----
 
@@ -160,12 +160,12 @@ normally called 'ykval_verifier':
 [source, sh]
 ----
 postgres@val:~$ psql ykval -q
-ykval=# CREATE USER ykval_verifier PASSWORD 'yourpassword'; 
-ykval=# GRANT SELECT,INSERT,UPDATE ON yubikeys TO ykval_verifier; 
-ykval=# GRANT SELECT ON clients TO ykval_verifier; 
+ykval=# CREATE USER ykval_verifier PASSWORD 'yourpassword';
+ykval=# GRANT SELECT,INSERT,UPDATE ON yubikeys TO ykval_verifier;
+ykval=# GRANT SELECT ON clients TO ykval_verifier;
 ykval=# GRANT SELECT, INSERT, UPDATE, DELETE ON queue TO ykval_verifier;
 ykval=# \q
-postgres@val:~$ 
+postgres@val:~$
 ----
 
 Don't forget to switch back to your normal user
@@ -196,7 +196,7 @@ user@val:~/yubikey-val$ sudo make symlink
 install -d /var/www/wsapi/2.0
 ln -sf /usr/share/yubikey-val/ykval-verify.php /var/www/wsapi/2.0/verify.php
 ln -sf /usr/share/yubikey-val/ykval-sync.php /var/www/wsapi/2.0/sync.php
-user@val:~/yubikey-val$ 
+user@val:~/yubikey-val$
 ----
 
 If you want to do it manually, you can invoke the above commands
@@ -211,7 +211,7 @@ Set the include path for the queue daemon by creating a file
 ----
 user@val:~$ sudo sh -c 'cat > /etc/default/ykval-queue'
 DAEMON_ARGS="/etc/yubico/val:/usr/share/yubikey-val"
-user@val:~$ 
+user@val:~$
 ----
 
 You also need to set the include path for the PHP scripts running via
@@ -256,7 +256,7 @@ passwords (`__YKVAL_DB_PW__`), the sync pool lists (`__YKVAL_SYNC_POOL__`
 and `__YKVAL_ALLOWED_SYNC_POOL__`), and the YK-KSM URLs inside the
 otp2ksmurls function.
 
-An example DSN for a MySQL setup: 
+An example DSN for a MySQL setup:
 
 [source, php]
 $baseParams['__YKVAL_DB_DSN__'] = "mysql:dbname=ykval;host=127.0.0.1";
@@ -273,13 +273,13 @@ We recommend to add the hosts in YKVAL_SYNC_POOL as entries in '/etc/hosts' to a
 user@val:~$ sudo sh -c 'cat >> /etc/hosts'
 1.2.3.4 api1.example.com
 2.3.4.5 api2.example.com
-user@val:~$ 
+user@val:~$
 ----
 
 To improve database performance you can use persistent database connection so that each request doesn't require a new connection to be setup. To enable this modify `__YKVAL_DB_OPTIONS__` as follows:
 
 [source, php]
-$baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_PERSISTENT => true); 
+$baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_PERSISTENT => true);
 
 === Step 7: Apache configuration
 
@@ -312,7 +312,7 @@ user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval.conf'
   ServerSignature On
 
 </VirtualHost>
-user@val:~$ 
+user@val:~$
 ----
 
 HTTPS is strictly speaking not required, but we strongly recommend it.
@@ -336,14 +336,14 @@ user@val:~$ sudo apt-get install libapache2-mod-gnutls
 user@val:~$ sudo a2enmod gnutls
 Enabling module gnutls.
 Run '/etc/init.d/apache2 restart' to activate new configuration!
-user@val:~$ 
+user@val:~$
 ----
 
 You will need to place the private key in
 /etc/ssl/private/api.example.com-key.pem and the certificate chain in
 /etc/ssl/private/api.example.com-chain.pem.
 
-Create Apache web configuration files: 
+Create Apache web configuration files:
 
 [source, sh]
 ----
@@ -377,7 +377,7 @@ Listen 443
   ServerSignature On
 
 </VirtualHost>
-user@val:~$ 
+user@val:~$
 ----
 
 ==== Step 7B: HTTPS via mod_ssl
@@ -390,7 +390,7 @@ enable it.
 user@val:~$ sudo a2enmod ssl
 Enabling module ssl.
 Run '/etc/init.d/apache2 restart' to activate new configuration!
-user@val:~$ 
+user@val:~$
 ----
 
 You will need to place the private key in
@@ -428,7 +428,7 @@ user@val:~$ sudo sh -c 'cat > /etc/apache2/sites-available/ykval-ssl.conf'
   ServerSignature On
 
 </VirtualHost>
-user@val:~$ 
+user@val:~$
 ----
 
 ==== Common Apache Configuration
@@ -448,7 +448,7 @@ Enabling site ykval.
 Enabling site ykval-ssl.
 Run '/etc/init.d/apache2 reload' to activate new configuration!
 user@val:~$ sudo /etc/init.d/apache2 restart
-user@val:~$ 
+user@val:~$
 ----
 
 === Step 8: Logging
@@ -464,7 +464,7 @@ user@val:~$ sudo sh -c 'cat > /etc/rsyslog.d/ykval.conf'
 local0.* -/var/log/ykval.log
 user@val:~$ sudo /etc/init.d/rsyslog restart
 ...
-user@val:~$ 
+user@val:~$
 ----
 
 The '-' before the filename avoids syncing the file after each write,
@@ -488,7 +488,7 @@ user@val:~$ sudo sh -c 'cat > /etc/logrotate.d/ykval'
     invoke-rc.d rsyslog reload > /dev/null
         endscript
 }
-user@val:~$ 
+user@val:~$
 ----
 
 You may want to modify the default /etc/logrotate.d/apache2, useful
@@ -545,30 +545,30 @@ user@host:~$ sudo /etc/init.d/rsyslog restart
 
 === Step 9: Start Sync Daemon
 
-When using yubikey-val in a sync pool, you need to have the ykval-queue 
-daemon running to ensure that data is synchronized between the servers in 
-the pool. The easiest way of running this is to simply invoke ykval-queue 
+When using yubikey-val in a sync pool, you need to have the ykval-queue
+daemon running to ensure that data is synchronized between the servers in
+the pool. The easiest way of running this is to simply invoke ykval-queue
 in a shell:
 
 [source, sh]
 user@val:~$ sudo ykval-queue
 
-However, the recommended approach is to automate running this process in 
-the background, by use of an init script or similar. Instructions on doing 
+However, the recommended approach is to automate running this process in
+the background, by use of an init script or similar. Instructions on doing
 so vary depending on your operating system.
 
 === Step 10: Sync data from an existing server (optional)
 
-If you're adding a new server to an existing pool, you can synchronize all 
-YubiKey counter data from one of the existing servers. To do so, the server 
-you want to sync from needs to be configured to allow it. Do this by editing 
-/etc/yubico/val/ykval-config.php on the existing server, adding the new 
-servers IP address to the `__YKRESYNC_IPS__` setting. You'll most likely want 
-to add the IP to the `__YKVAL_ALLOWED_SYNC_POOL__` setting as well. You also 
+If you're adding a new server to an existing pool, you can synchronize all
+YubiKey counter data from one of the existing servers. To do so, the server
+you want to sync from needs to be configured to allow it. Do this by editing
+/etc/yubico/val/ykval-config.php on the existing server, adding the new
+servers IP address to the `__YKRESYNC_IPS__` setting. You'll most likely want
+to add the IP to the `__YKVAL_ALLOWED_SYNC_POOL__` setting as well. You also
 need to edit this file on the new server, adding the existing server(s) IP
 address(es) to `__YKVAL_ALLOWED_SYNC_POOL__`.
 
-Once these permissions have been configured, you can initiate the full sync 
+Once these permissions have been configured, you can initiate the full sync
 by running the following command from the new server:
 
 [source, sh]
