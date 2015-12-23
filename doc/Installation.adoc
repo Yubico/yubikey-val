@@ -93,8 +93,8 @@ user@val:~$ sudo apt-get install mysql-server php5-mysql
 
 The installation asks you for a MySQL "root" password, and I recommend
 to specify one. To avoid having to specify a password when using the
-'mysql' tool interactively, you can store the password in ~/.my.cnf,
-see /usr/share/doc/mysql-server-5.0/README.Debian.gz.  For example:
+'mysql' tool interactively, you can store the password in `~/.my.cnf`,
+see `/usr/share/doc/mysql-server-5.0/README.Debian.gz`.  For example:
 
 [source, sh]
 ----
