@@ -44,7 +44,7 @@ though.
 
 == Installation
 
-This following steps applies to any GNU/Linux-like system, although it
+The following steps apply to any GNU/Linux-like system, although it
 was written for Debian GNU/Linux.  If you do not know which OS to use,
 we recommend a default choice of Ubuntu 12.04 LTS since it is a
 well-known distribution that comes with 5 years of security support.
