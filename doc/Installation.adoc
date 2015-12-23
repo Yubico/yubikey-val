@@ -46,7 +46,7 @@ though.
 
 The following steps apply to any GNU/Linux-like system, although it
 was written for Debian GNU/Linux.  If you do not know which OS to use,
-we recommend a default choice of Ubuntu 12.04 LTS since it is a
+we recommend a default choice of Ubuntu 14.04 LTS since it is a
 well-known distribution that comes with 5 years of security support.
 Install the OS following its manual and enable automatic security
 upgrades if prompted.
