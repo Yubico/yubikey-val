@@ -65,6 +65,15 @@ user@val:~$ cd yubikey-val
 user@val:~/yubikey-val$ sudo make install
 ----
 
+Depending on your distribution, the group of Apache (or the HTTP server) might
+be different from `www-data`, used in Debian and Ubuntu. On Red Hat, Fedora or
+CentOS the group is `apache` and in SUSE it is `www`.
+
+[source, sh]
+----
+user@val:~/yubikey-val: sudo make install wwwgroup=apache
+----
+
 The rest of this documentation will assume you have YK-VAL available
 in the default installation targets.  You can override the paths, see
 the Makefile.
