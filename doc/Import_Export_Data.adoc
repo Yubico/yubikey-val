@@ -13,7 +13,7 @@ The client data holds information about the clients that are able to use the
 validation service, such as their ID and secret key. This data is stored in
 the *clients* table of the database.
 
-The infomation here covers exporting existing clients to a file, and importing
+The information here covers exporting existing clients to a file, and importing
 the clients from that file into another database. For generating clients, see
 link:Generating_Clients.html[Generating Clients]
 
