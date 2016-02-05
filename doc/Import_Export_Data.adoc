@@ -1,23 +1,23 @@
 == Importing and Exporting Data
 
-The yubikey-val database holds client data as well as yubikey counter data 
-which you can import and export using the provided tools. As it is important 
-to protect the data, we will show you how to encrypt and decrypt these files 
-using GnuPG. You will therefor require a private key for both importing as 
-well as exporting (these can be the same keys, or differnent ones, depending 
+The yubikey-val database holds client data as well as yubikey counter data
+which you can import and export using the provided tools. As it is important
+to protect the data, we will show you how to encrypt and decrypt these files
+using GnuPG. You will therefor require a private key for both importing as
+well as exporting (these can be the same keys, or differnent ones, depending
 on if you are importing on the same system as you have exported from).
 
 === Client Info Data
 
-The client data holds information about the clients that are able to use the 
-validation service, such as their ID and secret key. This data is stored in 
+The client data holds information about the clients that are able to use the
+validation service, such as their ID and secret key. This data is stored in
 the *clients* table of the database.
 
-The infomation here covers exporting existing clients to a file, and importing 
+The information here covers exporting existing clients to a file, and importing
 the clients from that file into another database. For generating clients, see
 link:Generating_Clients.html[Generating Clients]
 
-To export client data, you can use the following command (Replace C5B8D4EA with 
+To export client data, you can use the following command (Replace C5B8D4EA with
 the key of the recipient of the data):
 
 ....
@@ -47,11 +47,11 @@ user@val:~$
 
 === Yubikey Counter Data
 
-The Yubikey counter data holds information about the state of the known 
-Yubikeys, such as their various counter values. This data is stored in the 
+The Yubikey counter data holds information about the state of the known
+Yubikeys, such as their various counter values. This data is stored in the
 *yubikeys* table of the database.
 
-To export Yubikey counter data, you can use the following command (Replace 
+To export Yubikey counter data, you can use the following command (Replace
 C5B8D4EA with the key of the recipient of the data):
 
 ....
