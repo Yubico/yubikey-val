@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Something to keep ykval-queue going
+# run this in cron
+# restarts if necessary
+
+RUNAS=ykval
+
+function start
+{
+    su -s /bin/bash -c '/usr/sbin/ykval-queue &>/dev/null &' - ${RUNAS}
+    exit 0
+}
+
+
+FOUND=$( ps -C ykval-queue | wc -l )
+
+if [[ ${FOUND} -lt 2 ]]; then
+  start
+fi
+
+exit 0
