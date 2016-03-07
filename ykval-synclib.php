@@ -315,10 +315,7 @@ class SyncLib
 			$handle = $ch[$entry['server']];
 			$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
 
-			$url = $entry['server'] .
-				"?otp=" . $entry['otp'] .
-				"&modified=" . $entry['modified'] .
-				"&" . $this->otpPartFromInfoString($entry['info']);
+			$url = $this->buildSyncUrl($entry);
 
 			curl_settings($this, 'YK-VAL resync', $handle, $url, $timeout, $this->curlopts);
 			$entries[$entry['server']] = $entry;
@@ -432,10 +429,7 @@ class SyncLib
 						}
 						$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
 
-						$url = $entry['server'] .
-							"?otp=" . $entry['otp'] .
-							"&modified=" . $entry['modified'] .
-							"&" . $this->otpPartFromInfoString($entry['info']);
+						$url = $this->buildSyncUrl($entry);
 
 						curl_settings($this, 'YK-VAL resync', $handle, $url, $timeout, $this->curlopts);
 						$entries[$server] = $entry;
@@ -469,10 +463,7 @@ class SyncLib
 		));
 		foreach ($res as $row)
 		{
-			$urls[] = $row['server'] .
-				"?otp=" . $row['otp'] .
-				"&modified=" . $row['modified'] .
-				"&" . $this->otpPartFromInfoString($row['info']);
+			$urls[] = $this->buildSyncUrl($row);
 		}
 
 		// send out requests
@@ -664,5 +655,13 @@ class SyncLib
 			'server_nonce' => $this->server_nonce,
 			'server' => $server
 		));
+	}
+
+	private function buildSyncUrl($entry)
+	{
+		return $entry['server'] .
+			"?otp=" . $entry['otp'] .
+			"&modified=" . $entry['modified'] .
+			"&" . $this->otpPartFromInfoString($entry['info']);
 	}
 }
