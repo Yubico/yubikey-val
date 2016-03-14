@@ -290,7 +290,7 @@ class SyncLib
 			$server = $my_server['server'];
 			$this->log(LOG_DEBUG, "Processing queue for server " . $server);
 
-			$res = $this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $server . "'");
+			$res = $this->db->customQuery("select * from queue WHERE (queued < " . $queued_limit . " or queued is null) and server='" . $server . "' LIMIT 1000");
 
 			$list = array();
 
