@@ -29,6 +29,9 @@
 
 class Log
 {
+	// request logger object
+	public $request = NULL;
+
 	private $log_levels = array(
 			LOG_EMERG => 'LOG_EMERG',
 			LOG_ALERT => 'LOG_ALERT',

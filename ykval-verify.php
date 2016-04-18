@@ -27,9 +27,12 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+$time_start = microtime();
+
 require_once 'ykval-common.php';
 require_once 'ykval-config.php';
 require_once 'ykval-synclib.php';
+require_once 'ykval-log-verify.php';
 
 header('content-type: text/plain');
 
@@ -51,6 +54,12 @@ $https = (array_key_exists('HTTPS', $_SERVER) === TRUE
 
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $ipaddr);
+
+$myLog->request = new LogVerify();
+$myLog->request->set('ip', $ipaddr);
+$myLog->request->set('time_start', $time_start);
+unset($time_start);
+
 
 // FIXME
 $message = '';
@@ -101,6 +110,10 @@ if (preg_match('/^[jxe.uidchtnbpygk]+$/', $otp))
 	unset($new_otp);
 }
 
+$myLog->request->set('signed', ($h === '' ? '-' : 'signed'));
+$myLog->request->set('client', ($client === 0 ? NULL : $client));
+$myLog->request->set('otp', $otp);
+
 
 /**
  * Construct response parameters
@@ -123,6 +136,7 @@ if ($protocol_version >= 2.0)
 	$sl = getHttpVal('sl', '');
 	$timeout = getHttpVal('timeout', '');
 	$nonce = getHttpVal('nonce', '');
+	$myLog->request->set('nonce', $nonce);
 
 	/* Nonce is required from protocol 2.0 */
 	if (!$nonce)
@@ -312,10 +326,15 @@ if (($otpinfo = KSMdecryptOTP($urls, $myLog, $curlopts)) === FALSE)
 	 */
 	sendResp(S_BAD_OTP, $myLog, $apiKey);
 }
+$myLog->request->set('counter', $otpinfo['session_counter']);
+$myLog->request->set('use', $otpinfo['session_use']);
+$myLog->request->set('high', $otpinfo['high']);
+$myLog->request->set('low', $otpinfo['low']);
 $myLog->log(LOG_DEBUG, 'Decrypted OTP:', $otpinfo);
 
 // get Yubikey from DB
 $yk_publicname = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
+$myLog->request->set('public_id', $yk_publicname);
 if (($localParams = $sync->getLocalParams($yk_publicname)) === FALSE)
 {
 	$myLog->log(LOG_NOTICE, "Invalid Yubikey $yk_publicname");

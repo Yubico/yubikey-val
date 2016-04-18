@@ -131,3 +131,27 @@ function otp2ksmurls ($otp, $client)
 		"http://127.0.0.1:8002/wsapi/decrypt?otp=$otp",
 	);
 }
+
+/**
+ * Uncomment to log verify requests just before replying to client.
+ *
+ * Available variables:
+ *	%time_start%
+ *	%time_end%
+ *	%time_taken%
+ *	%ip%
+ *	%client%
+ *	%public_id%
+ *	%otp%
+ *	%status%
+ *	%nonce%
+ *	%signed%
+ *	%counter%
+ *	%low%
+ *	%high%
+ *	%use%
+ *
+ * If a value is malformed or not available,
+ *	a dash '-' is written instead.
+ */
+//$baseParams['__YKVAL_VERIFY_LOGFORMAT__'] = '[%time_start%] [%ip%] [%client%] [%public_id%] [%otp%] [%status%] [%time_taken%] [%nonce%] [%signed%] [%counter%] [%low%] [%high%] [%use%]';

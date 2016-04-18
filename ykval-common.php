@@ -246,6 +246,9 @@ function KSMdecryptOTP($urls, $logger, $curlopts)
 
 function sendResp($status, $logger, $apiKey = '', $extra = null)
 {
+	if ($logger->request !== NULL)
+		$logger->request->set('status', $status);
+
 	$a['status'] = $status;
 
 	// 2008-11-21T06:11:55Z0711
@@ -272,6 +275,9 @@ function sendResp($status, $logger, $apiKey = '', $extra = null)
 	$str .= "\r\n";
 
 	$logger->log(LOG_INFO, "Response: " . $str . " (at " . gmdate("c") . " " . microtime() . ")");
+
+	if ($logger->request !== NULL)
+		$logger->request->write();
 
 	echo $str;
 	exit;
