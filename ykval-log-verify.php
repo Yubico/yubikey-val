@@ -31,6 +31,8 @@ require_once 'ykval-common.php';
 
 class LogVerify
 {
+	public $format = NULL;
+
 	private $fields = array(
 		'time_start' => NULL,
 		'time_end' => NULL,
@@ -75,14 +77,11 @@ class LogVerify
 	/**
 	 * Write verify request log line to syslog.
 	 *
-	 * P.S only writes to syslog if __YKVAL_VERIFY_LOGFORMAT__
-	 *	is set correctly in ykval-config.php.
-	 *
 	 * @return bool
 	 */
 	public function write()
 	{
-		if (($logformat = $this->logformat()) === FALSE)
+		if ($this->format === NULL)
 			return false;
 
 		$values = array();
@@ -91,32 +90,12 @@ class LogVerify
 			$values['%'.$key.'%'] = $val;
 		}
 
-		$message = strtr($logformat, $values);
+		$message = strtr($this->format, $values);
 
 		if (!is_string($message))
 			return false;
 
 		return syslog(LOG_INFO, $message);
-	}
-
-	/**
-	 * Fetch the logging format as set in the configuration file.
-	 *
-	 * @return string|bool
-	 */
-	private function logformat()
-	{
-		require_once 'ykval-config.php';
-
-		if (!isset($baseParams)
-			|| !is_array($baseParams)
-			|| !array_key_exists('__YKVAL_VERIFY_LOGFORMAT__', $baseParams)
-			|| !is_string($baseParams['__YKVAL_VERIFY_LOGFORMAT__']))
-		{
-			return false;
-		}
-
-		return $baseParams['__YKVAL_VERIFY_LOGFORMAT__'];
 	}
 
 	/**

@@ -56,6 +56,13 @@ $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $ipaddr);
 
 $myLog->request = new LogVerify();
+
+if (array_key_exists('__YKVAL_VERIFY_LOGFORMAT__', $baseParams)
+	&& is_string($baseParams['__YKVAL_VERIFY_LOGFORMAT__']))
+{
+	$myLog->request->format = $baseParams['__YKVAL_VERIFY_LOGFORMAT__'];
+}
+
 $myLog->request->set('ip', $ipaddr);
 $myLog->request->set('tls', ($https ? 'tls' : '-'));
 $myLog->request->set('time_start', $time_start);
