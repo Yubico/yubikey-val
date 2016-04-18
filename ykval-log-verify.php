@@ -112,7 +112,7 @@ class LogVerify
 			return false;
 		}
 
-		return $baseParams['__YKVAL_VERIFY_LOGFORMAT__']
+		return $baseParams['__YKVAL_VERIFY_LOGFORMAT__'];
 	}
 
 	/**
@@ -136,7 +136,7 @@ class LogVerify
 
 		if (preg_match('/^[cbdefghijklnrtuv]+$/', $a['otp']) !== 1
 			|| strlen($a['otp']) < TOKEN_LEN
-			|| strlen($a['otp']) > OTP_MAX_LEN))
+			|| strlen($a['otp']) > OTP_MAX_LEN)
 		{
 			$a['otp'] = '-';
 		}
