@@ -1,4 +1,13 @@
-* Version 2.34 (unreleased)
+* Version 2.34 (released 2016-04-18)
+
+  * Added __YKVAL_VERIFY_LOGFORMAT__ to optionally provide a
+    single line to log verify requests.
+
+  * ykval-synclib does parallel sync with peers.
+    i.e. instead of totally draining a peer queue before moving
+    to the next peer, we drain a bit of each peer on each run.
+
+  * Documentation fixes.
 
 * Version 2.33 (released 2015-10-05)
 
