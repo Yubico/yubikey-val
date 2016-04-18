@@ -57,6 +57,7 @@ $myLog->addField('ip', $ipaddr);
 
 $myLog->request = new LogVerify();
 $myLog->request->set('ip', $ipaddr);
+$myLog->request->set('tls', ($https ? 'tls' : '-'));
 $myLog->request->set('time_start', $time_start);
 unset($time_start);
 
@@ -91,6 +92,7 @@ else
 	$protocol_version = 1.0;
 }
 
+$myLog->request->set('protocol', $protocol_version);
 $myLog->log(LOG_DEBUG, "found protocol version $protocol_version");
 
 /**

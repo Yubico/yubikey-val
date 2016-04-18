@@ -150,8 +150,10 @@ function otp2ksmurls ($otp, $client)
  *	%low%
  *	%high%
  *	%use%
+ *	%tls%
+ *	%protocol%
  *
  * If a value is malformed or not available,
  *	a dash '-' is written instead.
  */
-//$baseParams['__YKVAL_VERIFY_LOGFORMAT__'] = '[%time_start%] [%ip%] [%client%] [%public_id%] [%otp%] [%status%] [%time_taken%] [%nonce%] [%signed%] [%counter%] [%low%] [%high%] [%use%]';
+//$baseParams['__YKVAL_VERIFY_LOGFORMAT__'] = '[%time_start%] [%ip%] [%tls%] [%protocol%] [%client%] [%public_id%] [%otp%] [%status%] [%time_taken%] [%nonce%] [%signed%] [%counter%] [%low%] [%high%] [%use%]';

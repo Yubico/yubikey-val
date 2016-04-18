@@ -46,6 +46,8 @@ class LogVerify
 		'low' => NULL,
 		'high' => NULL,
 		'use' => NULL,
+		'tls' => NULL,
+		'protocol' => NULL,
 	);
 
 	/**
@@ -118,7 +120,7 @@ class LogVerify
 	/**
 	 * Sanitize untrusted values from clients before writing them to syslog.
 	 *
-	 * P.S. signed, status, time_start are assumed safe,
+	 * P.S. signed, status, time_start, tls are assumed safe,
 	 *	since they are set internally.
 	 *
 	 * @return array sanitized $this->fields
@@ -161,6 +163,11 @@ class LogVerify
 
 		if (preg_match('/^[a-zA-Z0-9]{16,40}$/', $a['nonce']) !== 1)
 			$a['nonce'] = '-';
+
+		if (is_float($a['protocol']) === TRUE)
+			$a['protocol'] = sprintf('%.1f', $a['protocol']);
+		else
+			$a['protocol'] = '-';
 
 		$start = explode(' ', $a['time_start']);
 		$start_msec = $start[0];
