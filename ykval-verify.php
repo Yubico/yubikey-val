@@ -333,18 +333,18 @@ $myLog->request->set('low', $otpinfo['low']);
 $myLog->log(LOG_DEBUG, 'Decrypted OTP:', $otpinfo);
 
 // get Yubikey from DB
-$yk_publicname = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
-$myLog->request->set('public_id', $yk_publicname);
-if (($localParams = $sync->getLocalParams($yk_publicname)) === FALSE)
+$public_id = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
+$myLog->request->set('public_id', $public_id);
+if (($localParams = $sync->getLocalParams($public_id)) === FALSE)
 {
-	$myLog->log(LOG_NOTICE, "Invalid Yubikey $yk_publicname");
+	$myLog->log(LOG_NOTICE, "Invalid Yubikey $public_id");
 	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
 }
 
 $myLog->log(LOG_DEBUG, 'Auth data:', $localParams);
 if ($localParams['active'] != 1)
 {
-	$myLog->log(LOG_NOTICE, "De-activated Yubikey $yk_publicname");
+	$myLog->log(LOG_NOTICE, "De-activated Yubikey $public_id");
 	sendResp(S_BAD_OTP, $myLog, $apiKey);
 }
 
@@ -354,7 +354,7 @@ $otpParams = array(
 	'modified' => time(),
 	'otp' => $otp,
 	'nonce' => $nonce,
-	'yk_publicname' => $yk_publicname,
+	'yk_publicname' => $public_id,
 	'yk_counter' => $otpinfo['session_counter'],
 	'yk_use' => $otpinfo['session_use'],
 	'yk_high' => $otpinfo['high'],
