@@ -99,7 +99,7 @@ $myLog->log(LOG_DEBUG, "found protocol version $protocol_version");
  * Extract values from HTTP request
  */
 $h = getHttpVal('h', '');
-$client = getHttpVal('id', 0);
+$client = getHttpVal('id', '0');
 $timestamp = getHttpVal('timestamp', 0);
 $otp = getHttpVal('otp', '');
 
@@ -113,7 +113,7 @@ if (preg_match('/^[jxe.uidchtnbpygk]+$/', $otp))
 }
 
 $myLog->request->set('signed', ($h === '' ? '-' : 'signed'));
-$myLog->request->set('client', ($client === 0 ? NULL : $client));
+$myLog->request->set('client', ($client === '0' ? '-' : $client));
 $myLog->request->set('otp', $otp);
 
 
@@ -214,7 +214,7 @@ if (preg_match("/^[0-9]+$/", $client) == 0)
 	$myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
-if ($client <= 0)
+if ($client === '0')
 {
 	$myLog->log(LOG_NOTICE, 'Client ID is missing');
 	sendResp(S_MISSING_PARAMETER, $myLog);
