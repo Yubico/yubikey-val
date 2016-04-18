@@ -138,6 +138,9 @@ if ($protocol_version >= 2.0)
 	$sl = getHttpVal('sl', '');
 	$timeout = getHttpVal('timeout', '');
 	$nonce = getHttpVal('nonce', '');
+
+	$myLog->request->set('sl', $sl);
+	$myLog->request->set('timeout', $timeout);
 	$myLog->request->set('nonce', $nonce);
 
 	/* Nonce is required from protocol 2.0 */

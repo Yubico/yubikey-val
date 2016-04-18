@@ -48,6 +48,8 @@ class LogVerify
 		'use' => NULL,
 		'tls' => NULL,
 		'protocol' => NULL,
+		'sl' => NULL,
+		'timeout' => NULL,
 	);
 
 	/**
@@ -168,6 +170,16 @@ class LogVerify
 			$a['protocol'] = sprintf('%.1f', $a['protocol']);
 		else
 			$a['protocol'] = '-';
+
+		if (   $a['sl'] !== 'fast'
+			&& $a['sl'] !== 'secure'
+			&& (preg_match('/^[0-9]{1,3}$/', $a['sl']) !== 1 || (((int) $a['sl']) > 100)))
+		{
+			$a['sl'] = '-';
+		}
+
+		if (preg_match('/^[0-9]+$/', $a['timeout']) !== 1)
+			$a['timeout'] = '-';
 
 		$start = explode(' ', $a['time_start']);
 		$start_msec = $start[0];
