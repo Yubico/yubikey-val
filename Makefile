@@ -75,6 +75,7 @@ install:
 	install -D --mode 644 ykval-db-pdo.php $(DESTDIR)$(phpprefix)/ykval-db-pdo.php
 	install -D --mode 644 ykval-db-oci.php $(DESTDIR)$(phpprefix)/ykval-db-oci.php
 	install -D --mode 644 ykval-log.php $(DESTDIR)$(phpprefix)/ykval-log.php
+	install -D --mode 644 ykval-log-verify.php $(DESTDIR)$(phpprefix)/ykval-log-verify.php
 	install -D ykval-queue $(DESTDIR)$(sbinprefix)/ykval-queue
 	install -D ykval-synchronize $(DESTDIR)$(sbinprefix)/ykval-synchronize
 	install -D ykval-export $(DESTDIR)$(sbinprefix)/ykval-export
