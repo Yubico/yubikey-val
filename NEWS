@@ -1,4 +1,6 @@
-* Version 2.35 (unreleased)
+* Version 2.35 (released 2016-04-19)
+
+  * Fixed install target in Makefile to include ykval-log-verify.php
 
 * Version 2.34 (released 2016-04-18)
 
