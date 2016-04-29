@@ -53,15 +53,11 @@ function logdie ($logger, $str)
 	die($str . "\n");
 }
 
-function getHttpVal ($key, $default)
+function getHttpVal ($key, $default, $a)
 {
-	if (array_key_exists($key, $_GET))
+	if (array_key_exists($key, $a))
 	{
-		$val = $_GET[$key];
-	}
-	elseif (array_key_exists($key, $_POST))
-	{
-		$val = $_POST[$key];
+		$val = $a[$key];
 	}
 	else
 	{

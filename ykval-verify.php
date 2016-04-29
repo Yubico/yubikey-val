@@ -41,17 +41,6 @@ $ipaddr = $_SERVER['REMOTE_ADDR'];
 $https = (array_key_exists('HTTPS', $_SERVER) === TRUE
 			&& strtolower($_SERVER['HTTPS']) !== 'off' ? TRUE : FALSE);
 
-/**
- * FIXME
- *
- * Refactor code which extracts the request arguments,
- *	pull it up here and avoid sprinlking the following in the "core":
- *
- * $_GET, $_POST, $_SERVER['QUERY_STRING'], getHttpVal()
- *
- * Avoid ambiguity with urldecode.
- */
-
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $ipaddr);
 
@@ -69,20 +58,20 @@ $myLog->request->set('time_start', $time_start);
 unset($time_start);
 
 
-// FIXME
 $message = '';
-if ($_POST)
+if ($_GET) {
+	$request = $_GET;
+	$message = 'Request: ' . $_SERVER['QUERY_STRING'];
+}
+else if ($_POST)
 {
+	$request = $_POST;
 	$kv = array();
-	foreach ($_POST as $key => $value)
+	foreach ($request as $key => $value)
 	{
 		$kv[] = "$key=$value";
 	}
 	$message = 'POST: ' . join('&', $kv);
-}
-else
-{
-	$message = 'Request: ' . $_SERVER['QUERY_STRING'];
 }
 $message .= ' (at ' . date('c') . ' ' . microtime() . ') HTTP' . ($https ? 'S' : '');
 $myLog->log(LOG_INFO, $message);
@@ -105,10 +94,10 @@ $myLog->log(LOG_DEBUG, "found protocol version $protocol_version");
 /**
  * Extract values from HTTP request
  */
-$h = getHttpVal('h', '');
-$client = getHttpVal('id', '0');
-$timestamp = getHttpVal('timestamp', '0');
-$otp = getHttpVal('otp', '');
+$h = getHttpVal('h', '', $request);
+$client = getHttpVal('id', '0', $request);
+$timestamp = getHttpVal('timestamp', '0', $request);
+$otp = getHttpVal('otp', '', $request);
 
 $otp = strtolower($otp);
 if (preg_match('/^[jxe.uidchtnbpygk]+$/', $otp))
@@ -142,9 +131,9 @@ $myLog->addField('otp', $otp);
 
 if ($protocol_version >= 2.0)
 {
-	$sl = getHttpVal('sl', '');
-	$timeout = getHttpVal('timeout', '');
-	$nonce = getHttpVal('nonce', '');
+	$sl = getHttpVal('sl', '', $request);
+	$timeout = getHttpVal('timeout', '', $request);
+	$nonce = getHttpVal('nonce', '', $request);
 
 	$myLog->request->set('sl', $sl);
 	$myLog->request->set('timeout', $timeout);
@@ -278,24 +267,9 @@ unset($cd);
 if ($h != '')
 {
 	// Create the signature using the API key
-	$a;
-	if ($_GET)
-	{
-		$a = $_GET;
-	}
-	elseif ($_POST)
-	{
-		$a = $_POST;
-	}
-	else
-	{
-		// FIXME sendResp
-		sendRest(S_BACKEND_ERROR);
-		exit;
-	}
-	unset($a['h']);
+	unset($request['h']);
 
-	$hmac = sign($a, $apiKey, $myLog);
+	$hmac = sign($request, $apiKey, $myLog);
 
 	if (hash_equals($hmac, $h) === FALSE)
 	{

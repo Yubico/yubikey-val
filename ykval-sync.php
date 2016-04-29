@@ -54,7 +54,6 @@ if (in_array($ipaddr, $allowed, TRUE) === FALSE)
 	sendResp(S_OPERATION_NOT_ALLOWED, $myLog);
 }
 
-
 // define requirements on protocol
 $syncParams = array(
 	'modified' => NULL,
@@ -71,7 +70,7 @@ $syncParams = array(
 $tmp_log = 'Received ';
 foreach ($syncParams as $param => $value)
 {
-	$value = getHttpVal($param, NULL);
+	$value = getHttpVal($param, NULL, $_GET);
 
 	if ($value == NULL)
 	{
