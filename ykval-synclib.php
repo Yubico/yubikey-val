@@ -327,7 +327,7 @@ class SyncLib
 
 			while ($info = curl_multi_info_read($mh)) {
 				$handle = $info['handle'];
-				list($server) = explode("?", curl_getinfo($handle, CURLINFO_EFFECTIVE_URL));
+				$server = strtok(curl_getinfo($handle, CURLINFO_EFFECTIVE_URL), "?");
 				$entry = $entries[$server];
 				$this->log(LOG_DEBUG, "handle indicated to be for $server.");
 				curl_multi_remove_handle($mh, $handle);
