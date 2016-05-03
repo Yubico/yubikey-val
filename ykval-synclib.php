@@ -300,7 +300,6 @@ class SyncLib
 			}
 			$server_list[$server] = $list;
 			$handle = curl_init();
-			curl_setopt($handle, CURLOPT_PRIVATE, $server);
 			$ch[$server] = $handle;
 			$this->db->closeCursor($res);
 		}
@@ -328,7 +327,7 @@ class SyncLib
 
 			while ($info = curl_multi_info_read($mh)) {
 				$handle = $info['handle'];
-				$server = curl_getinfo($handle, CURLINFO_PRIVATE);
+				$server = strtok(curl_getinfo($handle, CURLINFO_EFFECTIVE_URL), "?");
 				$entry = $entries[$server];
 				$this->log(LOG_DEBUG, "handle indicated to be for $server.");
 				curl_multi_remove_handle($mh, $handle);
