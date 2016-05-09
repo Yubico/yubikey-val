@@ -134,7 +134,7 @@ normally called 'ykval_verifier':
 user@val:~$ mysql --silent ykval
 mysql> CREATE USER 'ykval_verifier'@'localhost'; \
 GRANT SELECT,INSERT,UPDATE(modified, yk_counter, yk_low, yk_high, yk_use, nonce) ON ykval.yubikeys TO 'ykval_verifier'@'localhost'; \
-GRANT SELECT(id, secret, active) ON ykval.clients TO 'ykval_verifier'@'localhost'; \
+GRANT SELECT,INSERT,UPDATE(id, secret, active) ON ykval.clients TO 'ykval_verifier'@'localhost'; \
 GRANT SELECT,INSERT,UPDATE,DELETE ON ykval.queue TO 'ykval_verifier'@'localhost'; \
 SET PASSWORD FOR 'ykval_verifier'@'localhost' = PASSWORD('yourpassword'); \
 FLUSH PRIVILEGES;
@@ -171,7 +171,7 @@ normally called 'ykval_verifier':
 postgres@val:~$ psql ykval -q
 ykval=# CREATE USER ykval_verifier PASSWORD 'yourpassword';
 ykval=# GRANT SELECT,INSERT,UPDATE ON yubikeys TO ykval_verifier;
-ykval=# GRANT SELECT ON clients TO ykval_verifier;
+ykval=# GRANT SELECT,INSERT,UPDATE ON clients TO ykval_verifier;
 ykval=# GRANT SELECT, INSERT, UPDATE, DELETE ON queue TO ykval_verifier;
 ykval=# \q
 postgres@val:~$
