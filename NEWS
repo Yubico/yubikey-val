@@ -1,4 +1,10 @@
-* Version 2.36 (unreleased)
+* Version 2.36 (released 2016-05-16)
+
+  * Commit to either $_GET or $_POST early in request handling.
+
+  * Use CURLINFO_EFFECTIVE_URL instead of CURLINFO_PRIVATE in synclib.
+
+  * Run tests for PHP 7.0.
 
 * Version 2.35 (released 2016-04-19)
 
