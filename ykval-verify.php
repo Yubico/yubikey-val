@@ -58,9 +58,8 @@ $myLog->request->set('time_start', $time_start);
 unset($time_start);
 
 
-$request = array();
-$message = '';
-if ($_GET) {
+if ($_GET)
+{
 	$request = $_GET;
 	$message = 'Request: ' . $_SERVER['QUERY_STRING'];
 }
@@ -74,6 +73,11 @@ else if ($_POST)
 	}
 	$message = 'POST: ' . join('&', $kv);
 	unset($kv);
+}
+else
+{
+	$request = array();
+	$message = '';
 }
 $message .= ' (at ' . date('c') . ' ' . microtime() . ') HTTP' . ($https ? 'S' : '');
 $myLog->log(LOG_INFO, $message);
