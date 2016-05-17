@@ -58,6 +58,7 @@ $myLog->request->set('time_start', $time_start);
 unset($time_start);
 
 
+$request = array();
 $message = '';
 if ($_GET) {
 	$request = $_GET;
