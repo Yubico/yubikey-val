@@ -73,6 +73,7 @@ else if ($_POST)
 		$kv[] = "$key=$value";
 	}
 	$message = 'POST: ' . join('&', $kv);
+	unset($kv);
 }
 $message .= ' (at ' . date('c') . ' ' . microtime() . ') HTTP' . ($https ? 'S' : '');
 $myLog->log(LOG_INFO, $message);
