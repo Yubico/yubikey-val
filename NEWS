@@ -1,4 +1,6 @@
-* Version 2.37 (unreleased)
+* Version 2.37 (released 2016-05-17)
+
+  * Avoid PHP notices/warnings when receiving empty verify requests.
 
 * Version 2.36 (released 2016-05-16)
 
