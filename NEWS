@@ -1,3 +1,5 @@
+* Version 2.39 (unreleased)
+
 * Version 2.38 (released 2016-06-08)
 
   * Silence PHP notice when using curl handles as array keys.
