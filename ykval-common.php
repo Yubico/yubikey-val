@@ -146,7 +146,7 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 		$handle = curl_init();
 		curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts);
 		curl_multi_add_handle($mh, $handle);
-		$ch[$handle] = $handle;
+		$ch[(int) $handle] = $handle;
 	}
 
 	$ans_arr = array();
@@ -193,7 +193,7 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 
 				curl_multi_remove_handle($mh, $info['handle']);
 				curl_close($info['handle']);
-				unset($ch[$info['handle']]);
+				unset($ch[(int) $info['handle']]);
 			}
 
 			curl_multi_select($mh);
