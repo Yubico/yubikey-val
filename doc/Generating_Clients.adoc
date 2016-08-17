@@ -7,6 +7,10 @@ database with a new generated secret, the ykval-gen-clients command can be
 used. This document describes step by step instructions on generating and 
 using clients. For more information regarding the various fields of the 
 client database, see link:Client_Info_Format.adoc[Client Info Format].
+[WARNING]
+There is no built-in method for synchronizing clients, if ykval-gen-clients
+is used in a multi-server environment the clients will only exist on one
+server.
 
 === Client generation
 Use the command below to generate 5 clients. Note the usage of the --urandom 
