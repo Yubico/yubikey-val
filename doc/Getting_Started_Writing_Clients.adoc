@@ -73,6 +73,10 @@ The servers that Yubico provides are:
 
 These servers are hosted in different places and by different organizations.
 
+Clients should send authentication requests to all of them in parallel, and
+utilize the first response received for added reliability should one or more
+of the api servers be offline, see link:https://github.com/Yubico/yubico-c-client)[Yubico C client] for technical details.
+
 === Parse response
 
 You will recieve a response back from the server, a string of text
@@ -125,6 +129,4 @@ YubiKey prefix in a database.
 === The End
 
 There are some more subtle matters that can be important, so please
-read the entire protocol specification for all the details.  Further,
-for added reliability, you may send the request in parallel to more
-than one server, which is not explained above.
+read the entire protocol specification for all the details.
