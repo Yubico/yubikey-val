@@ -389,9 +389,13 @@ if (!$sync->queue($otpParams, $localParams))
 
 $nr_servers = $sync->getNumberOfServers();
 $req_answers = ceil($nr_servers * $sl / 100.0);
-if ($req_answers > 0)
+// try syncing anyway
+if ($nr_servers > 0)
 {
-	$syncres = $sync->sync($req_answers, $timeout);
+	// we need to attempt syncing with all servers, since one may
+	// return replayed counters. Using $req_answers means such a server
+	// may get ignored.
+	$syncres = $sync->sync($nr_servers, $timeout);
 	$nr_answers = $sync->getNumberOfAnswers();
 	$nr_valid_answers = $sync->getNumberOfValidAnswers();
 	$sl_success_rate = floor(100.0 * $nr_valid_answers / $nr_servers);
@@ -416,16 +420,26 @@ $myLog->log(LOG_INFO, '', array(
 
 if ($syncres == False)
 {
-	/* sync returned false, indicating that
-		either at least 1 answer marked OTP as invalid or
-		there were not enough answers */
-	$myLog->log(LOG_WARNING, 'Sync failed');
+	/* sync returned false, indicating that not all servers returned valid answers;
+		some may have returned NO answer (host down...).  Sort this out here, 
+		it's not the end of the world yet! */
 
-	if ($nr_valid_answers != $nr_answers)
+	if ($nr_answers != $nr_valid_answers)
+	{
+		/* at least 1 answers marked OTP as invalid */
+		$myLog->log(LOG_WARNING, 'Sync failed');
 		sendResp(S_REPLAYED_OTP, $myLog, $apiKey, $extra);
+	}
 
-	$extra['sl'] = $sl_success_rate;
-	sendResp(S_NOT_ENOUGH_ANSWERS, $myLog, $apiKey, $extra);
+	if ($nr_valid_answers < $req_answers)
+	{
+		/* not enough valid answers */
+		$myLog->log(LOG_WARNING, 'Sync failed');
+
+		$extra['sl'] = $sl_success_rate;
+		sendResp(S_NOT_ENOUGH_ANSWERS, $myLog, $apiKey, $extra);
+	}
+
 }
 
 if ($otpParams['yk_counter'] == $localParams['yk_counter'] && $otpParams['yk_use'] > $localParams['yk_use'])
