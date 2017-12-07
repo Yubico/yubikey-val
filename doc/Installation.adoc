@@ -133,7 +133,8 @@ normally called 'ykval_verifier':
 ----
 user@val:~$ mysql --silent ykval
 mysql> CREATE USER 'ykval_verifier'@'localhost'; \
-GRANT SELECT,INSERT,UPDATE(modified, yk_counter, yk_low, yk_high, yk_use, nonce) ON ykval.yubikeys TO 'ykval_verifier'@'localhost'; \
+GRANT SELECT,INSERT(active, created, yk_publicname, notes, modified, yk_counter, yk_low, yk_high, yk_use, nonce) ON ykval.yubikeys TO 'ykval_verifier'@'localhost'; \
+GRANT UPDATE(modified, yk_counter, yk_low, yk_high, yk_use, nonce) ON ykval.yubikeys TO 'ykval_verifier'@'localhost'; \
 GRANT SELECT,INSERT,UPDATE(id, secret, active) ON ykval.clients TO 'ykval_verifier'@'localhost'; \
 GRANT SELECT,INSERT,UPDATE,DELETE ON ykval.queue TO 'ykval_verifier'@'localhost'; \
 SET PASSWORD FOR 'ykval_verifier'@'localhost' = PASSWORD('yourpassword'); \
