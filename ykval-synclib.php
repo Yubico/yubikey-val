@@ -330,8 +330,6 @@ class SyncLib
 				$server = strtok(curl_getinfo($handle, CURLINFO_EFFECTIVE_URL), "?");
 				$entry = $entries[$server];
 				$this->log(LOG_DEBUG, "handle indicated to be for $server.");
-				curl_multi_remove_handle($mh, $handle);
-				$handles--;
 				if ($info['result'] === CURLE_OK) {
 					$response = curl_multi_getcontent($handle);
 					if (preg_match('/status=OK/', $response))
@@ -439,11 +437,13 @@ class SyncLib
 					$this->log(LOG_NOTICE, 'Timeout. Stopping queue resync for server ' . $entry['server']);
 					unset($server_list[$server]);
 				}
+				curl_multi_remove_handle($mh, $handle);
+				$handles--;
 			}
 		}
 
 		foreach ($ch as $handle) {
-			curl_close($ch);
+			curl_close($handle);
 		}
 
 		curl_multi_close($mh);
