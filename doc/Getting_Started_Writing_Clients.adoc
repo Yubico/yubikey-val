@@ -60,7 +60,7 @@ make the request unique. The request is part of the HTTP GET URL,
 encoded using normal parameter/value pairs. For example (broken into
 two lines for legibility):
 
- http://api2.yubico.com/wsapi/2.0/verify?id=1&otp=cccccccbcjdifc\
+ https://api2.yubico.com/wsapi/2.0/verify?id=1&otp=cccccccbcjdifc\
  trndncchkftchjlnbhvhtugdljibej&nonce=aef3a7835277a28da831005c2ae3b919e2076a62
 
 The servers that Yubico provides are:
