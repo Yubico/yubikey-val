@@ -119,7 +119,7 @@ identity is to remove 32 characters from the end and then use the
 remaining string, which should be 2-16 characters, as the YubiKey
 identity.
 
-Note that the validation server is case insensitive, so you need to
+Note that the validation server is case sensitive, so you need to
 lower-case the string in order to avoid caps lock resulting in
 different identities with the only differ being case of the prefix.
 
