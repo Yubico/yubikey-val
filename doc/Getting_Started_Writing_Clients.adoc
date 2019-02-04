@@ -75,7 +75,7 @@ These servers are hosted in different places and by different organizations.
 
 Clients should send authentication requests to all of them in parallel, and
 utilize the first response received for added reliability should one or more
-of the api servers be offline, see link:https://github.com/Yubico/yubico-c-client)[Yubico C client] for technical details.
+of the api servers be offline, see link:https://github.com/Yubico/yubico-c-client[Yubico C client] for technical details.
 
 === Parse response
 
