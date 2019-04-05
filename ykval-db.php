@@ -93,7 +93,7 @@ abstract class Db
    */
   public function disconnect()
   {
-    $this->dbh=NULL;
+    $this->dbh=null;
   }
 
   /**
@@ -104,8 +104,8 @@ abstract class Db
    */
   public function isConnected()
   {
-    if ($this->dbh!=NULL) return True;
-    else return False;
+    if ($this->dbh!=null) return true;
+    else return false;
   }
 
   /**

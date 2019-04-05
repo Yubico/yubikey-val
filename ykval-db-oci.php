@@ -72,7 +72,7 @@ class DbImpl extends Db
     if (!$this->dbh) {
       $error = oci_error();
       $this->myLog->log(LOG_CRIT, "Database connection error: " . $error["message"]);
-      $this->dbh=Null;
+      $this->dbh=null;
       return false;
     }
     return true;
@@ -88,7 +88,7 @@ class DbImpl extends Db
       $result = oci_parse($this->dbh, $query);
       if(!oci_execute($result)) {
 	$this->myLog->log(LOG_INFO, 'Database query error: ' . preg_replace('/\n/',' ',print_r(oci_error($result), true)));
-	$this->dbh = Null;
+	$this->dbh = null;
 	return false;
       }
       $this->result = $result;

@@ -31,27 +31,27 @@ require_once 'ykval-common.php';
 
 class LogVerify
 {
-	public $format = NULL;
+	public $format = null;
 
 	private $fields = array(
-		'time_start' => NULL,
-		'time_end' => NULL,
-		'time_taken' => NULL,
-		'ip' => NULL,
-		'client' => NULL,
-		'public_id' => NULL,
-		'otp' => NULL,
-		'status' => NULL,
-		'nonce' => NULL,
-		'signed' => NULL,
-		'counter' => NULL,
-		'low' => NULL,
-		'high' => NULL,
-		'use' => NULL,
-		'tls' => NULL,
-		'protocol' => NULL,
-		'sl' => NULL,
-		'timeout' => NULL,
+		'time_start' => null,
+		'time_end' => null,
+		'time_taken' => null,
+		'ip' => null,
+		'client' => null,
+		'public_id' => null,
+		'otp' => null,
+		'status' => null,
+		'nonce' => null,
+		'signed' => null,
+		'counter' => null,
+		'low' => null,
+		'high' => null,
+		'use' => null,
+		'tls' => null,
+		'protocol' => null,
+		'sl' => null,
+		'timeout' => null,
 	);
 
 	/**
@@ -67,7 +67,7 @@ class LogVerify
 		if ($name === 'time_end' || $name === 'time_taken')
 			return false;
 
-		if (array_key_exists($name, $this->fields) === FALSE)
+		if (array_key_exists($name, $this->fields) === false)
 			return false;
 
 		$this->fields[$name] = $value;
@@ -81,7 +81,7 @@ class LogVerify
 	 */
 	public function write()
 	{
-		if ($this->format === NULL)
+		if ($this->format === null)
 			return false;
 
 		$values = array();
@@ -127,25 +127,25 @@ class LogVerify
 		if (preg_match('/^[0-9]+$/', $a['client']) !== 1)
 			$a['client'] = '-';
 
-		if (filter_var($a['ip'], FILTER_VALIDATE_IP) === FALSE)
+		if (filter_var($a['ip'], FILTER_VALIDATE_IP) === false)
 			$a['ip'] = '-';
 
-		if (is_int($a['counter']) === FALSE)
+		if (is_int($a['counter']) === false)
 			$a['counter'] = '-';
 
-		if (is_int($a['low']) === FALSE)
+		if (is_int($a['low']) === false)
 			$a['low'] = '-';
 
-		if (is_int($a['high']) === FALSE)
+		if (is_int($a['high']) === false)
 			$a['high'] = '-';
 
-		if (is_int($a['use']) === FALSE)
+		if (is_int($a['use']) === false)
 			$a['use'] = '-';
 
 		if (preg_match('/^[a-zA-Z0-9]{16,40}$/', $a['nonce']) !== 1)
 			$a['nonce'] = '-';
 
-		if (is_float($a['protocol']) === TRUE)
+		if (is_float($a['protocol']) === true)
 			$a['protocol'] = sprintf('%.1f', $a['protocol']);
 		else
 			$a['protocol'] = '-';

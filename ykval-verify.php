@@ -38,8 +38,8 @@ header('content-type: text/plain');
 
 $ipaddr = $_SERVER['REMOTE_ADDR'];
 
-$https = (array_key_exists('HTTPS', $_SERVER) === TRUE
-			&& strtolower($_SERVER['HTTPS']) !== 'off' ? TRUE : FALSE);
+$https = (array_key_exists('HTTPS', $_SERVER) === true
+			&& strtolower($_SERVER['HTTPS']) !== 'off' ? true : false);
 
 $myLog = new Log('ykval-verify');
 $myLog->addField('ip', $ipaddr);
@@ -255,7 +255,7 @@ if (! $sync->isConnected())
 	sendResp(S_BACKEND_ERROR, $myLog);
 }
 
-if (($cd = $sync->getClientData($client)) === FALSE)
+if (($cd = $sync->getClientData($client)) === false)
 {
 	$myLog->log(LOG_NOTICE, "Invalid client id $client");
 	sendResp(S_NO_SUCH_CLIENT, $myLog);
@@ -277,7 +277,7 @@ if ($h != '')
 
 	$hmac = sign($request, $apiKey, $myLog);
 
-	if (hash_equals($hmac, $h) === FALSE)
+	if (hash_equals($hmac, $h) === false)
 	{
 		$myLog->log(LOG_DEBUG, "client hmac=$h, server hmac=$hmac");
 		sendResp(S_BAD_SIGNATURE, $myLog, $apiKey);
@@ -308,7 +308,7 @@ if (array_key_exists('__YKVAL_KSM_CURL_OPTS__', $baseParams))
 {
 	$curlopts = $baseParams['__YKVAL_KSM_CURL_OPTS__'];
 }
-if (($otpinfo = KSMdecryptOTP($urls, $myLog, $curlopts)) === FALSE)
+if (($otpinfo = KSMdecryptOTP($urls, $myLog, $curlopts)) === false)
 {
 	/**
 	 * FIXME
@@ -327,7 +327,7 @@ $myLog->log(LOG_DEBUG, 'Decrypted OTP:', $otpinfo);
 // get Yubikey from DB
 $public_id = substr($otp, 0, strlen ($otp) - TOKEN_LEN);
 $myLog->request->set('public_id', $public_id);
-if (($localParams = $sync->getLocalParams($public_id)) === FALSE)
+if (($localParams = $sync->getLocalParams($public_id)) === false)
 {
 	$myLog->log(LOG_NOTICE, "Invalid Yubikey $public_id");
 	sendResp(S_BACKEND_ERROR, $myLog, $apiKey);
@@ -414,7 +414,7 @@ $myLog->log(LOG_INFO, '', array(
 	'timeout' => $timeout,
 ));
 
-if ($syncres == False)
+if ($syncres == false)
 {
 	/* sync returned false, indicating that
 		either at least 1 answer marked OTP as invalid or

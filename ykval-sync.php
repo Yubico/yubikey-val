@@ -47,7 +47,7 @@ if (empty($_SERVER['QUERY_STRING']))
 }
 
 // verify request sent by whitelisted address
-if (in_array($ipaddr, $allowed, TRUE) === FALSE)
+if (in_array($ipaddr, $allowed, true) === false)
 {
 	$myLog->log(LOG_NOTICE, "Operation not allowed from IP $ipaddr");
 	$myLog->log(LOG_DEBUG, "Remote IP $ipaddr not listed in allowed sync pool : " . implode(', ', $allowed));
@@ -56,23 +56,23 @@ if (in_array($ipaddr, $allowed, TRUE) === FALSE)
 
 // define requirements on protocol
 $syncParams = array(
-	'modified' => NULL,
-	'otp' => NULL,
-	'nonce' => NULL,
-	'yk_publicname' => NULL,
-	'yk_counter' => NULL,
-	'yk_use' => NULL,
-	'yk_high' => NULL,
-	'yk_low' => NULL
+	'modified' => null,
+	'otp' => null,
+	'nonce' => null,
+	'yk_publicname' => null,
+	'yk_counter' => null,
+	'yk_use' => null,
+	'yk_high' => null,
+	'yk_low' => null
 );
 
 // extract values from HTTP request
 $tmp_log = 'Received ';
 foreach ($syncParams as $param => $value)
 {
-	$value = getHttpVal($param, NULL, $_GET);
+	$value = getHttpVal($param, null, $_GET);
 
-	if ($value == NULL)
+	if ($value == null)
 	{
 		$myLog->log(LOG_NOTICE, "Received request with parameter[s] ($param) missing value");
 		sendResp(S_MISSING_PARAMETER, $myLog);
@@ -114,7 +114,7 @@ foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param
 
 // get local counter data
 $yk_publicname = $syncParams['yk_publicname'];
-if (($localParams = $sync->getLocalParams($yk_publicname)) === FALSE)
+if (($localParams = $sync->getLocalParams($yk_publicname)) === false)
 {
 	$myLog->log(LOG_NOTICE, "Invalid Yubikey $yk_publicname");
 	sendResp(S_BACKEND_ERROR, $myLog);

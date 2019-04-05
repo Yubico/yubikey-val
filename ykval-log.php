@@ -30,7 +30,7 @@
 class Log
 {
 	// request logger object
-	public $request = NULL;
+	public $request = null;
 
 	private $log_levels = array(
 			LOG_EMERG => 'LOG_EMERG',
@@ -57,7 +57,7 @@ class Log
 		$this->fields[$name] = $value;
 	}
 
-	public function log ($priority, $message, $extra = NULL)
+	public function log ($priority, $message, $extra = null)
 	{
 		$prefix = '';
 		foreach ($this->fields as $val)

@@ -150,7 +150,7 @@ class SyncLib
 		return $result;
 	}
 
-	public function log($priority, $msg, $params=NULL)
+	public function log($priority, $msg, $params=null)
 	{
 		if ($params)
 			$msg .= ' modified=' . $params['modified'] .
@@ -466,9 +466,9 @@ class SyncLib
 		}
 
 		// send out requests
-		$ans_arr = retrieveURLasync('YK-VAL sync', $urls, $this->myLog, $ans_req, $match='status=OK', $returl=True, $timeout, $this->curlopts);
+		$ans_arr = retrieveURLasync('YK-VAL sync', $urls, $this->myLog, $ans_req, $match='status=OK', $returl=true, $timeout, $this->curlopts);
 
-		if ($ans_arr === FALSE)
+		if ($ans_arr === false)
 		{
 			$this->log(LOG_WARNING, 'No responses from validation server pool');
 			$ans_arr = array();
@@ -542,7 +542,7 @@ class SyncLib
 		 * NULL queued_time for remaining entries in queue, to allow
 		 *	daemon to take care of them as soon as possible.
 		 */
-		$this->db->updateBy('queue', 'server_nonce', $this->server_nonce, array('queued'=>NULL));
+		$this->db->updateBy('queue', 'server_nonce', $this->server_nonce, array('queued'=>null));
 
 		/**
 		 * Return true if valid answers equals required answers.
