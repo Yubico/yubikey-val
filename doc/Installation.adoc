@@ -230,7 +230,7 @@ Apache, using a .htaccess file:
 ----
 user@val:~$ sudo sh -c 'cat > /var/www/wsapi/2.0/.htaccess'
 RewriteEngine on
-RewriteRule ^([^/\.\?]+)(\?.*)?$ $1.php$2 [L]
+RewriteRule ^(.*/)?([^/.?]+)(\?.*)?$ $1$2.php$3 [L]
 <IfModule mod_php5.c>
   php_value include_path ".:/etc/yubico/val:/usr/share/yubikey-val"
 </IfModule>
