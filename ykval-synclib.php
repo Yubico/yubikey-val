@@ -32,6 +32,10 @@ require_once 'ykval-common.php';
 require_once 'ykval-db.php';
 require_once 'ykval-log.php';
 
+function _get($arr, $key) {
+	return array_key_exists($key, $arr) ? $arr[$key] : "?";
+}
+
 class SyncLib
 {
 	public $syncServers = array();
@@ -153,13 +157,13 @@ class SyncLib
 	public function log($priority, $msg, $params=NULL)
 	{
 		if ($params)
-			$msg .= ' modified=' . $params['modified'] .
-						' nonce=' . $params['nonce'] .
-						' yk_publicname=' . $params['yk_publicname'] .
-						' yk_counter=' . $params['yk_counter'] .
-						' yk_use=' . $params['yk_use'] .
-						' yk_high=' . $params['yk_high'] .
-						' yk_low=' . $params['yk_low'];
+			$msg .= ' modified=' . _get($params, 'modified') .
+				' nonce=' . _get($params, 'nonce') .
+				' yk_publicname=' . _get($params, 'yk_publicname') .
+				' yk_counter=' . _get($params, 'yk_counter') .
+				' yk_use=' . _get($params, 'yk_use') .
+				' yk_high=' . _get($params, 'yk_high') .
+				' yk_low=' . _get($params, 'yk_low');
 
 		if ($this->myLog)
 			$this->myLog->log($priority, $msg);
