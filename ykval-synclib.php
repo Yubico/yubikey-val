@@ -284,6 +284,8 @@ class SyncLib
 		$ch = array();
 		$entries = array();
 		$handles = 0;
+		$num_per_server = 4;
+		$curlopts = $this->curlopts;
 
 		while ($my_server = $this->db->fetchArray($server_res))
 		{
@@ -299,27 +301,36 @@ class SyncLib
 				$list[] = $entry;
 			}
 			$server_list[$server] = $list;
-			$handle = curl_init();
-			$ch[$server] = $handle;
+
 			$this->db->closeCursor($res);
 		}
 		$this->db->closeCursor($server_res);
 
-		/* add one entry for each server we're going to sync */
+		/* add up to n entries for each server we're going to sync */
 		foreach ($server_list as $server) {
-			$entry = array_shift($server);
+			$items = array_slice($server, 0, $num_per_server);
+			$counter = 0;
+			foreach ($items as $entry) {
+				$label = "{$entry['server']}:$counter";
+				$handle = curl_init();
+				$ch[$label] = $handle;
+				$counter++;
+				$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
+
+				$url = $this->buildSyncUrl($entry);
+
+				$curlopts[CURLOPT_PRIVATE] = $label;
+
+				curl_settings($this, 'YK-VAL resync', $handle, $url, $timeout, $curlopts);
+				$entries[$label] = $entry;
+				curl_multi_add_handle($mh, $handle);
+				$handles++;
+			}
+			$empty = array();
+			array_splice($server, 0, $num_per_server, $empty);
 			if(count($server) == 0) {
 				unset($server_list[$entry['server']]);
 			}
-			$handle = $ch[$entry['server']];
-			$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
-
-			$url = $this->buildSyncUrl($entry);
-
-			curl_settings($this, 'YK-VAL resync', $handle, $url, $timeout, $this->curlopts);
-			$entries[$entry['server']] = $entry;
-			curl_multi_add_handle($mh, $handle);
-			$handles++;
 		}
 
 		while($handles > 0) {
@@ -328,7 +339,8 @@ class SyncLib
 			while ($info = curl_multi_info_read($mh)) {
 				$handle = $info['handle'];
 				$server = strtok(curl_getinfo($handle, CURLINFO_EFFECTIVE_URL), "?");
-				$entry = $entries[$server];
+				$label = curl_getinfo($handle, CURLINFO_PRIVATE);
+				$entry = $entries[$label];
 				$this->log(LOG_DEBUG, "handle indicated to be for $server.");
 				curl_multi_remove_handle($mh, $handle);
 				$handles--;
@@ -420,7 +432,7 @@ class SyncLib
 						$this->log(LOG_ERR, 'Remote server refused our sync request. Check remote server logs.');
 					}
 
-					if($server_list[$server]) {
+					if (array_key_exists($server, $server_list)) {
 						$entry = array_shift($server_list[$server]);
 						if(count($server_list[$server]) == 0) {
 							$this->log(LOG_DEBUG, "All entries for $server synced.");
@@ -430,8 +442,9 @@ class SyncLib
 
 						$url = $this->buildSyncUrl($entry);
 
-						curl_settings($this, 'YK-VAL resync', $handle, $url, $timeout, $this->curlopts);
-						$entries[$server] = $entry;
+						$curlopts[CURLOPT_PRIVATE] = $label;
+						curl_settings($this, 'YK-VAL resync', $handle, $url, $timeout, $curlopts);
+						$entries[$label] = $entry;
 						curl_multi_add_handle($mh, $handle);
 						$handles++;
 					}
@@ -443,7 +456,7 @@ class SyncLib
 		}
 
 		foreach ($ch as $handle) {
-			curl_close($ch);
+			curl_close($handle);
 		}
 
 		curl_multi_close($mh);
