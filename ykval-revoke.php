@@ -47,7 +47,7 @@ $do = $_REQUEST["do"];
 if (!$yk || !$do) {
   logdie($myLog, "ERROR Missing parameter");
 }
-if (!preg_match("/^([cbdefghijklnrtuv]{0,16})$/", $yk)) {
+if (!is_pubid($yk)) {
   logdie($myLog, "ERROR Unknown yk value: $yk");
 }
 if ($do != "enable" && $do != "disable") {

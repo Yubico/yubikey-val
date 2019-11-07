@@ -94,10 +94,8 @@ if (! $sync->isConnected())
 
 // at this point we should have the otp so let's add it to the logging module
 $myLog->addField('otp', $syncParams['otp']);
-$sync->addField('otp', $syncParams['otp']);
 
-
-// verify correctness of input parameters
+// Verify correctness of numeric input parameters
 foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param)
 {
 	// -1 is valid except for modified
@@ -112,7 +110,26 @@ foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
+// Verify correctness of OTP input
+if (!is_otp($syncParams['otp'])) {
+	$myLog->log(LOG_NOTICE, "Input parameter " . $syncParams['otp'] . " not correct");
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
+
+// Verify correctness of pubid input
+if (!is_pubid($syncParams['yk_publicname'])) {
+	$myLog->log(LOG_NOTICE, "Input parameter " . $syncParams['yk_publicname'] . " not correct");
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
+
+// Verify correctness of nonce input
+if (!is_nonce($syncParams['nonce'])) {
+	$myLog->log(LOG_NOTICE, "Input parameter " . $syncParams['nonce'] . " not correct");
+	sendResp(S_MISSING_PARAMETER, $myLog);
+}
+
 // get local counter data
+$sync->addField('otp', $syncParams['otp']);
 $yk_publicname = $syncParams['yk_publicname'];
 if (($localParams = $sync->getLocalParams($yk_publicname)) === FALSE)
 {

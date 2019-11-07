@@ -47,7 +47,7 @@ $yk = $_REQUEST["yk"];
 if (!$yk) {
   logdie($myLog, "ERROR Missing parameter");
 }
-if (!($yk == "all" || preg_match("/^([cbdefghijklnrtuv]{0,16})$/", $yk))) {
+if (!($yk == "all" || is_pubid($yk))) {
   logdie($myLog, "ERROR Unknown yk value: $yk");
 }
 $myLog->addField('yk', $yk);

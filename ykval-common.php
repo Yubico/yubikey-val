@@ -45,7 +45,11 @@ define('TS_REL_TOLERANCE', 0.3);
 define('TS_ABS_TOLERANCE', 20);
 
 define('TOKEN_LEN', 32);
-define('OTP_MAX_LEN', 48); // TOKEN_LEN plus public identity of 0..16
+define('PUBID_MAX_LEN', 16);
+define('OTP_MAX_LEN', TOKEN_LEN + PUBID_MAX_LEN);
+define('NONCE_MIN_LEN', 16);
+define('NONCE_MAX_LEN', 40);
+define('INT32_LEN', 10);
 
 function logdie ($logger, $str)
 {
@@ -68,6 +72,45 @@ function getHttpVal ($key, $default, $a)
 	$val = str_replace('\\', '', $val);
 
 	return $val;
+}
+
+// Verifies if a given string is modhex
+function is_modhex($s) {
+	if (preg_match('/^[cbdefghijklnrtuv]+$/', $s) === 0) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+// Verifies if a given string is a valid OTP
+function is_otp($otp) {
+	if ($otp == "") {
+		return false;
+	}
+	$otp_len = strlen($otp);
+	return $otp_len >= TOKEN_LEN && $otp_len <= OTP_MAX_LEN && is_modhex($otp);
+}
+
+// Verifies if a given string is a valid public id
+function is_pubid($id) {
+	$id_len = strlen($id);
+	return $id_len >= 0 && $id_len <= PUBID_MAX_LEN && is_modhex($id);
+}
+
+// Verifies a given string is a valid nonce
+function is_nonce($nonce) {
+	return strlen($nonce) >= NONCE_MIN_LEN
+		   && strlen($nonce) <= NONCE_MAX_LEN
+		   && ctype_alnum($nonce);
+}
+
+// Verifies if a given string is a valid client id
+function is_clientid($id) {
+	if ($id == "0") {
+		return false;
+	}
+	return strlen($id) <= INT32_LEN && ctype_digit($id);
 }
 
 // Sign a http query string in the array of key-value pairs

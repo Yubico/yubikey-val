@@ -170,69 +170,44 @@ if ($protocol_version >= 2.0)
  */
 
 /* Change default protocol "strings" to numeric values */
-if (isset($sl) && strcasecmp($sl, 'fast') == 0)
-{
-	$sl = $baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
-}
-if (isset($sl) && strcasecmp($sl, 'secure') == 0)
-{
-	$sl = $baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
-}
-if (!isset($sl) || $sl == '')
-{
-	$sl = $baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
-}
-if ($sl && (preg_match("/^[0-9]+$/", $sl)==0 || ($sl<0 || $sl>100)))
-{
-	$myLog->log(LOG_NOTICE, 'SL is provided but not correct');
-	sendResp(S_MISSING_PARAMETER, $myLog);
+if (isset($sl) && $sl != '') {
+    if (strcasecmp($sl, 'fast') == 0) {
+        $sl = $baseParams['__YKVAL_SYNC_FAST_LEVEL__'];
+    } else if (strcasecmp($sl, 'secure') == 0) {
+        $sl = $baseParams['__YKVAL_SYNC_SECURE_LEVEL__'];
+    } else {
+		$sl = intval($sl); // non-numbers return zero
+		if ($sl < 1) {
+			$myLog->log(LOG_NOTICE, 'SL is provided but not correct');
+			sendResp(S_MISSING_PARAMETER, $myLog);
+        }
+    }
+} else {
+    $sl = $baseParams['__YKVAL_SYNC_DEFAULT_LEVEL__'];
 }
 
-if (!isset($timeout) || $timeout == '')
-{
+if (!isset($timeout) || $timeout == '') {
 	$timeout = $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'];
-}
-if ($timeout && preg_match("/^[0-9]+$/", $timeout) == 0)
-{
+} else if (!ctype_digit($timeout)) {
 	$myLog->log(LOG_NOTICE, 'timeout is provided but not correct');
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
-if ($otp == '')
-{
-	$myLog->log(LOG_NOTICE, 'OTP is missing');
-	sendResp(S_MISSING_PARAMETER, $myLog);
-}
-if (strlen($otp) < TOKEN_LEN || strlen($otp) > OTP_MAX_LEN)
-{
-	$myLog->log(LOG_NOTICE, "Incorrect OTP length: $otp");
-	sendResp(S_BAD_OTP, $myLog);
-}
-if (preg_match('/^[cbdefghijklnrtuv]+$/', $otp) == 0)
+if (!is_otp($otp))
 {
 	$myLog->log(LOG_NOTICE, "Invalid OTP: $otp");
 	sendResp(S_BAD_OTP, $myLog);
 }
 
-if (preg_match("/^[0-9]+$/", $client) == 0)
+if (!is_clientid($client))
 {
-	$myLog->log(LOG_NOTICE, 'id provided in request must be an integer');
-	sendResp(S_MISSING_PARAMETER, $myLog);
-}
-if ($client === '0')
-{
-	$myLog->log(LOG_NOTICE, 'Client ID is missing');
+	$myLog->log(LOG_NOTICE, 'Client ID is missing or invalid');
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
-if (isset($nonce) && preg_match("/^[A-Za-z0-9]+$/", $nonce) == 0)
+if (isset($nonce) && !is_nonce($nonce))
 {
 	$myLog->log(LOG_NOTICE, 'NONCE is provided but not correct');
-	sendResp(S_MISSING_PARAMETER, $myLog);
-}
-if (isset($nonce) && (strlen($nonce) < 16 || strlen($nonce) > 40))
-{
-	$myLog->log(LOG_NOTICE, 'Nonce too short or too long');
 	sendResp(S_MISSING_PARAMETER, $myLog);
 }
 

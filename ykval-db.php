@@ -119,9 +119,22 @@ abstract class Db
    */
   public function updateBy($table, $k, $v, $values)
   {
+    if (!ctype_alnum($v) && !filter_var($v, FILTER_VALIDATE_URL)) {
+      $this->myLog->log(LOG_WARNING, "updateBy: attempted to use an invalid value: " . $v);
+      return false;
+    }
     $query = "";
 
-    foreach ($values as $key=>$value){
+    foreach ($values as $key=>$value) {
+      if ($key != 'server' && !(ctype_alnum($value) || is_null($value))) {
+        $this->myLog->log(LOG_WARNING, "updateBy: attempted to write non-alphanumeric to the database: " . $table . "." . $key . " <= " . $value);
+        return false;
+      }
+      elseif ($key == 'server' && !filter_var($value, FILTER_VALIDATE_URL))
+      {
+        $this->myLog->log(LOG_WARNING, "updateBy: attempted to write invalid URL to the database: " . $table . "." . $key . " <= " . $value);
+        return false;
+      }
       if (!is_null($value)) $query .= ' ' . $key . "='" . $value . "',";
       else $query .= ' ' . $key . '=NULL,';
     }
@@ -165,9 +178,23 @@ abstract class Db
    */
   public function conditionalUpdateBy($table, $k, $v, $values, $condition)
   {
+    if (!ctype_alnum($v) || preg_match('/^[a-zA-Z0-9><=()_ ]*$/', $condition) == 0)
+    {
+      $this->myLog->log(LOG_WARNING, "conditionalUpdateBy: attempted to use non-alphanumeric value: " . $v . " - " . $condition);
+      return false;
+    }
     $query = ""; /* quiet the PHP Notice */
 
     foreach ($values as $key=>$value){
+      if ($key != 'server' && !is_int($value) && !ctype_alnum($value)) {
+        $this->myLog->log(LOG_WARNING, "conditionalUpdateBy: attempted to write non-alphanumeric to the database: " . $value);
+        return false;
+      }
+      elseif ($key == 'server' && !filter_var($value, FILTER_VALIDATE_URL))
+      {
+        $this->myLog->log(LOG_WARNING, "conditionalUpdateBy: attempted to write invalid URL to the database: " . $value);
+        return false;
+      }
       $query = $query . " " . $key . "='" . $value . "',";
     }
     if (! $query) {
@@ -211,6 +238,24 @@ abstract class Db
   {
     $query= 'INSERT INTO ' . $table . " (";
     foreach ($values as $key=>$value){
+      if ($key == 'server') {
+        $v = filter_var($value, FILTER_VALIDATE_URL);
+        if (!$v) {
+          $this->myLog->log(LOG_WARNING, "save: bad server URL provided: " . $value);
+          return false;
+        }
+        $value = $v;
+      } else if ($key == 'info') {
+        if (preg_match('/[a-zA-Z0-9&_=,]+/', $value) == 0) {
+          $this->myLog->log(LOG_WARNING, "save: bad info string provided: " . $value);
+          return false;
+        }
+      } else {
+        if ($value != '' && !is_int($value) && !ctype_alnum($value)) {
+          $this->myLog->log(LOG_WARNING, "save: attempted to write non-alphanumeric to the database: " . $value);
+          return false;
+        }
+      }
       if (!is_null($value)) $query = $query . $key . ",";
     }
     $query = rtrim($query, ",") . ') VALUES (';
