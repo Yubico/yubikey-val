@@ -81,7 +81,7 @@ function get_count($db, $table, $conditions)
 		return $r['count'];
 	}
 
-	return Null;
+	return null;
 }
 
 if ($count = get_count($db, 'yubikeys', 'active=true'))

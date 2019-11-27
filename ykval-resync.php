@@ -84,7 +84,7 @@ if (! $sync->isConnected()) {
 }
 
 foreach($yubikeys as $key) {
-  if (($localParams = $sync->getLocalParams($key)) === FALSE) {
+  if (($localParams = $sync->getLocalParams($key)) === false) {
     logdie($myLog, 'ERROR Invalid Yubikey ' . $key);
   }
 

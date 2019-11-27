@@ -41,7 +41,7 @@ require_once 'ykval-common.php';
 # otp and client ID should be moved to a munin environment variable
 $urls = otp2ksmurls('ccccccccfnkjtvvijktfrvvginedlbvudjhjnggndtck', 16);
 
-if (($endpoints = endpoints($urls)) === FALSE)
+if (($endpoints = endpoints($urls)) === false)
 {
 	echo "Cannot parse URLs from ksm url list\n";
 	exit(1);
@@ -81,7 +81,7 @@ foreach ($endpoints as $endpoint)
 {
 	list ($internal, $label, $url) = $endpoint;
 
-	if (($total_time = total_time($url)) === FALSE)
+	if (($total_time = total_time($url)) === false)
 		$total_time = 'error';
 
 	echo "${internal}_avgwait.value ${total_time}\n";

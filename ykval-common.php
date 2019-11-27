@@ -81,7 +81,7 @@ function sign($a, $apiKey, $logger)
 	$qs = utf8_encode($qs);
 
 	// base64 encoded binary digest
-	$hmac = hash_hmac('sha1', $qs, $apiKey, TRUE);
+	$hmac = hash_hmac('sha1', $qs, $apiKey, true);
 	$hmac = base64_encode($hmac);
 
 	$logger->log(LOG_DEBUG, "SIGN: $qs H=$hmac");
@@ -96,17 +96,17 @@ function curl_settings($logger, $ident, $ch, $url, $timeout, $opts)
 	curl_setopt($ch, CURLOPT_URL, $url);
 	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 	curl_setopt($ch, CURLOPT_USERAGENT, 'YK-VAL');
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_FAILONERROR, true);
 
-	if (is_array($opts) === FALSE)
+	if (is_array($opts) === false)
 	{
 		$logger->log(LOG_WARN, $ident . 'curl options must be an array');
 		return;
 	}
 
 	foreach ($opts as $key => $val)
-		if (curl_setopt($ch, $key, $val) === FALSE)
+		if (curl_setopt($ch, $key, $val) === false)
 			$logger->log(LOG_WARN, "$ident failed to set " . curl_opt_name($key));
 }
 
@@ -120,10 +120,10 @@ function curl_opt_name($opt)
 	$consts = get_defined_constants(true);
 	$consts = $consts['curl'];
 
-	$name = array_search($opt, $consts, TRUE);
+	$name = array_search($opt, $consts, true);
 
 	// array_search may return either on failure...
-	if ($name === FALSE || $name === NULL)
+	if ($name === false || $name === null)
 		return 'curl option';
 
 	return $name;
@@ -136,7 +136,7 @@ function curl_opt_name($opt)
 // long as one of the URLs given work, data will be returned.  If all
 // URLs fail, data from some URL that did not match parameter $match
 // (defaults to ^OK) is returned, or if all URLs failed, false.
-function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10, $curlopts)
+function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $returl=false, $timeout=10, $curlopts)
 {
 	$mh = curl_multi_init();
 	$ch = array();
@@ -216,9 +216,9 @@ function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $ret
 
 function KSMdecryptOTP($urls, $logger, $curlopts)
 {
-	$response = retrieveURLasync('YK-KSM', $urls, $logger, $ans_req=1, $match='^OK', $returl=False, $timeout=10, $curlopts);
+	$response = retrieveURLasync('YK-KSM', $urls, $logger, $ans_req=1, $match='^OK', $returl=false, $timeout=10, $curlopts);
 
-	if ($response === FALSE)
+	if ($response === false)
 		return false;
 
 	$response = array_shift($response);
@@ -242,7 +242,7 @@ function KSMdecryptOTP($urls, $logger, $curlopts)
 
 function sendResp($status, $logger, $apiKey = '', $extra = null)
 {
-	if ($logger->request !== NULL)
+	if ($logger->request !== null)
 		$logger->request->set('status', $status);
 
 	$a['status'] = $status;
@@ -272,7 +272,7 @@ function sendResp($status, $logger, $apiKey = '', $extra = null)
 
 	$logger->log(LOG_INFO, "Response: " . $str . " (at " . gmdate("c") . " " . microtime() . ")");
 
-	if ($logger->request !== NULL)
+	if ($logger->request !== null)
 		$logger->request->write();
 
 	echo $str;
@@ -280,7 +280,7 @@ function sendResp($status, $logger, $apiKey = '', $extra = null)
 }
 
 // backport from PHP 5.6
-if (function_exists('hash_equals') === FALSE)
+if (function_exists('hash_equals') === false)
 {
 	function hash_equals($a, $b)
 	{
@@ -309,27 +309,27 @@ function total_time ($url)
 	$opts = array(
 		CURLOPT_URL => $url,
 		CURLOPT_TIMEOUT => 3,
-		CURLOPT_FORBID_REUSE => TRUE,
-		CURLOPT_FRESH_CONNECT => TRUE,
-		CURLOPT_RETURNTRANSFER => TRUE,
+		CURLOPT_FORBID_REUSE => true,
+		CURLOPT_FRESH_CONNECT => true,
+		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_USERAGENT => 'ykval-munin-vallatency/1.0',
 	);
 
-	if (($ch = curl_init()) === FALSE)
+	if (($ch = curl_init()) === false)
 		return false;
 
-	if (curl_setopt_array($ch, $opts) === FALSE)
+	if (curl_setopt_array($ch, $opts) === false)
 		return false;
 
 	// we don't care about the actual response
-	if (curl_exec($ch) === FALSE)
+	if (curl_exec($ch) === false)
 		return false;
 
 	$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
 
 	curl_close($ch);
 
-	if (is_float($total_time) === FALSE)
+	if (is_float($total_time) === false)
 		return false;
 
 	return $total_time;
@@ -355,7 +355,7 @@ function endpoints ($urls)
 		$internal = substr(sha1($url), 0, 20);
 
 		// actual label name shown for graph values
-		if (($label = hostport($url)) === FALSE)
+		if (($label = hostport($url)) === false)
 		{
 			return false;
 		}
@@ -387,20 +387,20 @@ function endpoints ($urls)
  */
 function hostport ($url)
 {
-	if (($url = parse_url($url)) === FALSE)
+	if (($url = parse_url($url)) === false)
 		return false;
 
-	if (array_key_exists('host', $url) === FALSE || $url['host'] === NULL)
+	if (array_key_exists('host', $url) === false || $url['host'] === null)
 		return false;
 
-	if (array_key_exists('port', $url) === TRUE && $url['port'] !== NULL)
+	if (array_key_exists('port', $url) === true && $url['port'] !== null)
 		return $url['host'].':'.$url['port'];
 
-	if (array_key_exists('scheme', $url) === TRUE
+	if (array_key_exists('scheme', $url) === true
 			&& strtolower($url['scheme']) === 'http')
 		return $url['host'].':80';
 
-	if (array_key_exists('scheme', $url) === TRUE
+	if (array_key_exists('scheme', $url) === true
 			&& strtolower($url['scheme']) === 'https')
 		return $url['host'].':443';
 

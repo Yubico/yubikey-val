@@ -52,7 +52,7 @@ if ($argc == 2 && strcmp($argv[1], 'autoconf') == 0)
 	exit(0);
 }
 
-if (($endpoints = endpoints($urls)) === FALSE)
+if (($endpoints = endpoints($urls)) === false)
 {
 	echo "Cannot parse URLs from sync pool list\n";
 	exit(1);
@@ -86,7 +86,7 @@ foreach ($endpoints as $endpoint)
 {
 	list ($internal, $label, $url) = $endpoint;
 
-	if (($total_time = total_time($url)) === FALSE)
+	if (($total_time = total_time($url)) === false)
 		$total_time = 'error';
 
 	echo "${internal}_avgwait.value ${total_time}\n";

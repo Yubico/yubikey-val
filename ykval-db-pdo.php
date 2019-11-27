@@ -71,7 +71,7 @@ class DbImpl extends Db
       $this->dbh = new PDO($this->db_dsn, $this->db_username, $this->db_password, $this->db_options);
     } catch (PDOException $e) {
       $this->myLog->log(LOG_CRIT, "Database connection error: " . $e->getMessage());
-      $this->dbh=Null;
+      $this->dbh=null;
       return false;
     }
     return true;
@@ -88,7 +88,7 @@ class DbImpl extends Db
 	$this->result = $this->dbh->query($query);
       } catch (PDOException $e) {
 	$this->myLog->log(LOG_INFO, 'Database query error: ' . preg_replace('/\n/',' ',print_r($this->dbh->errorInfo(), true)));
-	$this->dbh = Null;
+	$this->dbh = null;
 	return false;
       }
       if ($returnresult) return $this->result;
@@ -137,33 +137,33 @@ class DbImpl extends Db
 	 *
 	 * @return mixed Array with values from Db row or 2d-array with multiple rows
 	 */
-	public function findByMultiple($table, $where, $nr=NULL, $rev=NULL, $distinct=NULL)
+	public function findByMultiple($table, $where, $nr=null, $rev=null, $distinct=null)
 	{
 		$value = '';
-		$match = NULL;
+		$match = null;
 		$query = 'SELECT';
 
-		if ($distinct != NULL)
+		if ($distinct != null)
 			$query.= " DISTINCT " . $distinct;
 		else
 			$query.= " *";
 
 		$query.= " FROM " . $table;
 
-		if ($where != NULL)
+		if ($where != null)
 		{
 			foreach ($where as $key => $value)
 			{
-				if ($key != NULL)
+				if ($key != null)
 				{
-					if ($value != NULL)
+					if ($value != null)
 						$match .= " ". $key . " = '" . $value . "' and";
 					else
 						$match .= " ". $key . " is NULL and";
 				}
 			}
 
-			if ($match != NULL)
+			if ($match != null)
 				$query .= " WHERE" . $match;
 
 			$query = rtrim($query, "and");
@@ -173,7 +173,7 @@ class DbImpl extends Db
 		if ($rev == 1)
 			$query.= " ORDER BY id DESC";
 
-		if ($nr != NULL)
+		if ($nr != null)
 			$query.= " LIMIT " . $nr;
 
 		$result = $this->query($query, true);
