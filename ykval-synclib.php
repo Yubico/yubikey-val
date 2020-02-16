@@ -305,21 +305,26 @@ class SyncLib
 		}
 		$this->db->closeCursor($server_res);
 
-		/* add one entry for each server we're going to sync */
+		$num_per_server = 4;
+		/* add up to n entries for each server we're going to sync */
 		foreach ($server_list as $server) {
-			$entry = array_shift($server);
+			$items = array_slice($server, 0, $num_per_server);
+			foreach ($items as $entry) {
+				$handle = $ch[$entry['server']];
+				$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
+
+				$url = $this->buildSyncUrl($entry);
+
+				curl_settings($this, 'YK-VAL resync', $handle, $url, $timeout, $this->curlopts);
+				$entries[$entry['server']] = $entry;
+				curl_multi_add_handle($mh, $handle);
+				$handles++;
+			}
+			$empty = array();
+			array_splice($server, 0, $num_per_server, $empty);
 			if(count($server) == 0) {
 				unset($server_list[$entry['server']]);
 			}
-			$handle = $ch[$entry['server']];
-			$this->log(LOG_INFO, "server=" . $entry['server'] . ", server_nonce=" . $entry['server_nonce'] . ", info=" . $entry['info']);
-
-			$url = $this->buildSyncUrl($entry);
-
-			curl_settings($this, 'YK-VAL resync', $handle, $url, $timeout, $this->curlopts);
-			$entries[$entry['server']] = $entry;
-			curl_multi_add_handle($mh, $handle);
-			$handles++;
 		}
 
 		while($handles > 0) {
