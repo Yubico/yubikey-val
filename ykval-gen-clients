@@ -37,18 +37,18 @@ set_include_path(implode(PATH_SEPARATOR, array(
 $options = getopt("h", array("help", "email::", "notes::", "otp::", "urandom"));
 
 if(array_key_exists('h', $options) || array_key_exists('help', $options)) {
-  echo "Usage: ".$argv[0]." [ OPTIONS ] [ num_clients ]\n";
-  echo "  Unless num_clients is defined, one client will be generated.\n\n";
-  echo "Options supported by ".$argv[0]."\n";
-  echo "  --urandom\n";
-  echo "        Use /dev/urandom instead of /dev/random as entropy source\n";
-  echo "  --email=EMAIL\n";
-  echo "        Sets the e-mail field of the created clients\n";
-  echo "  --notes=NOTES\n";
-  echo "        Sets the notes field of the created clients\n";
-  echo "  --otp=OTP\n";
-  echo "        Sets the otp field of the created clients\n";
-  exit(1);
+    echo "Usage: ".$argv[0]." [ OPTIONS ] [ num_clients ]\n";
+    echo "  Unless num_clients is defined, one client will be generated.\n\n";
+    echo "Options supported by ".$argv[0]."\n";
+    echo "  --urandom\n";
+    echo "        Use /dev/urandom instead of /dev/random as entropy source\n";
+    echo "  --email=EMAIL\n";
+    echo "        Sets the e-mail field of the created clients\n";
+    echo "  --notes=NOTES\n";
+    echo "        Sets the notes field of the created clients\n";
+    echo "  --otp=OTP\n";
+    echo "        Sets the otp field of the created clients\n";
+    exit(1);
 }
 
 require_once 'ykval-config.php';
@@ -60,65 +60,65 @@ $myLog = new Log($logname);
 $db = Db::GetDatabaseHandle($baseParams, $logname);
 
 if(!$db->connect()) {
-  $myLog->log(LOG_WARNING, "Could not connect to database");
-  error_log("Could not connect to database");
-  exit(1);
+    $myLog->log(LOG_WARNING, "Could not connect to database");
+    error_log("Could not connect to database");
+    exit(1);
 }
 
 $count=1;
 if($last_arg = intval(array_pop($argv))) {
-  $count = $last_arg;
+    $count = $last_arg;
 }
 
 $result = $db->customQuery("SELECT id FROM clients ORDER BY id DESC LIMIT 1");
 $row = $db->fetchArray($result);
 $db->closeCursor($result);
 if($row) {
-  $next_id = $row['id']+1;
+    $next_id = $row['id']+1;
 } else {
-  $next_id = 1;
+    $next_id = 1;
 }
 
 $random = array_key_exists('urandom', $options) ? "/dev/urandom" : "/dev/random";
 $fh = fopen($random, "r");
 if(!$fh) {
- die("cannot open ".$random);
+    die("cannot open ".$random);
 }
 
 for ($i=0; $i<$count; $i++) {
-  $client_id = $next_id++;
-  if (!($rnd = fread ($fh, 20))) {
-    die("cannot read from ".$random);
-  }
-  $secret = base64_encode($rnd);
+    $client_id = $next_id++;
+    if (!($rnd = fread ($fh, 20))) {
+        die("cannot read from ".$random);
+    }
+    $secret = base64_encode($rnd);
 
-  $params = array(
-    "id" => $client_id,
-    "active" => 1,
-    "created" => time(),
-    "secret" => $secret,
-    "email" => array_key_exists('email', $options) ? $options['email'] : '',
-    "notes" => array_key_exists('notes', $options) ? $options['notes'] : '',
-    "otp" => array_key_exists('otp', $options) ? $options['otp'] : ''
-  );
+    $params = array(
+        "id" => $client_id,
+        "active" => 1,
+        "created" => time(),
+        "secret" => $secret,
+        "email" => array_key_exists('email', $options) ? $options['email'] : '',
+        "notes" => array_key_exists('notes', $options) ? $options['notes'] : '',
+        "otp" => array_key_exists('otp', $options) ? $options['otp'] : ''
+    );
 
-  $query="INSERT INTO clients " .
-      "(id,active,created,secret,email,notes,otp) VALUES " .
-      "('" . $params["id"] . "', " .
-      "'" . $params["active"] . "', " .
-      "'" . $params['created'] . "'," .
-      "'" . $params['secret'] . "'," .
-      "'" . $params['email'] . "'," .
-      "'" . $params['notes'] . "'," .
-      "'" . $params['otp'] . "')";
+    $query="INSERT INTO clients " .
+          "(id,active,created,secret,email,notes,otp) VALUES " .
+          "('" . $params["id"] . "', " .
+          "'" . $params["active"] . "', " .
+          "'" . $params['created'] . "'," .
+          "'" . $params['secret'] . "'," .
+          "'" . $params['email'] . "'," .
+          "'" . $params['notes'] . "'," .
+          "'" . $params['otp'] . "')";
 
-  if(!$db->customQuery($query)){
-    $myLog->log(LOG_ERR, "Failed to insert new client with query " . $query);
-    error_log("Failed to insert new client with query " . $query);
-    exit(1);
-  }
+    if(!$db->customQuery($query)){
+        $myLog->log(LOG_ERR, "Failed to insert new client with query " . $query);
+        error_log("Failed to insert new client with query " . $query);
+        exit(1);
+    }
 
-  echo $client_id.",".$secret."\n";
+    echo $client_id.",".$secret."\n";
 }
 
 fclose($fh);

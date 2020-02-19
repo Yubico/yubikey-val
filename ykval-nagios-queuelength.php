@@ -29,9 +29,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set_include_path(implode(PATH_SEPARATOR, array(
-	get_include_path(),
-	'/usr/share/yubikey-val',
-	'/etc/yubico/val',
+    get_include_path(),
+    '/usr/share/yubikey-val',
+    '/etc/yubico/val',
 )));
 
 require_once 'ykval-synclib.php';
@@ -39,8 +39,8 @@ require_once 'ykval-config.php';
 require_once 'ykval-log.php';
 
 if ($argc != 3) {
-  print "warning and critical levels have to be given on commandline\n";
-  exit (3);
+    print "warning and critical levels have to be given on commandline\n";
+    exit (3);
 }
 
 $warning = $argv[1];
@@ -53,12 +53,12 @@ $len = $sync->getQueueLength ();
 $message = "Queue length is $len";
 
 if($len > $critical) {
-  print("CRITICAL: $message\n");
-  exit (2);
+    print("CRITICAL: $message\n");
+    exit (2);
 } elseif($len > $warning) {
-  print("WARNING: $message\n");
-  exit (1);
+    print("WARNING: $message\n");
+    exit (1);
 } else {
-  print("OK: $message\n");
-  exit (0);
+    print("OK: $message\n");
+    exit (0);
 }

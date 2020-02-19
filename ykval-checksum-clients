@@ -30,18 +30,18 @@
 
 $verbose = 0;
 if (isset($argv[1])) {
-  if ($argv[1] == "-h" || $argv[1] == "--help") {
-    print "Usage: " . $argv[0] . " [-h|--help] [-v]\n";
-    exit(1);
-  }
+    if ($argv[1] == "-h" || $argv[1] == "--help") {
+        print "Usage: " . $argv[0] . " [-h|--help] [-v]\n";
+        exit(1);
+    }
 
-  if ($argv[1] && $argv[1] != "-v") {
-    print $argv[0] . ": invalid option -- '" . $argv[0] . "'\n";
-    print "Try `" . $argv[0] . " --help' for more information.\n";
-    exit(1);
-  }
+    if ($argv[1] && $argv[1] != "-v") {
+        print $argv[0] . ": invalid option -- '" . $argv[0] . "'\n";
+        print "Try `" . $argv[0] . " --help' for more information.\n";
+        exit(1);
+    }
 
-  $verbose = $argv[1] == "-v";
+    $verbose = $argv[1] == "-v";
 }
 
 set_include_path(implode(PATH_SEPARATOR, array(
@@ -59,30 +59,30 @@ $myLog = new Log($logname);
 $db = Db::GetDatabaseHandle($baseParams, $logname);
 
 if (!$db->connect()) {
-  $myLog->log(LOG_WARNING, "Could not connect to database");
-  exit(1);
+    $myLog->log(LOG_WARNING, "Could not connect to database");
+    exit(1);
 }
 
 $everything = "";
 $result=$db->customQuery("SELECT id, active, secret ".
-			 "FROM clients ".
-			 "ORDER BY id");
+                         "FROM clients ".
+                         "ORDER BY id");
 while($row = $db->fetchArray($result)) {
-  $active = $row['active'];
-  if ($active == "") {
-    # For some reason PostgreSQL returns empty strings for false values?!
-    $active = "0";
-  }
-  $everything .=
-    $row['id'] . "\t" . $active . "\t" .
-    $row['secret'] . "\n";
+    $active = $row['active'];
+    if ($active == "") {
+        # For some reason PostgreSQL returns empty strings for false values?!
+        $active = "0";
+    }
+    $everything .=
+                $row['id'] . "\t" . $active . "\t" .
+                $row['secret'] . "\n";
 }
 
 $db->closeCursor($result);
 $hash = sha1 ($everything);
 
 if ($verbose) {
-  print $everything;
+    print $everything;
 }
 print substr ($hash, 0, 10) . "\n";
 

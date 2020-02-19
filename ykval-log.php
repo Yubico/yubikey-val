@@ -29,58 +29,58 @@
 
 class Log
 {
-	// request logger object
-	public $request = NULL;
+    // request logger object
+    public $request = NULL;
 
-	private $log_levels = array(
-			LOG_EMERG => 'LOG_EMERG',
-			LOG_ALERT => 'LOG_ALERT',
-			LOG_CRIT => 'LOG_CRIT',
-			LOG_ERR => 'LOG_ERR',
-			LOG_WARNING => 'LOG_WARNING',
-			LOG_NOTICE => 'LOG_NOTICE',
-			LOG_INFO => 'LOG_INFO',
-			LOG_DEBUG => 'LOG_DEBUG',
-	);
+    private $log_levels = array(
+        LOG_EMERG => 'LOG_EMERG',
+        LOG_ALERT => 'LOG_ALERT',
+        LOG_CRIT => 'LOG_CRIT',
+        LOG_ERR => 'LOG_ERR',
+        LOG_WARNING => 'LOG_WARNING',
+        LOG_NOTICE => 'LOG_NOTICE',
+        LOG_INFO => 'LOG_INFO',
+        LOG_DEBUG => 'LOG_DEBUG',
+    );
 
-	private $fields = array();
+    private $fields = array();
 
-	public function __construct ($name = 'ykval')
-	{
-		$this->name = $name;
+    public function __construct ($name = 'ykval')
+    {
+        $this->name = $name;
 
-		openlog('ykval', LOG_PID, LOG_LOCAL0);
-	}
+        openlog('ykval', LOG_PID, LOG_LOCAL0);
+    }
 
-	public function addField ($name, $value)
-	{
-		$this->fields[$name] = $value;
-	}
+    public function addField ($name, $value)
+    {
+        $this->fields[$name] = $value;
+    }
 
-	public function log ($priority, $message, $extra = NULL)
-	{
-		$prefix = '';
-		foreach ($this->fields as $val)
-			$prefix .= "[$val] ";
+    public function log ($priority, $message, $extra = NULL)
+    {
+        $prefix = '';
+        foreach ($this->fields as $val)
+            $prefix .= "[$val] ";
 
-		$suffix = '';
-		if (is_array($extra)) {
-			foreach($extra as $key => $value) {
-				if (is_array($value)) {
-					$value = implode(':', $value);
-				}
-				$suffix .= " $key=$value ";
-			}
-		}
+        $suffix = '';
+        if (is_array($extra)) {
+            foreach($extra as $key => $value) {
+                if (is_array($value)) {
+                    $value = implode(':', $value);
+                }
+                $suffix .= " $key=$value ";
+            }
+        }
 
-		$message = $prefix . $message . $suffix;
+        $message = $prefix . $message . $suffix;
 
-		$message = implode(':', array(
-				$this->log_levels[$priority],
-				$this->name,
-				$message
-			));
+        $message = implode(':', array(
+            $this->log_levels[$priority],
+            $this->name,
+            $message
+        ));
 
-		syslog($priority, $message);
-	}
+        syslog($priority, $message);
+    }
 }

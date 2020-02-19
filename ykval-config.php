@@ -36,17 +36,17 @@ $dbfile = '/etc/yubico/val/config-db.php';
 
 if (file_exists($dbfile) && @is_readable($dbfile))
 {
-	require_once $dbfile;
+    require_once $dbfile;
 }
 else
 {
-	// FIXME hostname
-	// FIXME port
-	// 'oci:oracledb' for Oracle DB (with OCI library)
-	$dbtype = 'mysql';
-	$dbuser = 'ykval_verifier';
-	$dbpass = 'yourpassword';
-	$dbname = 'ykval';
+    // FIXME hostname
+    // FIXME port
+    // 'oci:oracledb' for Oracle DB (with OCI library)
+    $dbtype = 'mysql';
+    $dbuser = 'ykval_verifier';
+    $dbpass = 'yourpassword';
+    $dbname = 'ykval';
 }
 
 // for the validation interface.
@@ -58,9 +58,9 @@ $baseParams['__YKVAL_DB_OPTIONS__'] = array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EX
 
 // for the validation server sync
 $baseParams['__YKVAL_SYNC_POOL__'] = array(
-	// "https://api2.example.com/wsapi/2.0/sync",
-	// "https://api3.example.com/wsapi/2.0/sync",
-	// "https://api4.example.com/wsapi/2.0/sync",
+    // "https://api2.example.com/wsapi/2.0/sync",
+    // "https://api3.example.com/wsapi/2.0/sync",
+    // "https://api4.example.com/wsapi/2.0/sync",
 );
 
 /**
@@ -70,12 +70,12 @@ $baseParams['__YKVAL_SYNC_POOL__'] = array(
  *	Both IPv4 and IPv6 are supported.
  */
 $baseParams['__YKVAL_ALLOWED_SYNC_POOL__'] = array(
-	// "1.2.3.4",
-	// "2.3.4.5",
-	// "3.4.5.6",
-	// "fc00:aaaa::",
-	// "fc00:bbbb::",
-	// "fc00:cccc::",
+    // "1.2.3.4",
+    // "2.3.4.5",
+    // "3.4.5.6",
+    // "fc00:aaaa::",
+    // "fc00:bbbb::",
+    // "fc00:cccc::",
 );
 
 // An array of IP addresses allowed to issue YubiKey activation/deactivation
@@ -103,33 +103,33 @@ $baseParams['__YKVAL_SYNC_DEFAULT_TIMEOUT__'] = 1;
 // A key -> value array with curl options to set
 //  when calling URLs defined in __YKVAL_SYNC_POOL__
 $baseParams['__YKVAL_SYNC_CURL_OPTS__'] = array(
-	//CURLOPT_PROTOCOLS => CURLPROTO_HTTP,
+    //CURLOPT_PROTOCOLS => CURLPROTO_HTTP,
 );
 
 // A key -> value array with curl options to set
 //  when calling URLs returned by otp2ksmurls()
 $baseParams['__YKVAL_KSM_CURL_OPTS__'] = array(
-	//CURLOPT_PROTOCOLS => CURLPROTO_HTTP,
+    //CURLOPT_PROTOCOLS => CURLPROTO_HTTP,
 );
 
 // Returns an array of YK-KSM URLs for decrypting $otp for $client.
 // The URLs must be fully qualified, i.e., containing the OTP itself.
 function otp2ksmurls ($otp, $client)
 {
-	//if ($client == 42) {
-	//  return array("https://another-ykksm.example.com/wsapi/decrypt?otp=$otp");
-	//}
+    //if ($client == 42) {
+    //  return array("https://another-ykksm.example.com/wsapi/decrypt?otp=$otp");
+    //}
 
-	//if (preg_match("/^dteffujehknh/", $otp)) {
-	//  return array("https://different-ykksm.example.com/wsapi/decrypt?otp=$otp");
-	//}
+    //if (preg_match("/^dteffujehknh/", $otp)) {
+    //  return array("https://different-ykksm.example.com/wsapi/decrypt?otp=$otp");
+    //}
 
-	return array(
-		// "https://ykksm1.example.com/wsapi/decrypt?otp=$otp",
-		// "https://ykksm2.example.com/wsapi/decrypt?otp=$otp",
-		"http://127.0.0.1:80/wsapi/decrypt?otp=$otp",
-		"http://127.0.0.1:8002/wsapi/decrypt?otp=$otp",
-	);
+    return array(
+        // "https://ykksm1.example.com/wsapi/decrypt?otp=$otp",
+        // "https://ykksm2.example.com/wsapi/decrypt?otp=$otp",
+        "http://127.0.0.1:80/wsapi/decrypt?otp=$otp",
+        "http://127.0.0.1:8002/wsapi/decrypt?otp=$otp",
+    );
 }
 
 /**

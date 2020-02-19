@@ -38,38 +38,38 @@ $myLog = new Log('ykval-revoke');
 $myLog->addField('ip', $_SERVER['REMOTE_ADDR']);
 
 if (!in_array ($_SERVER["REMOTE_ADDR"], $baseParams['__YKREV_IPS__'])) {
-  logdie($myLog, "ERROR Authorization failed (logged ". $_SERVER["REMOTE_ADDR"] .")");
+    logdie($myLog, "ERROR Authorization failed (logged ". $_SERVER["REMOTE_ADDR"] .")");
 }
 
 # Parse input
 $yk = $_REQUEST["yk"];
 $do = $_REQUEST["do"];
 if (!$yk || !$do) {
-  logdie($myLog, "ERROR Missing parameter");
+    logdie($myLog, "ERROR Missing parameter");
 }
 if (!is_pubid($yk)) {
-  logdie($myLog, "ERROR Unknown yk value: $yk");
+    logdie($myLog, "ERROR Unknown yk value: $yk");
 }
 if ($do != "enable" && $do != "disable") {
-  logdie($myLog, "ERROR Unknown do value: $do");
+    logdie($myLog, "ERROR Unknown do value: $do");
 }
 
 # Connect to db
 $db = Db::GetDatabaseHandle($baseParams, 'ykval-revoke');
 if (!$db->connect()) {
-  logdie($myLog, "ERROR Database connect error");
+    logdie($myLog, "ERROR Database connect error");
 }
 
 # Check if key exists
 $r = $db->findBy('yubikeys', 'yk_publicname', $yk, 1);
 if (!$r) {
-  logdie($myLog, "ERROR Unknown yubikey: $yk");
+    logdie($myLog, "ERROR Unknown yubikey: $yk");
 }
 
 # Enable/Disable the yubikey
 if (!$db->updateBy('yubikeys', 'yk_publicname', $yk,
-		   array('active'=>($do == "enable" ? "1" : "0")))) {
-  logdie($myLog, "ERROR Could not $do for $yk");
+                   array('active'=>($do == "enable" ? "1" : "0")))) {
+    logdie($myLog, "ERROR Could not $do for $yk");
 }
 
 # We are done

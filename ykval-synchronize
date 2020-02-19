@@ -29,23 +29,23 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 if($argc != 3 || !( $argv[2] == 'all' || preg_match('/^[cbdefghijklnrtuv]{0,16}$/', $argv[2]))) {
-  echo "Usage: ".$argv[0]." URL KEY\n\n";
-  echo "URL: URL of resync service.\n\n";
-  echo "KEY: Public identifier of a YubiKey to sync, or \"all\".\n\n";
-  echo "Usage example:\n\n";
-  echo $argv[0]." http://example.com/wsapi/2.0/resync ccccccccccdn\n";
-  exit(1);
+    echo "Usage: ".$argv[0]." URL KEY\n\n";
+    echo "URL: URL of resync service.\n\n";
+    echo "KEY: Public identifier of a YubiKey to sync, or \"all\".\n\n";
+    echo "Usage example:\n\n";
+    echo $argv[0]." http://example.com/wsapi/2.0/resync ccccccccccdn\n";
+    exit(1);
 }
 
 $host = $argv[1];
 $yk = $argv[2];
 
 if(!preg_match('~^https?://~', $host)) {
-  #Allow just an IP or host
-  if(strpos($host, "/") == False) {
-    $host = $host."/wsapi/2.0/resync";
-  }
-  $host = "http://".$host;
+    #Allow just an IP or host
+    if(strpos($host, "/") == False) {
+        $host = $host."/wsapi/2.0/resync";
+    }
+    $host = "http://".$host;
 }
 
 $url = $host."?yk=".$yk;
@@ -59,7 +59,7 @@ curl_setopt($ch, CURLOPT_FAILONERROR, true);
 
 $response = curl_exec($ch);
 if($response == False) {
-  die("error");
+    die("error");
 }
 
 echo $response;
