@@ -56,7 +56,7 @@ if ($sl->getNumberOfServers() === 0 && $sl->getQueueLength() === 0)
 do {
 	$start = time();
 	$sl->reSync($baseParams['__YKVAL_SYNC_OLD_LIMIT__'],
-		$baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__']);
+                $baseParams['__YKVAL_SYNC_RESYNC_TIMEOUT__']);
 	$duration = time() - $start;
 	$sleep_time = max($baseParams['__YKVAL_SYNC_INTERVAL__'] - $duration, 0);
 } while(sleep($sleep_time)==0);

@@ -43,43 +43,43 @@ $myLog->log(LOG_DEBUG, "Received request from $ipaddr");
 
 if (empty($_SERVER['QUERY_STRING']))
 {
-	sendResp(S_MISSING_PARAMETER, $myLog);
+    sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
 // verify request sent by whitelisted address
 if (in_array($ipaddr, $allowed, TRUE) === FALSE)
 {
-	$myLog->log(LOG_NOTICE, "Operation not allowed from IP $ipaddr");
-	$myLog->log(LOG_DEBUG, "Remote IP $ipaddr not listed in allowed sync pool : " . implode(', ', $allowed));
-	sendResp(S_OPERATION_NOT_ALLOWED, $myLog);
+    $myLog->log(LOG_NOTICE, "Operation not allowed from IP $ipaddr");
+    $myLog->log(LOG_DEBUG, "Remote IP $ipaddr not listed in allowed sync pool : " . implode(', ', $allowed));
+    sendResp(S_OPERATION_NOT_ALLOWED, $myLog);
 }
 
 // define requirements on protocol
 $syncParams = array(
-	'modified' => NULL,
-	'otp' => NULL,
-	'nonce' => NULL,
-	'yk_publicname' => NULL,
-	'yk_counter' => NULL,
-	'yk_use' => NULL,
-	'yk_high' => NULL,
-	'yk_low' => NULL
+    'modified' => NULL,
+    'otp' => NULL,
+    'nonce' => NULL,
+    'yk_publicname' => NULL,
+    'yk_counter' => NULL,
+    'yk_use' => NULL,
+    'yk_high' => NULL,
+    'yk_low' => NULL
 );
 
 // extract values from HTTP request
 $tmp_log = 'Received ';
 foreach ($syncParams as $param => $value)
 {
-	$value = getHttpVal($param, NULL, $_GET);
+    $value = getHttpVal($param, NULL, $_GET);
 
-	if ($value == NULL)
-	{
-		$myLog->log(LOG_NOTICE, "Received request with parameter[s] ($param) missing value");
-		sendResp(S_MISSING_PARAMETER, $myLog);
-	}
+    if ($value == NULL)
+    {
+        $myLog->log(LOG_NOTICE, "Received request with parameter[s] ($param) missing value");
+        sendResp(S_MISSING_PARAMETER, $myLog);
+    }
 
-	$syncParams[$param] = $value;
-	$tmp_log .= "$param=$value ";
+    $syncParams[$param] = $value;
+    $tmp_log .= "$param=$value ";
 }
 $myLog->log(LOG_INFO, $tmp_log);
 
@@ -89,35 +89,52 @@ $sync->addField('ip', $ipaddr);
 
 if (! $sync->isConnected())
 {
-	sendResp(S_BACKEND_ERROR, $myLog);
+    sendResp(S_BACKEND_ERROR, $myLog);
 }
 
 // at this point we should have the otp so let's add it to the logging module
 $myLog->addField('otp', $syncParams['otp']);
-$sync->addField('otp', $syncParams['otp']);
 
-
-// verify correctness of input parameters
+// Verify correctness of numeric input parameters
 foreach (array('modified','yk_counter', 'yk_use', 'yk_high', 'yk_low') as $param)
 {
-	// -1 is valid except for modified
-	if ($param !== 'modified' && $syncParams[$param] === '-1')
-		continue;
+    // -1 is valid except for modified
+    if ($param !== 'modified' && $syncParams[$param] === '-1')
+        continue;
 
-	// [0-9]+
-	if ($syncParams[$param] !== '' && ctype_digit($syncParams[$param]))
-		continue;
+    // [0-9]+
+    if ($syncParams[$param] !== '' && ctype_digit($syncParams[$param]))
+        continue;
 
-	$myLog->log(LOG_NOTICE, "Input parameters $param not correct");
-	sendResp(S_MISSING_PARAMETER, $myLog);
+    $myLog->log(LOG_NOTICE, "Input parameters $param not correct");
+    sendResp(S_MISSING_PARAMETER, $myLog);
+}
+
+// Verify correctness of OTP input
+if (!is_otp($syncParams['otp'])) {
+    $myLog->log(LOG_NOTICE, "Input parameter " . $syncParams['otp'] . " not correct");
+    sendResp(S_MISSING_PARAMETER, $myLog);
+}
+
+// Verify correctness of pubid input
+if (!is_pubid($syncParams['yk_publicname'])) {
+    $myLog->log(LOG_NOTICE, "Input parameter " . $syncParams['yk_publicname'] . " not correct");
+    sendResp(S_MISSING_PARAMETER, $myLog);
+}
+
+// Verify correctness of nonce input
+if (!is_nonce($syncParams['nonce'])) {
+    $myLog->log(LOG_NOTICE, "Input parameter " . $syncParams['nonce'] . " not correct");
+    sendResp(S_MISSING_PARAMETER, $myLog);
 }
 
 // get local counter data
+$sync->addField('otp', $syncParams['otp']);
 $yk_publicname = $syncParams['yk_publicname'];
 if (($localParams = $sync->getLocalParams($yk_publicname)) === FALSE)
 {
-	$myLog->log(LOG_NOTICE, "Invalid Yubikey $yk_publicname");
-	sendResp(S_BACKEND_ERROR, $myLog);
+    $myLog->log(LOG_NOTICE, "Invalid Yubikey $yk_publicname");
+    sendResp(S_BACKEND_ERROR, $myLog);
 }
 
 // conditional update local database
@@ -128,60 +145,60 @@ $myLog->log(LOG_DEBUG, 'Sync request params ', $syncParams);
 
 if ($sync->countersHigherThan($localParams, $syncParams))
 {
-	$myLog->log(LOG_WARNING, 'Remote server out of sync.');
+    $myLog->log(LOG_WARNING, 'Remote server out of sync.');
 }
 
 if ($sync->countersEqual($localParams, $syncParams))
 {
-	if ($syncParams['modified'] == $localParams['modified']
-		&& $syncParams['nonce'] == $localParams['nonce'])
-	{
-		/**
-		 * This is not an error. When the remote server received an OTP to verify, it would
-		 * have sent out sync requests immediately. When the required number of responses had
-		 * been received, the current implementation discards all additional responses (to
-		 * return the result to the client as soon as possible). If our response sent last
-		 * time was discarded, we will end up here when the background ykval-queue processes
-		 * the sync request again.
-		 */
-		$myLog->log(LOG_INFO, 'Sync request unnecessarily sent');
-	}
+    if ($syncParams['modified'] == $localParams['modified']
+        && $syncParams['nonce'] == $localParams['nonce'])
+    {
+        /**
+         * This is not an error. When the remote server received an OTP to verify, it would
+         * have sent out sync requests immediately. When the required number of responses had
+         * been received, the current implementation discards all additional responses (to
+         * return the result to the client as soon as possible). If our response sent last
+         * time was discarded, we will end up here when the background ykval-queue processes
+         * the sync request again.
+         */
+        $myLog->log(LOG_INFO, 'Sync request unnecessarily sent');
+    }
 
-	if ($syncParams['modified'] != $localParams['modified']
-		&& $syncParams['nonce'] == $localParams['nonce'])
-	{
-		$deltaModified = $syncParams['modified'] - $localParams['modified'];
+    if ($syncParams['modified'] != $localParams['modified']
+        && $syncParams['nonce'] == $localParams['nonce'])
+    {
+        $deltaModified = $syncParams['modified'] - $localParams['modified'];
 
-		if ($deltaModified < -1 || $deltaModified > 1)
-		{
-			$myLog->log(LOG_WARNING, "We might have a replay. 2 events at different times have generated the same counters. The time difference is $deltaModified seconds");
-		}
-	}
+        if ($deltaModified < -1 || $deltaModified > 1)
+        {
+            $myLog->log(LOG_WARNING, "We might have a replay. 2 events at different times have generated the same counters. The time difference is $deltaModified seconds");
+        }
+    }
 
-	if ($syncParams['nonce'] != $localParams['nonce'])
-	{
-		$myLog->log(LOG_WARNING, 'Remote server has received a request to validate an already validated OTP');
-	}
+    if ($syncParams['nonce'] != $localParams['nonce'])
+    {
+        $myLog->log(LOG_WARNING, 'Remote server has received a request to validate an already validated OTP');
+    }
 }
 
 if ($localParams['active'] != 1)
 {
-	/**
-	 * The remote server has accepted an OTP from a YubiKey which we would not.
-	 * We still needed to update our counters with the counters from the OTP though.
-	 */
-	$myLog->log(LOG_WARNING, "Received sync-request for de-activated Yubikey $yk_publicname - check database synchronization!!!");
-	sendResp(S_BAD_OTP, $myLog);
+    /**
+     * The remote server has accepted an OTP from a YubiKey which we would not.
+     * We still needed to update our counters with the counters from the OTP though.
+     */
+    $myLog->log(LOG_WARNING, "Received sync-request for de-activated Yubikey $yk_publicname - check database synchronization!!!");
+    sendResp(S_BAD_OTP, $myLog);
 }
 
 $extra = array(
-	'modified' => $localParams['modified'],
-	'nonce' => $localParams['nonce'],
-	'yk_publicname' => $yk_publicname,
-	'yk_counter' => $localParams['yk_counter'],
-	'yk_use' => $localParams['yk_use'],
-	'yk_high' => $localParams['yk_high'],
-	'yk_low' => $localParams['yk_low']
+    'modified' => $localParams['modified'],
+    'nonce' => $localParams['nonce'],
+    'yk_publicname' => $yk_publicname,
+    'yk_counter' => $localParams['yk_counter'],
+    'yk_use' => $localParams['yk_use'],
+    'yk_high' => $localParams['yk_high'],
+    'yk_low' => $localParams['yk_low']
 );
 
 sendResp(S_OK, $myLog, '', $extra);

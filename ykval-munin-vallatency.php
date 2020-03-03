@@ -29,67 +29,66 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set_include_path(implode(PATH_SEPARATOR, array(
-	get_include_path(),
-	'/usr/share/yubikey-val',
-	'/etc/yubico/val',
+    get_include_path(),
+    '/usr/share/yubikey-val',
+    '/etc/yubico/val',
 )));
 
 require_once 'ykval-config.php';
 require_once 'ykval-common.php';
 
-
 $urls = $baseParams['__YKVAL_SYNC_POOL__'];
 
 if ($argc == 2 && strcmp($argv[1], 'autoconf') == 0)
 {
-	if (is_array($urls) && count($urls) > 0)
-	{
-		echo "yes\n";
-		exit(0);
-	}
+    if (is_array($urls) && count($urls) > 0)
+    {
+        echo "yes\n";
+        exit(0);
+    }
 
-	echo "no (sync pool not configured)\n";
-	exit(0);
+    echo "no (sync pool not configured)\n";
+    exit(0);
 }
 
 if (($endpoints = endpoints($urls)) === FALSE)
 {
-	echo "Cannot parse URLs from sync pool list\n";
-	exit(1);
+    echo "Cannot parse URLs from sync pool list\n";
+    exit(1);
 }
 
 if ($argc == 2 && strcmp($argv[1], 'config') == 0)
 {
-	echo "multigraph ykval_vallatency\n";
-	echo "graph_title VAL latency\n";
-	echo "graph_vlabel Average VAL Latency (seconds)\n";
-	echo "graph_category ykval\n";
-	echo "graph_width 400\n";
+    echo "multigraph ykval_vallatency\n";
+    echo "graph_title VAL latency\n";
+    echo "graph_vlabel Average VAL Latency (seconds)\n";
+    echo "graph_category ykval\n";
+    echo "graph_width 400\n";
 
-	foreach ($endpoints as $endpoint)
-	{
-		list($internal, $label, $url) = $endpoint;
+    foreach ($endpoints as $endpoint)
+    {
+        list($internal, $label, $url) = $endpoint;
 
-		echo "${internal}_avgwait.label ${label}\n";
-		echo "${internal}_avgwait.type GAUGE\n";
-		echo "${internal}_avgwait.info Average VAL round-trip latency\n";
-		echo "${internal}_avgwait.min 0\n";
-		echo "${internal}_avgwait.draw LINE1\n";
-	}
+        echo "${internal}_avgwait.label ${label}\n";
+        echo "${internal}_avgwait.type GAUGE\n";
+        echo "${internal}_avgwait.info Average VAL round-trip latency\n";
+        echo "${internal}_avgwait.min 0\n";
+        echo "${internal}_avgwait.draw LINE1\n";
+    }
 
-	exit(0);
+    exit(0);
 }
 
 echo "multigraph ykval_vallatency\n";
 
 foreach ($endpoints as $endpoint)
 {
-	list ($internal, $label, $url) = $endpoint;
+    list ($internal, $label, $url) = $endpoint;
 
-	if (($total_time = total_time($url)) === FALSE)
-		$total_time = 'error';
+    if (($total_time = total_time($url)) === FALSE)
+        $total_time = 'error';
 
-	echo "${internal}_avgwait.value ${total_time}\n";
+    echo "${internal}_avgwait.value ${total_time}\n";
 }
 
 exit(0);

@@ -45,69 +45,112 @@ define('TS_REL_TOLERANCE', 0.3);
 define('TS_ABS_TOLERANCE', 20);
 
 define('TOKEN_LEN', 32);
-define('OTP_MAX_LEN', 48); // TOKEN_LEN plus public identity of 0..16
+define('PUBID_MAX_LEN', 16);
+define('OTP_MAX_LEN', TOKEN_LEN + PUBID_MAX_LEN);
+define('NONCE_MIN_LEN', 16);
+define('NONCE_MAX_LEN', 40);
+define('INT32_LEN', 10);
 
 function logdie ($logger, $str)
 {
-	$logger->log(LOG_INFO, $str);
-	die($str . "\n");
+    $logger->log(LOG_INFO, $str);
+    die($str . "\n");
 }
 
 function getHttpVal ($key, $default, $a)
 {
-	if (array_key_exists($key, $a))
-	{
-		$val = $a[$key];
-	}
-	else
-	{
-		$val = $default;
-	}
+    if (array_key_exists($key, $a))
+    {
+        $val = $a[$key];
+    }
+    else
+    {
+        $val = $default;
+    }
 
-	$val = trim($val);
-	$val = str_replace('\\', '', $val);
+    $val = trim($val);
+    $val = str_replace('\\', '', $val);
 
-	return $val;
+    return $val;
+}
+
+// Verifies if a given string is modhex
+function is_modhex($s) {
+    if (preg_match('/^[cbdefghijklnrtuv]+$/', $s) === 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+// Verifies if a given string is a valid OTP
+function is_otp($otp) {
+    if ($otp == "") {
+        return false;
+    }
+    $otp_len = strlen($otp);
+    return $otp_len >= TOKEN_LEN && $otp_len <= OTP_MAX_LEN && is_modhex($otp);
+}
+
+// Verifies if a given string is a valid public id
+function is_pubid($id) {
+    $id_len = strlen($id);
+    return $id_len >= 0 && $id_len <= PUBID_MAX_LEN && is_modhex($id);
+}
+
+// Verifies a given string is a valid nonce
+function is_nonce($nonce) {
+    return strlen($nonce) >= NONCE_MIN_LEN
+                           && strlen($nonce) <= NONCE_MAX_LEN
+                           && ctype_alnum($nonce);
+}
+
+// Verifies if a given string is a valid client id
+function is_clientid($id) {
+    if ($id == "0") {
+        return false;
+    }
+    return strlen($id) <= INT32_LEN && ctype_digit($id);
 }
 
 // Sign a http query string in the array of key-value pairs
 // return b64 encoded hmac hash
 function sign($a, $apiKey, $logger)
 {
-	ksort($a);
+    ksort($a);
 
-	$qs = http_build_query($a);
-	$qs = urldecode($qs);
-	$qs = utf8_encode($qs);
+    $qs = http_build_query($a);
+    $qs = urldecode($qs);
+    $qs = utf8_encode($qs);
 
-	// base64 encoded binary digest
-	$hmac = hash_hmac('sha1', $qs, $apiKey, TRUE);
-	$hmac = base64_encode($hmac);
+    // base64 encoded binary digest
+    $hmac = hash_hmac('sha1', $qs, $apiKey, TRUE);
+    $hmac = base64_encode($hmac);
 
-	$logger->log(LOG_DEBUG, "SIGN: $qs H=$hmac");
+    $logger->log(LOG_DEBUG, "SIGN: $qs H=$hmac");
 
-	return $hmac;
+    return $hmac;
 }
 
 function curl_settings($logger, $ident, $ch, $url, $timeout, $opts)
 {
-	$logger->log(LOG_DEBUG, "$ident adding URL : $url");
+    $logger->log(LOG_DEBUG, "$ident adding URL : $url");
 
-	curl_setopt($ch, CURLOPT_URL, $url);
-	curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-	curl_setopt($ch, CURLOPT_USERAGENT, 'YK-VAL');
-	curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-	curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'YK-VAL');
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_FAILONERROR, TRUE);
 
-	if (is_array($opts) === FALSE)
-	{
-		$logger->log(LOG_WARN, $ident . 'curl options must be an array');
-		return;
-	}
+    if (is_array($opts) === FALSE)
+    {
+        $logger->log(LOG_WARN, $ident . 'curl options must be an array');
+        return;
+    }
 
-	foreach ($opts as $key => $val)
-		if (curl_setopt($ch, $key, $val) === FALSE)
-			$logger->log(LOG_WARN, "$ident failed to set " . curl_opt_name($key));
+    foreach ($opts as $key => $val)
+        if (curl_setopt($ch, $key, $val) === FALSE)
+            $logger->log(LOG_WARN, "$ident failed to set " . curl_opt_name($key));
 }
 
 // returns the string name of a curl constant,
@@ -117,16 +160,16 @@ function curl_settings($logger, $ident, $ch, $url, $timeout, $opts)
 //  curl_opt_name(CURLOPT_BLABLA) returns "curl option"
 function curl_opt_name($opt)
 {
-	$consts = get_defined_constants(true);
-	$consts = $consts['curl'];
+    $consts = get_defined_constants(true);
+    $consts = $consts['curl'];
 
-	$name = array_search($opt, $consts, TRUE);
+    $name = array_search($opt, $consts, TRUE);
 
-	// array_search may return either on failure...
-	if ($name === FALSE || $name === NULL)
-		return 'curl option';
+    // array_search may return either on failure...
+    if ($name === FALSE || $name === NULL)
+        return 'curl option';
 
-	return $name;
+    return $name;
 }
 
 // This function takes a list of URLs.  It will return the content of
@@ -138,164 +181,164 @@ function curl_opt_name($opt)
 // (defaults to ^OK) is returned, or if all URLs failed, false.
 function retrieveURLasync($ident, $urls, $logger, $ans_req=1, $match="^OK", $returl=False, $timeout=10, $curlopts)
 {
-	$mh = curl_multi_init();
-	$ch = array();
+    $mh = curl_multi_init();
+    $ch = array();
 
-	foreach ($urls as $url)
-	{
-		$handle = curl_init();
-		curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts);
-		curl_multi_add_handle($mh, $handle);
-		$ch[(int) $handle] = $handle;
-	}
+    foreach ($urls as $url)
+    {
+        $handle = curl_init();
+        curl_settings($logger, $ident, $handle, $url, $timeout, $curlopts);
+        curl_multi_add_handle($mh, $handle);
+        $ch[(int) $handle] = $handle;
+    }
 
-	$ans_arr = array();
+    $ans_arr = array();
 
-	do
-	{
-		while (curl_multi_exec($mh, $active) == CURLM_CALL_MULTI_PERFORM);
+    do
+    {
+        while (curl_multi_exec($mh, $active) == CURLM_CALL_MULTI_PERFORM);
 
-		while ($info = curl_multi_info_read($mh))
-		{
-			$logger->log(LOG_DEBUG, "$ident curl multi info : ", $info);
+        while ($info = curl_multi_info_read($mh))
+        {
+            $logger->log(LOG_DEBUG, "$ident curl multi info : ", $info);
 
-			if ($info['result'] == CURLE_OK)
-			{
-				$str = curl_multi_getcontent($info['handle']);
+            if ($info['result'] == CURLE_OK)
+            {
+                $str = curl_multi_getcontent($info['handle']);
 
-				$logger->log(LOG_DEBUG, "$ident curl multi content : $str");
+                $logger->log(LOG_DEBUG, "$ident curl multi content : $str");
 
-				if (preg_match("/$match/", $str))
-				{
-					$logger->log(LOG_DEBUG, "$ident response matches $match");
-					$error = curl_error($info['handle']);
-					$errno = curl_errno($info['handle']);
-					$cinfo = curl_getinfo($info['handle']);
-					$logger->log(LOG_INFO, "$ident errno/error: $errno/$error", $cinfo);
+                if (preg_match("/$match/", $str))
+                {
+                    $logger->log(LOG_DEBUG, "$ident response matches $match");
+                    $error = curl_error($info['handle']);
+                    $errno = curl_errno($info['handle']);
+                    $cinfo = curl_getinfo($info['handle']);
+                    $logger->log(LOG_INFO, "$ident errno/error: $errno/$error", $cinfo);
 
-					if ($returl)
-						$ans_arr[] = "url=" . $cinfo['url'] . "\n" . $str;
-					else
-						$ans_arr[] = $str;
-				}
+                    if ($returl)
+                        $ans_arr[] = "url=" . $cinfo['url'] . "\n" . $str;
+                    else
+                        $ans_arr[] = $str;
+                }
 
-				if (count($ans_arr) >= $ans_req)
-				{
-					foreach ($ch as $h)
-					{
-						curl_multi_remove_handle($mh, $h);
-						curl_close($h);
-					}
-					curl_multi_close($mh);
+                if (count($ans_arr) >= $ans_req)
+                {
+                    foreach ($ch as $h)
+                    {
+                        curl_multi_remove_handle($mh, $h);
+                        curl_close($h);
+                    }
+                    curl_multi_close($mh);
 
-					return $ans_arr;
-				}
+                    return $ans_arr;
+                }
 
-				curl_multi_remove_handle($mh, $info['handle']);
-				curl_close($info['handle']);
-				unset($ch[(int) $info['handle']]);
-			}
+                curl_multi_remove_handle($mh, $info['handle']);
+                curl_close($info['handle']);
+                unset($ch[(int) $info['handle']]);
+            }
 
-			curl_multi_select($mh);
-		}
-	}
-	while($active);
+            curl_multi_select($mh);
+        }
+    }
+    while($active);
 
-	foreach ($ch as $h)
-	{
-		curl_multi_remove_handle($mh, $h);
-		curl_close($h);
-	}
-	curl_multi_close($mh);
+    foreach ($ch as $h)
+    {
+        curl_multi_remove_handle($mh, $h);
+        curl_close($h);
+    }
+    curl_multi_close($mh);
 
-	if (count($ans_arr) > 0)
-		return $ans_arr;
+    if (count($ans_arr) > 0)
+        return $ans_arr;
 
-	return false;
+    return false;
 }
 
 function KSMdecryptOTP($urls, $logger, $curlopts)
 {
-	$response = retrieveURLasync('YK-KSM', $urls, $logger, $ans_req=1, $match='^OK', $returl=False, $timeout=10, $curlopts);
+    $response = retrieveURLasync('YK-KSM', $urls, $logger, $ans_req=1, $match='^OK', $returl=False, $timeout=10, $curlopts);
 
-	if ($response === FALSE)
-		return false;
+    if ($response === FALSE)
+        return false;
 
-	$response = array_shift($response);
+    $response = array_shift($response);
 
-	$logger->log(LOG_DEBUG, "YK-KSM response: $response");
+    $logger->log(LOG_DEBUG, "YK-KSM response: $response");
 
-	$ret = array();
+    $ret = array();
 
-	if (sscanf($response,
-		'OK counter=%04x low=%04x high=%02x use=%02x',
-		$ret['session_counter'],
-		$ret['low'],
-		$ret['high'],
-		$ret['session_use']) !== 4)
-	{
-		return false;
-	}
+    if (sscanf($response,
+               'OK counter=%04x low=%04x high=%02x use=%02x',
+               $ret['session_counter'],
+               $ret['low'],
+               $ret['high'],
+               $ret['session_use']) !== 4)
+    {
+        return false;
+    }
 
-	return $ret;
+    return $ret;
 }
 
 function sendResp($status, $logger, $apiKey = '', $extra = null)
 {
-	if ($logger->request !== NULL)
-		$logger->request->set('status', $status);
+    if ($logger->request !== NULL)
+        $logger->request->set('status', $status);
 
-	$a['status'] = $status;
+    $a['status'] = $status;
 
-	// 2008-11-21T06:11:55Z0711
-	$t = substr(microtime(false), 2, 3);
-	$t = gmdate('Y-m-d\TH:i:s\Z0') . $t;
+    // 2008-11-21T06:11:55Z0711
+    $t = substr(microtime(false), 2, 3);
+    $t = gmdate('Y-m-d\TH:i:s\Z0') . $t;
 
-	$a['t'] = $t;
+    $a['t'] = $t;
 
-	if ($extra)
-		foreach ($extra as $param => $value)
-			$a[$param] = $value;
+    if ($extra)
+        foreach ($extra as $param => $value)
+            $a[$param] = $value;
 
-	$h = sign($a, $apiKey, $logger);
+    $h = sign($a, $apiKey, $logger);
 
-	$str = "";
-	$str .= "h=" . $h . "\r\n";
-	$str .= "t=" . $a['t'] . "\r\n";
+    $str = "";
+    $str .= "h=" . $h . "\r\n";
+    $str .= "t=" . $a['t'] . "\r\n";
 
-	if ($extra)
-		foreach ($extra as $param => $value)
-			$str .= $param . "=" . $value . "\r\n";
+    if ($extra)
+        foreach ($extra as $param => $value)
+            $str .= $param . "=" . $value . "\r\n";
 
-	$str .= "status=" . $a['status'] . "\r\n";
-	$str .= "\r\n";
+    $str .= "status=" . $a['status'] . "\r\n";
+    $str .= "\r\n";
 
-	$logger->log(LOG_INFO, "Response: " . $str . " (at " . gmdate("c") . " " . microtime() . ")");
+    $logger->log(LOG_INFO, "Response: " . $str . " (at " . gmdate("c") . " " . microtime() . ")");
 
-	if ($logger->request !== NULL)
-		$logger->request->write();
+    if ($logger->request !== NULL)
+        $logger->request->write();
 
-	echo $str;
-	exit;
+    echo $str;
+    exit;
 }
 
 // backport from PHP 5.6
 if (function_exists('hash_equals') === FALSE)
 {
-	function hash_equals($a, $b)
-	{
-		// hashes are a (known) fixed length,
-		//	so this doesn't leak anything.
-		if (strlen($a) != strlen($b))
-			return false;
+    function hash_equals($a, $b)
+    {
+        // hashes are a (known) fixed length,
+        //	so this doesn't leak anything.
+        if (strlen($a) != strlen($b))
+            return false;
 
-		$result = 0;
+        $result = 0;
 
-		for ($i = 0; $i < strlen($a); $i++)
-			$result |= ord($a[$i]) ^ ord($b[$i]);
+        for ($i = 0; $i < strlen($a); $i++)
+            $result |= ord($a[$i]) ^ ord($b[$i]);
 
-		return (0 === $result);
-	}
+        return (0 === $result);
+    }
 }
 
 /**
@@ -306,33 +349,33 @@ if (function_exists('hash_equals') === FALSE)
  */
 function total_time ($url)
 {
-	$opts = array(
-		CURLOPT_URL => $url,
-		CURLOPT_TIMEOUT => 3,
-		CURLOPT_FORBID_REUSE => TRUE,
-		CURLOPT_FRESH_CONNECT => TRUE,
-		CURLOPT_RETURNTRANSFER => TRUE,
-		CURLOPT_USERAGENT => 'ykval-munin-vallatency/1.0',
-	);
+    $opts = array(
+        CURLOPT_URL => $url,
+        CURLOPT_TIMEOUT => 3,
+        CURLOPT_FORBID_REUSE => TRUE,
+        CURLOPT_FRESH_CONNECT => TRUE,
+        CURLOPT_RETURNTRANSFER => TRUE,
+        CURLOPT_USERAGENT => 'ykval-munin-vallatency/1.0',
+    );
 
-	if (($ch = curl_init()) === FALSE)
-		return false;
+    if (($ch = curl_init()) === FALSE)
+        return false;
 
-	if (curl_setopt_array($ch, $opts) === FALSE)
-		return false;
+    if (curl_setopt_array($ch, $opts) === FALSE)
+        return false;
 
-	// we don't care about the actual response
-	if (curl_exec($ch) === FALSE)
-		return false;
+    // we don't care about the actual response
+    if (curl_exec($ch) === FALSE)
+        return false;
 
-	$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+    $total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
 
-	curl_close($ch);
+    curl_close($ch);
 
-	if (is_float($total_time) === FALSE)
-		return false;
+    if (is_float($total_time) === FALSE)
+        return false;
 
-	return $total_time;
+    return $total_time;
 }
 
 /**
@@ -343,38 +386,38 @@ function total_time ($url)
  */
 function endpoints ($urls)
 {
-	$endpoints = array();
+    $endpoints = array();
 
-	foreach ($urls as $url)
-	{
-		// internal munin name must be a-zA-Z0-9_,
-		//	so sha1 hex should be fine.
-		//
-		// munin also truncates at some length,
-		//	so we just take the first few characters of the hashsum.
-		$internal = substr(sha1($url), 0, 20);
+    foreach ($urls as $url)
+    {
+        // internal munin name must be a-zA-Z0-9_,
+        //	so sha1 hex should be fine.
+        //
+        // munin also truncates at some length,
+        //	so we just take the first few characters of the hashsum.
+        $internal = substr(sha1($url), 0, 20);
 
-		// actual label name shown for graph values
-		if (($label = hostport($url)) === FALSE)
-		{
-			return false;
-		}
+        // actual label name shown for graph values
+        if (($label = hostport($url)) === FALSE)
+        {
+            return false;
+        }
 
-		$endpoints[] = array($internal, $label, $url);
-	}
+        $endpoints[] = array($internal, $label, $url);
+    }
 
-	// check for truncated sha1 collisions (or actual duplicate URLs!)
-	$internal = array();
+    // check for truncated sha1 collisions (or actual duplicate URLs!)
+    $internal = array();
 
-	foreach($endpoints as $endpoint)
-	{
-		$internal[] = $endpoint[0];
-	}
+    foreach($endpoints as $endpoint)
+    {
+        $internal[] = $endpoint[0];
+    }
 
-	if (count(array_unique($internal)) !== count($endpoints))
-		return false;
+    if (count(array_unique($internal)) !== count($endpoints))
+        return false;
 
-	return $endpoints;
+    return $endpoints;
 }
 
 /**
@@ -387,22 +430,22 @@ function endpoints ($urls)
  */
 function hostport ($url)
 {
-	if (($url = parse_url($url)) === FALSE)
-		return false;
+    if (($url = parse_url($url)) === FALSE)
+        return false;
 
-	if (array_key_exists('host', $url) === FALSE || $url['host'] === NULL)
-		return false;
+    if (array_key_exists('host', $url) === FALSE || $url['host'] === NULL)
+        return false;
 
-	if (array_key_exists('port', $url) === TRUE && $url['port'] !== NULL)
-		return $url['host'].':'.$url['port'];
+    if (array_key_exists('port', $url) === TRUE && $url['port'] !== NULL)
+        return $url['host'].':'.$url['port'];
 
-	if (array_key_exists('scheme', $url) === TRUE
-			&& strtolower($url['scheme']) === 'http')
-		return $url['host'].':80';
+    if (array_key_exists('scheme', $url) === TRUE
+        && strtolower($url['scheme']) === 'http')
+        return $url['host'].':80';
 
-	if (array_key_exists('scheme', $url) === TRUE
-			&& strtolower($url['scheme']) === 'https')
-		return $url['host'].':443';
+    if (array_key_exists('scheme', $url) === TRUE
+        && strtolower($url['scheme']) === 'https')
+        return $url['host'].':443';
 
-	return $url['host'];
+    return $url['host'];
 }

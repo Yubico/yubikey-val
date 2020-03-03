@@ -35,231 +35,274 @@ require_once('ykval-log.php');
 
 abstract class Db
 {
-  /**
-   * static function to determine database type and instantiate the correct subclass
-   *
-   * */
-  public static function GetDatabaseHandle($baseParams, $logname)
-  {
-    if(substr($baseParams['__YKVAL_DB_DSN__'], 0, 3) == 'oci') {
-      require_once 'ykval-db-oci.php';
-    } else {
-      require_once 'ykval-db-pdo.php';
-    }
-    return new DbImpl($baseParams['__YKVAL_DB_DSN__'],
+    /**
+     * static function to determine database type and instantiate the correct subclass
+     *
+     * */
+    public static function GetDatabaseHandle($baseParams, $logname)
+    {
+        if(substr($baseParams['__YKVAL_DB_DSN__'], 0, 3) == 'oci') {
+            require_once 'ykval-db-oci.php';
+        } else {
+            require_once 'ykval-db-pdo.php';
+        }
+        return new DbImpl($baseParams['__YKVAL_DB_DSN__'],
                           $baseParams['__YKVAL_DB_USER__'],
                           $baseParams['__YKVAL_DB_PW__'],
                           $baseParams['__YKVAL_DB_OPTIONS__'],
                           $logname . ':db');
-  }
-
-  function addField($name, $value)
-  {
-    $this->myLog->addField($name, $value);
-  }
-
-  /**
-   * function to convert Db timestamps to unixtime(s)
-   *
-   * @param string $updated Database timestamp
-   * @return int Timestamp in unixtime format
-   *
-   */
-  public function timestampToTime($updated)
-  {
-    $stamp=strptime($updated, '%F %H:%M:%S');
-    return mktime($stamp[tm_hour], $stamp[tm_min], $stamp[tm_sec], $stamp[tm_mon]+1, $stamp[tm_mday], $stamp[tm_year]);
-
-  }
-
-  /**
-   * function to compute delta (s) between 2 Db timestamps
-   *
-   * @param string $first Database timestamp 1
-   * @param string $second Database timestamp 2
-   * @return int Deltatime (s)
-   *
-   */
-  public function timestampDeltaTime($first, $second)
-  {
-    return Db::timestampToTime($second) - Db::timestampToTime($first);
-  }
-
-  /**
-   * function to disconnect from database
-   *
-   * @return boolean True on success, otherwise false.
-   *
-   */
-  public function disconnect()
-  {
-    $this->dbh=NULL;
-  }
-
-  /**
-   * function to check if database is connected
-   *
-   * @return boolean True if connected, otherwise false.
-   *
-   */
-  public function isConnected()
-  {
-    if ($this->dbh!=NULL) return True;
-    else return False;
-  }
-
-  /**
-   * function to update row in database by a where condition
-   *
-   * @param string $table Database table to update row in
-   * @param int $id Id on row to update
-   * @param array $values Array with key=>values to update
-   * @return boolean True on success, otherwise false.
-   *
-   */
-  public function updateBy($table, $k, $v, $values)
-  {
-    $query = "";
-
-    foreach ($values as $key=>$value){
-      if (!is_null($value)) $query .= ' ' . $key . "='" . $value . "',";
-      else $query .= ' ' . $key . '=NULL,';
-    }
-    if (! $query) {
-      $this->myLog->log(LOG_DEBUG, "no values to set in query. Not updating DB");
-      return true;
     }
 
-    $query = rtrim($query, ",") . " WHERE " . $k . " = '" . $v . "'";
-    // Insert UPDATE statement at beginning
-    $query = "UPDATE " . $table . " SET " . $query;
-
-    return $this->query($query, false);
-  }
-
-
-  /**
-   * function to update row in database
-   *
-   * @param string $table Database table to update row in
-   * @param int $id Id on row to update
-   * @param array $values Array with key=>values to update
-   * @return boolean True on success, otherwise false.
-   *
-   */
-  public function update($table, $id, $values)
-  {
-    return $this->updateBy($table, 'id', $id, $values);
-  }
-
-  /**
-   * function to update row in database based on a condition
-   *
-   * @param string $table Database table to update row in
-   * @param string $k Column to select row on
-   * @param string $v Value to select row on
-   * @param array $values Array with key=>values to update
-   * @param string $condition conditional statement
-   * @return boolean True on success, otherwise false.
-   *
-   */
-  public function conditionalUpdateBy($table, $k, $v, $values, $condition)
-  {
-    $query = ""; /* quiet the PHP Notice */
-
-    foreach ($values as $key=>$value){
-      $query = $query . " " . $key . "='" . $value . "',";
-    }
-    if (! $query) {
-      $this->myLog->log(LOG_DEBUG, "no values to set in query. Not updating DB");
-      return true;
+    function addField($name, $value)
+    {
+        $this->myLog->addField($name, $value);
     }
 
-    $query = rtrim($query, ",") . " WHERE " . $k . " = '" . $v . "' and " . $condition;
-    // Insert UPDATE statement at beginning
-    $query = "UPDATE " . $table . " SET " . $query;
+    /**
+     * function to convert Db timestamps to unixtime(s)
+     *
+     * @param string $updated Database timestamp
+     * @return int Timestamp in unixtime format
+     *
+     */
+    public function timestampToTime($updated)
+    {
+        $stamp=strptime($updated, '%F %H:%M:%S');
+        return mktime($stamp[tm_hour], $stamp[tm_min], $stamp[tm_sec], $stamp[tm_mon]+1, $stamp[tm_mday], $stamp[tm_year]);
 
-    return $this->query($query, false);
-  }
-
-
-  /**
-   * Function to update row in database based on a condition.
-   * An ID value is passed to select the appropriate column
-   *
-   * @param string $table Database table to update row in
-   * @param int $id Id on row to update
-   * @param array $values Array with key=>values to update
-   * @param string $condition conditional statement
-   * @return boolean True on success, otherwise false.
-   *
-   */
-  public function conditionalUpdate($table, $id, $values, $condition)
-  {
-    return $this->conditionalUpdateBy($table, 'id', $id, $values, $condition);
-  }
-
-  /**
-   * function to insert new row in database
-   *
-   * @param string $table Database table to update row in
-   * @param array $values Array with key=>values to update
-   * @return boolean True on success, otherwise false.
-   *
-   */
-  public function save($table, $values)
-  {
-    $query= 'INSERT INTO ' . $table . " (";
-    foreach ($values as $key=>$value){
-      if (!is_null($value)) $query = $query . $key . ",";
     }
-    $query = rtrim($query, ",") . ') VALUES (';
-    foreach ($values as $key=>$value){
-      if (!is_null($value)) $query = $query . "'" . $value . "',";
+
+    /**
+     * function to compute delta (s) between 2 Db timestamps
+     *
+     * @param string $first Database timestamp 1
+     * @param string $second Database timestamp 2
+     * @return int Deltatime (s)
+     *
+     */
+    public function timestampDeltaTime($first, $second)
+    {
+        return Db::timestampToTime($second) - Db::timestampToTime($first);
     }
-    $query = rtrim($query, ",");
-    $query = $query . ")";
-    return $this->query($query, false);
-  }
-  /**
-   * helper function to collect last row[s] in database
-   *
-   * @param string $table Database table to update row in
-   * @param int $nr Number of rows to collect. NULL=>inifinity. DEFAULT=1.
-   * @return mixed Array with values from Db row or 2d-array with multiple rows
-or false on failure.
-   *
-   */
-  public function last($table, $nr=1)
-  {
-    return Db::findBy($table, null, null, $nr, 1);
-  }
 
-  /**
-   * main function used to get rows from Db table.
-   *
-   * @param string $table Database table to update row in
-   * @param string $key Column to select rows by
-   * @param string $value Value to select rows by
-   * @param int $nr Number of rows to collect. NULL=>inifinity. Default=NULL.
-   * @param int $rev rev=1 indicates order should be reversed. Default=NULL.
-   * @return mixed Array with values from Db row or 2d-array with multiple rows
-   *
-   */
-  public function findBy($table, $key, $value, $nr=null, $rev=null)
-  {
-    return $this->findByMultiple($table, array($key=>$value), $nr, $rev);
-  }
+    /**
+     * function to disconnect from database
+     *
+     * @return boolean True on success, otherwise false.
+     *
+     */
+    public function disconnect()
+    {
+        $this->dbh=NULL;
+    }
 
-  /**
-   * Function to do a custom query on database connection
-   *
-   * @param string $query Database query
-   * @return mixed
-   *
-   */
-  public function customQuery($query)
-  {
-    return $this->query($query, true);
-  }
+    /**
+     * function to check if database is connected
+     *
+     * @return boolean True if connected, otherwise false.
+     *
+     */
+    public function isConnected()
+    {
+        if ($this->dbh!=NULL) return True;
+        else return False;
+    }
+
+    /**
+     * function to update row in database by a where condition
+     *
+     * @param string $table Database table to update row in
+     * @param int $id Id on row to update
+     * @param array $values Array with key=>values to update
+     * @return boolean True on success, otherwise false.
+     *
+     */
+    public function updateBy($table, $k, $v, $values)
+    {
+        if (!ctype_alnum($v) && !filter_var($v, FILTER_VALIDATE_URL)) {
+            $this->myLog->log(LOG_WARNING, "updateBy: attempted to use an invalid value: " . $v);
+            return false;
+        }
+        $query = "";
+
+        foreach ($values as $key=>$value) {
+            if ($key != 'server' && !(ctype_alnum($value) || is_null($value))) {
+                $this->myLog->log(LOG_WARNING, "updateBy: attempted to write non-alphanumeric to the database: " . $table . "." . $key . " <= " . $value);
+                return false;
+            }
+            elseif ($key == 'server' && !filter_var($value, FILTER_VALIDATE_URL))
+            {
+                $this->myLog->log(LOG_WARNING, "updateBy: attempted to write invalid URL to the database: " . $table . "." . $key . " <= " . $value);
+                return false;
+            }
+            if (!is_null($value)) $query .= ' ' . $key . "='" . $value . "',";
+            else $query .= ' ' . $key . '=NULL,';
+        }
+        if (! $query) {
+            $this->myLog->log(LOG_DEBUG, "no values to set in query. Not updating DB");
+            return true;
+        }
+
+        $query = rtrim($query, ",") . " WHERE " . $k . " = '" . $v . "'";
+        // Insert UPDATE statement at beginning
+        $query = "UPDATE " . $table . " SET " . $query;
+
+        return $this->query($query, false);
+    }
+
+    /**
+     * function to update row in database
+     *
+     * @param string $table Database table to update row in
+     * @param int $id Id on row to update
+     * @param array $values Array with key=>values to update
+     * @return boolean True on success, otherwise false.
+     *
+     */
+    public function update($table, $id, $values)
+    {
+        return $this->updateBy($table, 'id', $id, $values);
+    }
+
+    /**
+     * function to update row in database based on a condition
+     *
+     * @param string $table Database table to update row in
+     * @param string $k Column to select row on
+     * @param string $v Value to select row on
+     * @param array $values Array with key=>values to update
+     * @param string $condition conditional statement
+     * @return boolean True on success, otherwise false.
+     *
+     */
+    public function conditionalUpdateBy($table, $k, $v, $values, $condition)
+    {
+        if (!ctype_alnum($v) || preg_match('/^[a-zA-Z0-9><=()_ ]*$/', $condition) == 0)
+        {
+            $this->myLog->log(LOG_WARNING, "conditionalUpdateBy: attempted to use non-alphanumeric value: " . $v . " - " . $condition);
+            return false;
+        }
+        $query = ""; /* quiet the PHP Notice */
+
+        foreach ($values as $key=>$value){
+            if ($key != 'server' && !is_int($value) && !ctype_alnum($value)) {
+                $this->myLog->log(LOG_WARNING, "conditionalUpdateBy: attempted to write non-alphanumeric to the database: " . $value);
+                return false;
+            }
+            elseif ($key == 'server' && !filter_var($value, FILTER_VALIDATE_URL))
+            {
+                $this->myLog->log(LOG_WARNING, "conditionalUpdateBy: attempted to write invalid URL to the database: " . $value);
+                return false;
+            }
+            $query = $query . " " . $key . "='" . $value . "',";
+        }
+        if (! $query) {
+            $this->myLog->log(LOG_DEBUG, "no values to set in query. Not updating DB");
+            return true;
+        }
+
+        $query = rtrim($query, ",") . " WHERE " . $k . " = '" . $v . "' and " . $condition;
+        // Insert UPDATE statement at beginning
+        $query = "UPDATE " . $table . " SET " . $query;
+
+        return $this->query($query, false);
+    }
+
+    /**
+     * Function to update row in database based on a condition.
+     * An ID value is passed to select the appropriate column
+     *
+     * @param string $table Database table to update row in
+     * @param int $id Id on row to update
+     * @param array $values Array with key=>values to update
+     * @param string $condition conditional statement
+     * @return boolean True on success, otherwise false.
+     *
+     */
+    public function conditionalUpdate($table, $id, $values, $condition)
+    {
+        return $this->conditionalUpdateBy($table, 'id', $id, $values, $condition);
+    }
+
+    /**
+     * function to insert new row in database
+     *
+     * @param string $table Database table to update row in
+     * @param array $values Array with key=>values to update
+     * @return boolean True on success, otherwise false.
+     *
+     */
+    public function save($table, $values)
+    {
+        $query= 'INSERT INTO ' . $table . " (";
+        foreach ($values as $key=>$value){
+            if ($key == 'server') {
+                $v = filter_var($value, FILTER_VALIDATE_URL);
+                if (!$v) {
+                    $this->myLog->log(LOG_WARNING, "save: bad server URL provided: " . $value);
+                    return false;
+                }
+                $value = $v;
+            } else if ($key == 'info') {
+                if (preg_match('/[a-zA-Z0-9&_=,]+/', $value) == 0) {
+                    $this->myLog->log(LOG_WARNING, "save: bad info string provided: " . $value);
+                    return false;
+                }
+            } else {
+                if ($value != '' && !is_int($value) && !ctype_alnum($value)) {
+                    $this->myLog->log(LOG_WARNING, "save: attempted to write non-alphanumeric to the database: " . $value);
+                    return false;
+                }
+            }
+            if (!is_null($value)) $query = $query . $key . ",";
+        }
+        $query = rtrim($query, ",") . ') VALUES (';
+        foreach ($values as $key=>$value){
+            if (!is_null($value)) $query = $query . "'" . $value . "',";
+        }
+        $query = rtrim($query, ",");
+        $query = $query . ")";
+        return $this->query($query, false);
+    }
+    /**
+     * helper function to collect last row[s] in database
+     *
+     * @param string $table Database table to update row in
+     * @param int $nr Number of rows to collect. NULL=>inifinity. DEFAULT=1.
+     * @return mixed Array with values from Db row or 2d-array with multiple rows
+     or false on failure.
+     *
+     */
+    public function last($table, $nr=1)
+    {
+        return Db::findBy($table, null, null, $nr, 1);
+    }
+
+    /**
+     * main function used to get rows from Db table.
+     *
+     * @param string $table Database table to update row in
+     * @param string $key Column to select rows by
+     * @param string $value Value to select rows by
+     * @param int $nr Number of rows to collect. NULL=>inifinity. Default=NULL.
+     * @param int $rev rev=1 indicates order should be reversed. Default=NULL.
+     * @return mixed Array with values from Db row or 2d-array with multiple rows
+     *
+     */
+    public function findBy($table, $key, $value, $nr=null, $rev=null)
+    {
+        return $this->findByMultiple($table, array($key=>$value), $nr, $rev);
+    }
+
+    /**
+     * Function to do a custom query on database connection
+     *
+     * @param string $query Database query
+     * @return mixed
+     *
+     */
+    public function customQuery($query)
+    {
+        return $this->query($query, true);
+    }
 }
