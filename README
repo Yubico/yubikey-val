@@ -1,5 +1,7 @@
 == YubiKey OTP Validation Server ==
 
+NOTE: Yubico has declared end-of-life of YK-VAL and has moved it to YubicoLabs as a reference architecture at https://github.com/YubicoLabs/yubikey-val.
+
 The YubiKey Validation Server (YK-VAL) is a server that validates
 Yubikey One-Time Passwords (OTPs).  YK-VAL is written in PHP, for use
 behind web servers such as Apache.
